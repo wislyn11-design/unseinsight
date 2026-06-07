@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>운세인사이트 - 프리미엄 사주 매칭 & AI 카운셀링 플랫폼</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Noto Serif KR & Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Noto+Serif+KR:wght@300;400;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        sajuBg: '#FAF8F8',         /* Soft Warm Light Gray/Beige */
+                        sajuCard: '#FFFFFF',       /* Pure White for crisp panels */
+                        sajuAccent: '#720621',     /* Premium Deep Burgundy Point */
+                        sajuAccentLight: '#FDF0F2',/* Soft Rose Blush Tint */
+                        sajuGold: '#B89B72',       /* Elegant Muted Champagne Gold */
+                        sajuTextDark: '#2A1B1D',   /* Sophisticated Charcoal Warm Gray */
+                        sajuTextGray: '#7E6F71'    /* Soft Muted Taupe Gray */
+                    },
+                    fontFamily: {
+                        serifKR: ['Noto Serif KR', 'serif'],
+                        montserrat: ['Montserrat', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Montserrat', 'Noto Serif KR', sans-serif;
+            background-color: #FAF8F8;
+            color: #2A1B1D;
+        }
+        /* Custom Scrollbar for Light Burgundy */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF8F8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D5BDBF;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #720621;
+        }
+        .burgundy-shadow {
+            box-shadow: 0 8px 30px rgba(114, 6, 33, 0.04);
+        }
+        .burgundy-shadow-intense {
+            box-shadow: 0 10px 40px rgba(114, 6, 33, 0.08);
+        }
+        .gold-border-gradient {
+            border-image: linear-gradient(to right, #720621, #FAF8F8) 1;
+        }
+    </style>
+</head>
+<body class="min-h-screen overflow-x-hidden flex flex-col md:flex-row">
+
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="w-full md:w-80 bg-sajuCard border-r border-rose-100 flex flex-col justify-between p-6 z-20 md:h-screen sticky top-0 shadow-sm">
+        <div>
+            <!-- LOGO (클릭 시 메인 탭으로 이동하도록 수정) -->
+            <div onclick="switchTab('ai-chat')" class="flex items-center gap-3 mb-10 mt-2 cursor-pointer hover:opacity-80 active:scale-95 transition-all" title="메인 화면으로 이동">
+                <div class="w-10 h-10 rounded-full border border-sajuAccent/20 flex items-center justify-center bg-sajuAccentLight">
+                    <svg viewBox="0 0 100 100" class="w-6 h-6 fill-none">
+                        <circle cx="50" cy="50" r="40" stroke="#720621" stroke-width="3" />
+                        <line x1="50" y1="10" x2="50" y2="90" stroke="#B89B72" stroke-width="1.5" opacity="0.8" />
+                        <line x1="10" y1="50" x2="90" y2="50" stroke="#B89B72" stroke-width="1.5" opacity="0.8" />
+                        <circle cx="50" cy="50" r="10" fill="#720621" />
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="font-serifKR font-bold text-lg tracking-widest text-sajuAccent">운세인사이트</h1>
+                    <span class="text-[10px] tracking-widest text-sajuTextGray font-semibold block -mt-1">UNSE INSIGHT</span>
+                </div>
+            </div>
+
+            <!-- NAV MENU -->
+            <nav class="space-y-1.5">
+                <button onclick="switchTab('ai-chat')" id="nav-ai-chat" class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-sajuAccent text-white burgundy-shadow font-medium transition-all">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-lg text-white"></i>
+                        <span class="text-sm font-serifKR font-bold">AI 사주 챗봇</span>
+                    </div>
+                    <span class="nav-dot w-2 h-2 rounded-full bg-white animate-pulse"></span>
+                </button>
+                
+                <button onclick="switchTab('matching')" id="nav-matching" class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent font-medium transition-all">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-users-viewfinder text-lg"></i>
+                        <span class="text-sm font-serifKR">맞춤 마스터 매칭</span>
+                    </div>
+                    <span class="nav-dot w-2 h-2 rounded-full bg-transparent"></span>
+                </button>
+
+                <button onclick="switchTab('customer-booking')" id="nav-customer-booking" class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent font-medium transition-all">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-calendar-days text-lg"></i>
+                        <span class="text-sm font-serifKR">고객 예약신청</span>
+                    </div>
+                    <span class="nav-dot w-2 h-2 rounded-full bg-transparent"></span>
+                </button>
+
+                <button onclick="switchTab('master-dashboard')" id="nav-master-dashboard" class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent font-medium transition-all">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-chess-queen text-lg"></i>
+                        <span class="text-sm font-serifKR">마스터 대시보드</span>
+                    </div>
+                    <span id="badge-pending-count" class="bg-sajuAccent text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">2</span>
+                </button>
+
+                <button onclick="switchTab('consulting')" id="nav-consulting" class="w-full flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent font-medium transition-all">
+                    <div class="flex items-center gap-3.5">
+                        <i class="fa-solid fa-headset text-lg"></i>
+                        <span class="text-sm font-serifKR">실시간 상담실</span>
+                    </div>
+                    <span class="nav-dot w-2 h-2 rounded-full bg-transparent"></span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- USER PROFILE FOOTER -->
+        <div class="border-t border-rose-100 pt-6 mt-10">
+            <div class="flex items-center justify-between bg-sajuAccentLight/40 p-3.5 rounded-2xl border border-rose-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-sajuAccent/10 border border-sajuAccent/20 flex items-center justify-center">
+                        <i class="fa-solid fa-user text-sajuAccent"></i>
+                    </div>
+                    <div>
+                        <p class="text-[10px] text-sajuTextGray font-bold">반가운 손님</p>
+                        <p class="text-sm font-bold font-serifKR text-sajuAccent" id="profile-display-name">홍길동 님</p>
+                    </div>
+                </div>
+                <button class="text-sajuTextGray hover:text-sajuAccent transition-colors p-1.5">
+                    <i class="fa-solid fa-gear"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN APP CONTAINER -->
+    <main class="flex-grow min-h-screen relative overflow-hidden p-4 md:p-8 flex flex-col">
+        <!-- BACKGROUND GRACE (Very subtle soft pink-beige bokeh lights for layout depth) -->
+        <div class="absolute inset-0 z-0 pointer-events-none opacity-40">
+            <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-sajuAccentLight rounded-full filter blur-[150px]"></div>
+            <div class="absolute bottom-1/3 right-10 w-80 h-80 bg-rose-100 rounded-full filter blur-[120px]"></div>
+        </div>
+
+        <!-- VIEW SECTION CONTAINER -->
+        <div class="z-10 flex-grow flex flex-col h-full">
+
+            <!-- TAB 1: AI CHAT & SAJU INPUT -->
+            <section id="tab-ai-chat" class="tab-content flex-grow flex flex-col lg:flex-row gap-6">
+                <!-- SAJU INPUT PANEL (LEFT) -->
+                <div class="w-full lg:w-[420px] bg-sajuCard border border-rose-100 rounded-3xl p-6 flex flex-col justify-between burgundy-shadow">
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="p-2.5 bg-sajuAccentLight text-sajuAccent rounded-2xl"><i class="fa-solid fa-id-card"></i></span>
+                            <div>
+                                <h3 class="font-serifKR font-bold text-lg text-sajuAccent">명리 사주 정보 입력</h3>
+                                <p class="text-xs text-sajuTextGray">입력하신 데이터를 기반으로 운세를 분석합니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- INPUT FORM -->
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">이름</label>
+                                <input type="text" id="saju-name" value="홍길동" class="w-full bg-sajuBg border border-rose-100 focus:border-sajuAccent focus:bg-white outline-none rounded-xl px-4 py-3 text-sm transition-all text-sajuTextDark font-semibold">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">생년월일</label>
+                                    <input type="date" id="saju-birthdate" value="1995-10-24" class="w-full bg-sajuBg border border-rose-100 focus:border-sajuAccent focus:bg-white outline-none rounded-xl px-3 py-3 text-sm transition-all text-sajuTextDark font-semibold">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">태어난 시간</label>
+                                    <select id="saju-time" class="w-full bg-sajuBg border border-rose-100 focus:border-sajuAccent focus:bg-white outline-none rounded-xl px-3 py-3 text-sm transition-all text-sajuTextDark font-semibold">
+                                        <option value="none">모름</option>
+                                        <option value="子시 (23:30 ~ 01:29)">子시 (23:30 ~ 01:29)</option>
+                                        <option value="丑시 (01:30 ~ 03:29)">丑시 (01:30 ~ 03:29)</option>
+                                        <option value="寅시 (03:30 ~ 05:29)">寅시 (03:30 ~ 05:29)</option>
+                                        <option value="卯시 (05:30 ~ 07:29)">卯시 (05:30 ~ 07:29)</option>
+                                        <option value="辰시 (07:30 ~ 09:29)" selected>辰시 (07:30 ~ 09:29)</option>
+                                        <option value="巳시 (09:30 ~ 11:29)">巳시 (09:30 ~ 11:29)</option>
+                                        <option value="午시 (11:30 ~ 13:29)">午시 (11:30 ~ 13:29)</option>
+                                        <option value="未시 (13:30 ~ 15:29)">未시 (13:30 ~ 15:29)</option>
+                                        <option value="申시 (15:30 ~ 17:29)">申시 (15:30 ~ 17:29)</option>
+                                        <option value="酉시 (17:30 ~ 19:29)">酉시 (17:30 ~ 19:29)</option>
+                                        <option value="戌시 (19:30 ~ 21:29)">戌시 (19:30 ~ 21:29)</option>
+                                        <option value="亥시 (21:30 ~ 23:29)">亥시 (21:30 ~ 23:29)</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">음양 설정</label>
+                                    <div class="flex bg-sajuBg rounded-xl p-1 border border-rose-100">
+                                        <button onclick="setCalendarType('solar')" id="btn-solar" class="flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm">양력</button>
+                                        <button onclick="setCalendarType('lunar')" id="btn-lunar" class="flex-1 text-center py-2 text-xs text-sajuTextGray font-semibold hover:text-sajuAccent rounded-lg transition-all">음력</button>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">성별</label>
+                                    <div class="flex bg-sajuBg rounded-xl p-1 border border-rose-100">
+                                        <button onclick="setGender('male')" id="btn-male" class="flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm">남성</button>
+                                        <button onclick="setGender('female')" id="btn-female" class="flex-1 text-center py-2 text-xs text-sajuTextGray font-semibold hover:text-sajuAccent rounded-lg transition-all">여성</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT DATA TO AI -->
+                    <div class="mt-6">
+                        <button onclick="submitSajuToAI()" class="w-full bg-sajuAccent hover:bg-[#5C0318] text-white font-bold py-3.5 px-4 rounded-xl text-sm font-serifKR transition-all flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-yin-yang animate-spin text-sajuGold"></i>
+                            <span>사주 정보 업데이트 & AI 분석 시작</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- AI CHAT WINDOW (RIGHT) -->
+                <div class="flex-grow bg-sajuCard border border-rose-100 rounded-3xl flex flex-col justify-between overflow-hidden burgundy-shadow h-[600px] lg:h-auto">
+                    <!-- CHAT HEADER -->
+                    <div class="p-5 border-b border-rose-100 bg-sajuBg/50 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-sajuAccentLight flex items-center justify-center border border-rose-200 relative">
+                                <i class="fa-solid fa-brain text-sajuAccent text-sm"></i>
+                                <span class="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-500 border-2 border-sajuCard"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-serifKR font-bold text-sm text-sajuAccent">인사이트 AI 챗봇</h4>
+                                <p class="text-[10px] text-green-600 font-bold flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 inline-block animate-ping"></span> 실시간 명리 알고리즘 대기 중
+                                </p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 text-[10px] border border-sajuAccent/20 text-sajuAccent font-bold bg-sajuAccentLight rounded-full font-serifKR">오행분석기 v1.4</span>
+                    </div>
+
+                    <!-- CHAT MESSAGES CONTAINER -->
+                    <div id="ai-chat-messages" class="flex-grow p-6 overflow-y-auto space-y-4 text-sm bg-sajuBg/10">
+                        <!-- AI Greeting -->
+                        <div class="flex items-start gap-3">
+                            <div class="w-8 h-8 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-xs font-bold text-sajuAccent flex-shrink-0">
+                                AI
+                            </div>
+                            <div class="bg-sajuCard border border-rose-100 text-sajuTextDark px-4 py-3 rounded-2xl rounded-tl-none max-w-[80%] leading-relaxed burgundy-shadow">
+                                안녕하세요! <strong class="text-sajuAccent">운세인사이트</strong> 명리 전문 AI 챗봇입니다. 🔮<br>
+                                왼쪽 패널에 본인의 이름과 사주 정보(생년월일시)를 입력하신 뒤 하단 버튼을 클릭하시면, 고객님의 일간과 오행을 즉시 정밀 분석하여 맞춤형 사주 리포트를 제공해 드립니다.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHAT INPUT AREA -->
+                    <div class="p-4 border-t border-rose-100 bg-sajuBg/50">
+                        <div class="relative flex items-center">
+                            <input type="text" id="ai-chat-input" onkeypress="handleChatKey(event)" placeholder="나의 일간은 어떤 오행을 상징하나요? 사주 질문하기..." class="w-full bg-sajuCard border border-rose-100 focus:border-sajuAccent focus:ring-1 focus:ring-sajuAccent/20 outline-none rounded-2xl pl-4 pr-16 py-3.5 text-sm transition-all text-sajuTextDark font-medium shadow-inner">
+                            <button onclick="sendChatMessage()" class="absolute right-2 bg-sajuAccent hover:bg-[#5C0318] text-white w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-sm">
+                                <i class="fa-solid fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 2: MASTER MATCHING SYSTEM -->
+            <section id="tab-matching" class="tab-content hidden flex-grow flex flex-col gap-6">
+                <!-- TOP HEADER & FILTERS -->
+                <div class="bg-sajuCard border border-rose-100 rounded-3xl p-6 flex flex-col md:flex-row justify-between items-center gap-4 burgundy-shadow">
+                    <div>
+                        <h2 class="font-serifKR font-bold text-xl text-sajuAccent">검증된 일류 역학 마스터 매칭</h2>
+                        <p class="text-xs text-sajuTextGray font-medium">나의 고민에 가장 부합하는 오행 사주 전문 마스터를 매칭해 드립니다.</p>
+                    </div>
+                    <!-- Specialty Tags Filters -->
+                    <div class="flex flex-wrap gap-2">
+                        <button class="bg-sajuAccent text-white text-xs font-bold px-4 py-2.5 rounded-full transition-all shadow-sm">전체</button>
+                        <button class="bg-sajuCard hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent border border-rose-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all">💸 재물/직업</button>
+                        <button class="bg-sajuCard hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent border border-rose-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all">❤️ 연애/궁합</button>
+                        <button class="bg-sajuCard hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent border border-rose-100 text-xs font-bold px-4 py-2.5 rounded-full transition-all">🎓 진로/건강</button>
+                    </div>
+                </div>
+
+                <!-- MASTERS CARD LIST -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Master Card 1 -->
+                    <div class="bg-sajuCard border border-rose-100 rounded-3xl p-5 hover:border-sajuAccent/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between burgundy-shadow group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>상담 가능
+                                </span>
+                                <span class="text-sajuAccent text-xs font-bold"><i class="fa-solid fa-star text-sajuGold mr-1"></i>4.9</span>
+                            </div>
+                            <div class="flex items-center gap-4 mb-4">
+                                <img src="https://placehold.co/100x100/720621/ffffff?text=Hyean" alt="혜안 마스터" class="w-16 h-16 rounded-2xl object-cover border border-rose-100">
+                                <div>
+                                    <h4 class="font-serifKR font-bold text-base text-sajuAccent">혜안 선사</h4>
+                                    <p class="text-xs text-sajuTextGray font-semibold">명리학 한학 25년 외길, 정통 격국론의 대가</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-sajuTextDark font-medium leading-relaxed mb-4">
+                                어둠 속에 가려진 길을 오행의 완벽한 상생상극 이치로 명철하게 밝혀 드립니다. 특히 인생의 커다란 기로인 대운 흐름 진단이 전문입니다.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 mb-6">
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#재물/운세</span>
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#정통명리</span>
+                            </div>
+                        </div>
+                        <button onclick="openBookingFlow('혜안 선사', 'https://placehold.co/100x100/720621/ffffff?text=Hyean')" class="w-full bg-sajuBg group-hover:bg-sajuAccent group-hover:text-white text-sajuAccent border border-sajuAccent/20 font-serifKR font-bold py-3 rounded-xl text-sm transition-all shadow-sm">
+                            상담 신청 & 예약하기
+                        </button>
+                    </div>
+
+                    <!-- Master Card 2 -->
+                    <div class="bg-sajuCard border border-rose-100 rounded-3xl p-5 hover:border-sajuAccent/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between burgundy-shadow group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-green-50 text-green-600 text-[10px] font-bold px-2.5 py-1 rounded-full border border-green-200 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>상담 가능
+                                </span>
+                                <span class="text-sajuAccent text-xs font-bold"><i class="fa-solid fa-star text-sajuGold mr-1"></i>4.8</span>
+                            </div>
+                            <div class="flex items-center gap-4 mb-4">
+                                <img src="https://placehold.co/100x100/720621/ffffff?text=Yeonju" alt="연주 마스터" class="w-16 h-16 rounded-2xl object-cover border border-rose-100">
+                                <div>
+                                    <h4 class="font-serifKR font-bold text-base text-sajuAccent">연주 마스터</h4>
+                                    <p class="text-xs text-sajuTextGray font-semibold">연애·결혼 운세 및 궁합 분석 1인자</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-sajuTextDark font-medium leading-relaxed mb-4">
+                                상대방과의 궁합 속 조화를 이루는 오행 조합을 정밀 매칭 분석하여, 다툼을 방지하고 사랑의 결실을 맺을 수 있는 솔루션을 건넵니다.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 mb-6">
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#연애/궁합</span>
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#심리상담</span>
+                            </div>
+                        </div>
+                        <button onclick="openBookingFlow('연주 마스터', 'https://placehold.co/100x100/720621/ffffff?text=Yeonju')" class="w-full bg-sajuBg group-hover:bg-sajuAccent group-hover:text-white text-sajuAccent border border-sajuAccent/20 font-serifKR font-bold py-3 rounded-xl text-sm transition-all shadow-sm">
+                            상담 신청 & 예약하기
+                        </button>
+                    </div>
+
+                    <!-- Master Card 3 -->
+                    <div class="bg-sajuCard border border-rose-100 rounded-3xl p-5 hover:border-sajuAccent/40 hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between burgundy-shadow group">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="bg-rose-50 text-sajuAccent text-[10px] font-bold px-2.5 py-1 rounded-full border border-rose-100 flex items-center gap-1">
+                                    <span class="w-1.5 h-1.5 bg-sajuAccent rounded-full"></span>상담중
+                                </span>
+                                <span class="text-sajuAccent text-xs font-bold"><i class="fa-solid fa-star text-sajuGold mr-1"></i>5.0</span>
+                            </div>
+                            <div class="flex items-center gap-4 mb-4">
+                                <img src="https://placehold.co/100x100/720621/ffffff?text=Baeksan" alt="백산 마스터" class="w-16 h-16 rounded-2xl object-cover border border-rose-100">
+                                <div>
+                                    <h4 class="font-serifKR font-bold text-base text-sajuAccent">백산 도인</h4>
+                                    <p class="text-xs text-sajuTextGray font-semibold">기업 CEO 전문 비즈니스 사주 자문</p>
+                                </div>
+                            </div>
+                            <p class="text-xs text-sajuTextDark font-medium leading-relaxed mb-4">
+                                회사의 창업 시기, 동업자와의 오행 조합, 사업운의 성패 등 큰 자본의 흐름이 결정되는 중요한 의사결정의 명쾌한 해답을 건넵니다.
+                            </p>
+                            <div class="flex flex-wrap gap-1.5 mb-6">
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#CEO사주</span>
+                                <span class="text-[10px] bg-sajuBg text-sajuTextGray font-bold px-2.5 py-1 rounded-md border border-rose-100">#커리어운</span>
+                            </div>
+                        </div>
+                        <button onclick="openBookingFlow('백산 도인', 'https://placehold.co/100x100/720621/ffffff?text=Baeksan')" class="w-full bg-sajuBg group-hover:bg-sajuAccent group-hover:text-white text-sajuAccent border border-sajuAccent/20 font-serifKR font-bold py-3 rounded-xl text-sm transition-all shadow-sm">
+                            상담 신청 & 예약하기
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 3: CUSTOMER BOOKING FLOW -->
+            <section id="tab-customer-booking" class="tab-content hidden flex-grow flex flex-col lg:flex-row gap-6">
+                <!-- BOOKING STEP FORM (LEFT) -->
+                <div class="w-full lg:w-[450px] bg-sajuCard border border-rose-100 rounded-3xl p-6 flex flex-col justify-between burgundy-shadow">
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="p-2.5 bg-sajuAccentLight text-sajuAccent rounded-2xl"><i class="fa-solid fa-calendar-plus"></i></span>
+                            <div>
+                                <h3 class="font-serifKR font-bold text-lg text-sajuAccent">사주 카운셀링 예약</h3>
+                                <p class="text-xs text-sajuTextGray font-medium">선택한 마스터에게 상담 예약을 신청합니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- RESERVATION INPUTS -->
+                        <div class="space-y-4">
+                            <!-- Selected Master (Visual Display Only) -->
+                            <div class="bg-sajuBg p-4 rounded-2xl border border-rose-100 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img id="selected-master-img" src="https://placehold.co/100x100/720621/ffffff?text=Hyean" class="w-10 h-10 rounded-xl object-cover">
+                                    <div>
+                                        <p class="text-[10px] text-sajuTextGray font-bold">지정 상담사</p>
+                                        <p id="selected-master-name" class="text-sm font-bold font-serifKR text-sajuAccent">혜안 선사</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-bold text-sajuAccent bg-sajuAccentLight border border-sajuAccent/20 px-2.5 py-1 rounded-lg">선택 완료</span>
+                            </div>
+
+                            <!-- Counseling Method selection -->
+                            <div>
+                                <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">희망 상담 방식</label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <button onclick="setBookingMethod('video')" id="method-video" class="flex flex-col items-center gap-1.5 py-3 border border-sajuAccent text-sajuAccent rounded-xl bg-sajuAccentLight transition-all">
+                                        <i class="fa-solid fa-video text-base"></i><span class="text-xs font-serifKR font-bold">화상상담</span>
+                                    </button>
+                                    <button onclick="setBookingMethod('phone')" id="method-phone" class="flex flex-col items-center gap-1.5 py-3 border border-rose-100 text-sajuTextGray rounded-xl bg-sajuBg hover:border-sajuAccent/30 hover:bg-sajuAccentLight transition-all">
+                                        <i class="fa-solid fa-phone text-base"></i><span class="text-xs font-serifKR font-bold">전화상담</span>
+                                    </button>
+                                    <button onclick="setBookingMethod('chat')" id="method-chat" class="flex flex-col items-center gap-1.5 py-3 border border-rose-100 text-sajuTextGray rounded-xl bg-sajuBg hover:border-sajuAccent/30 hover:bg-sajuAccentLight transition-all">
+                                        <i class="fa-solid fa-comments text-base"></i><span class="text-xs font-serifKR font-bold">1:1채팅</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Time and Date Selection -->
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">상담 희망일</label>
+                                    <input type="date" id="booking-date" value="2026-06-15" class="w-full bg-sajuBg border border-rose-100 focus:border-sajuAccent focus:bg-white outline-none rounded-xl px-4 py-3 text-sm font-semibold transition-all text-sajuTextDark">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-serifKR font-bold text-sajuTextDark mb-1.5">상담 희망시간</label>
+                                    <select id="booking-time" class="w-full bg-sajuBg border border-rose-100 focus:border-sajuAccent focus:bg-white outline-none rounded-xl px-4 py-3 text-sm font-semibold transition-all text-sajuTextDark">
+                                        <option value="14:00">14:00 - 14:50</option>
+                                        <option value="15:00">15:00 - 15:50</option>
+                                        <option value="16:00">16:00 - 16:50</option>
+                                        <option value="19:00">19:00 - 19:50</option>
+                                        <option value="20:00">20:00 - 20:50</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- REQUEST BOOKING BUTTON -->
+                    <div class="mt-6">
+                        <button onclick="requestBooking()" class="w-full bg-sajuAccent hover:bg-[#5C0318] text-white font-bold py-3.5 px-4 rounded-xl text-sm font-serifKR transition-all flex items-center justify-center gap-2 shadow-md">
+                            <i class="fa-solid fa-calendar-check text-white"></i>
+                            <span>마스터에게 예약 신청 전송</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- BOOKING HISTORY (RIGHT) -->
+                <div class="flex-grow bg-sajuCard border border-rose-100 rounded-3xl p-6 flex flex-col justify-between burgundy-shadow">
+                    <div>
+                        <div class="flex items-center gap-3 mb-6">
+                            <span class="p-2.5 bg-sajuAccentLight text-sajuAccent rounded-2xl"><i class="fa-solid fa-clock-rotate-left"></i></span>
+                            <div>
+                                <h3 class="font-serifKR font-bold text-lg text-sajuAccent">고객 예약 내역</h3>
+                                <p class="text-xs text-sajuTextGray font-medium">본인이 신청한 상담 예약의 실시간 처리 현황입니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- BOOKING LIST -->
+                        <div class="space-y-4" id="customer-booking-list">
+                            <!-- Dynamic Bookings list will appear here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 4: MASTER/COUNSELOR DASHBOARD -->
+            <section id="tab-master-dashboard" class="tab-content hidden flex-grow flex flex-col xl:flex-row gap-6">
+                <!-- PREVIEW APPROVAL SYSTEM (LEFT) -->
+                <div class="w-full xl:w-[480px] flex flex-col gap-6">
+                    <!-- REQUEST APPROVAL MODULE -->
+                    <div class="bg-sajuCard border border-rose-100 rounded-3xl p-6 burgundy-shadow flex-grow">
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="p-2.5 bg-sajuAccentLight text-sajuAccent rounded-2xl"><i class="fa-solid fa-envelope-open-text"></i></span>
+                                <div>
+                                    <h3 class="font-serifKR font-bold text-base text-sajuAccent">예약 신청 승인 대기</h3>
+                                    <p class="text-xs text-sajuTextGray font-medium">고객들이 신청한 예약을 수락 또는 거절할 수 있습니다.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- APPROVAL REQUEST CARDS -->
+                        <div class="space-y-4" id="master-approval-list">
+                            <!-- Dynamic Pending Requests will load here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SCHEDULER CALENDAR PREVIEW (RIGHT) -->
+                <div class="flex-grow bg-sajuCard border border-rose-100 rounded-3xl p-6 burgundy-shadow flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-6">
+                            <div class="flex items-center gap-3">
+                                <span class="p-2.5 bg-sajuAccentLight text-sajuAccent rounded-2xl"><i class="fa-solid fa-calendar-days"></i></span>
+                                <div>
+                                    <h3 class="font-serifKR font-bold text-lg text-sajuAccent">마스터 주간 스케줄러</h3>
+                                    <p class="text-xs text-sajuTextGray font-medium">승인 완료된 정식 예약 일정들이 달력에 실시간 기록됩니다.</p>
+                                </div>
+                            </div>
+                            <span class="text-xs font-serifKR font-bold text-sajuAccent bg-sajuAccentLight px-3 py-1 rounded-full border border-rose-100">6월 (June)</span>
+                        </div>
+
+                        <!-- CALENDAR GRID -->
+                        <div class="grid grid-cols-7 gap-2 text-center text-xs mb-2">
+                            <div class="text-red-500 font-bold py-1">일</div>
+                            <div class="text-sajuTextDark font-bold py-1">월</div>
+                            <div class="text-sajuTextDark font-bold py-1">화</div>
+                            <div class="text-sajuTextDark font-bold py-1">수</div>
+                            <div class="text-sajuTextDark font-bold py-1">목</div>
+                            <div class="text-sajuTextDark font-bold py-1">금</div>
+                            <div class="text-blue-500 font-bold py-1">토</div>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2 h-72" id="calendar-grid">
+                            <!-- Loaded via Javascript -->
+                        </div>
+                    </div>
+
+                    <!-- REFRESH SYSTEM INFO -->
+                    <div class="mt-4 p-4 rounded-xl bg-sajuBg border border-rose-100 flex items-center justify-between">
+                        <p class="text-xs text-sajuTextGray font-medium"><i class="fa-solid fa-triangle-exclamation text-sajuAccent mr-1"></i> 승인된 일정은 자동으로 실시간 상담실과 실시간으로 연동됩니다.</p>
+                        <button onclick="resetMockData()" class="text-xs text-rose-700 font-bold hover:text-sajuAccent transition-colors">데이터 초기화</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- TAB 5: INTERACTIVE CONSULTING ROOM -->
+            <section id="tab-consulting" class="tab-content hidden flex-grow flex flex-col lg:flex-row gap-6">
+                <!-- MEDIA SCREEN PANEL (LEFT: Video / Voice / Screen UI) -->
+                <div class="flex-grow bg-sajuCard border border-rose-100 rounded-3xl p-6 flex flex-col justify-between overflow-hidden burgundy-shadow h-[450px] lg:h-auto">
+                    <!-- CONSULTATION HEADER -->
+                    <div class="flex items-center justify-between pb-4 border-b border-rose-100">
+                        <div class="flex items-center gap-3">
+                            <div id="c-room-indicator" class="w-3 h-3 rounded-full bg-red-500 animate-pulse"></div>
+                            <div>
+                                <h4 class="font-serifKR font-bold text-sm text-sajuAccent" id="consulting-room-title">실시간 화상 상담실</h4>
+                                <p class="text-xs text-sajuTextGray font-semibold">혜안 마스터 ↔ 홍길동 고객</p>
+                            </div>
+                        </div>
+                        <!-- ACTIVE METHOD BADGE -->
+                        <div id="consulting-method-badge" class="flex gap-1 bg-sajuBg p-1 rounded-xl border border-rose-100">
+                            <button onclick="setConsultingMode('video')" id="c-mode-video" class="px-3 py-1.5 text-xs rounded-lg font-bold bg-sajuAccent text-white transition-all shadow-sm"><i class="fa-solid fa-video mr-1"></i>화상</button>
+                            <button onclick="setConsultingMode('phone')" id="c-mode-phone" class="px-3 py-1.5 text-xs rounded-lg font-bold text-sajuTextGray hover:text-sajuAccent transition-all"><i class="fa-solid fa-phone mr-1"></i>전화</button>
+                            <button onclick="setConsultingMode('chat-only')" id="c-mode-chat" class="px-3 py-1.5 text-xs rounded-lg font-bold text-sajuTextGray hover:text-sajuAccent transition-all"><i class="fa-solid fa-comments mr-1"></i>채팅전용</button>
+                        </div>
+                    </div>
+
+                    <!-- MEDIA PLAYBACK MOCKUP -->
+                    <div class="flex-grow flex items-center justify-center p-4 relative">
+                        <!-- 1. Video Mockup -->
+                        <div id="media-video-container" class="w-full h-full rounded-2xl overflow-hidden relative border border-rose-100 bg-[#120507]">
+                            <img src="https://placehold.co/600x400/1e070d/ffffff?text=Master+Video+Stream" alt="마스터 화면" class="w-full h-full object-cover filter brightness-90">
+                            <div class="absolute bottom-4 left-4 bg-[#120507]/80 border border-sajuAccent/20 px-3 py-1.5 rounded-xl text-xs text-white flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+                                <span class="font-serifKR font-bold">혜안 선사 (마스터)</span>
+                            </div>
+                            <!-- Small PIP window (customer) -->
+                            <div class="absolute top-4 right-4 w-32 h-44 rounded-xl overflow-hidden border border-rose-100 shadow-lg bg-sajuCard">
+                                <div class="w-full h-full bg-sajuBg flex flex-col items-center justify-center text-center p-2">
+                                    <div class="w-10 h-10 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center mb-2">
+                                        <i class="fa-solid fa-user text-sajuAccent text-sm"></i>
+                                    </div>
+                                    <span class="text-[10px] text-sajuTextDark font-serifKR font-bold">나 (홍길동)</span>
+                                    <span class="text-[8px] text-green-600 font-bold mt-1">카메라 작동 중</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 2. Voice (Phone) Mockup -->
+                        <div id="media-phone-container" class="hidden w-full h-full rounded-2xl border border-rose-100 bg-sajuBg flex flex-col items-center justify-center text-center gap-6 p-8">
+                            <div class="w-24 h-24 rounded-full border border-rose-200 bg-sajuAccentLight flex items-center justify-center animate-pulse">
+                                <i class="fa-solid fa-phone text-sajuAccent text-4xl"></i>
+                            </div>
+                            <div>
+                                <h5 class="font-serifKR font-bold text-lg text-sajuAccent">안전 전화 상담 연결 중</h5>
+                                <p class="text-xs text-sajuTextGray font-semibold mt-1">안전 가상 번호로 안전하고 프라이빗한 통화 상담이 열려있습니다.</p>
+                            </div>
+                            <!-- Fake Audio Waves -->
+                            <div class="flex gap-1.5 items-end justify-center h-10">
+                                <span class="w-1.5 h-6 bg-sajuAccent rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+                                <span class="w-1.5 h-10 bg-sajuAccent rounded-full animate-bounce" style="animation-delay: 0.3s"></span>
+                                <span class="w-1.5 h-8 bg-sajuAccent rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+                                <span class="w-1.5 h-5 bg-sajuAccent rounded-full animate-bounce" style="animation-delay: 0.4s"></span>
+                            </div>
+                        </div>
+
+                        <!-- 3. Chat-Only Mockup Background -->
+                        <div id="media-chat-container" class="hidden w-full h-full rounded-2xl border border-rose-100 bg-sajuBg flex flex-col items-center justify-center text-center p-8">
+                            <i class="fa-solid fa-comments text-rose-200 text-5xl mb-4 animate-bounce"></i>
+                            <h5 class="font-serifKR font-bold text-base text-sajuTextDark">채팅 전용 상담 모드</h5>
+                            <p class="text-xs text-sajuTextGray font-semibold mt-1">우측 전용 실시간 일대일 채팅 상담창에서 텍스트 기반 상담을 진행하세요.</p>
+                        </div>
+                    </div>
+
+                    <!-- CONTROL BAR -->
+                    <div class="pt-4 border-t border-rose-100 flex items-center justify-center gap-4">
+                        <button class="w-12 h-12 rounded-full bg-sajuBg hover:bg-rose-100 border border-rose-100 text-sajuTextGray hover:text-sajuAccent flex items-center justify-center transition-all shadow-sm">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                        <button class="w-12 h-12 rounded-full bg-sajuBg hover:bg-rose-100 border border-rose-100 text-sajuTextGray hover:text-sajuAccent flex items-center justify-center transition-all shadow-sm">
+                            <i class="fa-solid fa-video-slash"></i>
+                        </button>
+                        <button onclick="showCustomAlert('상담 세션을 성공적으로 안전하게 종료했습니다.')" class="px-6 h-12 rounded-full bg-sajuAccent hover:bg-[#5C0318] text-white font-serifKR text-sm font-bold flex items-center justify-center gap-2 transition-all shadow-md">
+                            <i class="fa-solid fa-phone-slash"></i>
+                            <span>상담 안전 종료</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONSULTATION CHAT PANEL (RIGHT: Dynamic conversation) -->
+                <div class="w-full lg:w-[420px] bg-sajuCard border border-rose-100 rounded-3xl flex flex-col justify-between overflow-hidden burgundy-shadow h-[450px] lg:h-auto">
+                    <!-- PANEL HEADER -->
+                    <div class="p-4 border-b border-rose-100 bg-sajuBg/50 flex items-center gap-2">
+                        <span class="p-1.5 bg-sajuAccentLight text-sajuAccent rounded-lg text-xs"><i class="fa-solid fa-message"></i></span>
+                        <h4 class="font-serifKR font-bold text-sm text-sajuAccent">1:1 실시간 상담 채팅</h4>
+                    </div>
+
+                    <!-- LIVE CHAT SCREEN -->
+                    <div id="live-chat-messages" class="flex-grow p-4 overflow-y-auto space-y-4 text-xs bg-sajuBg/10">
+                        <div class="flex items-start gap-2">
+                            <div class="w-7 h-7 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-[10px] font-bold text-sajuAccent flex-shrink-0">마스터</div>
+                            <div class="bg-sajuCard border border-rose-100 text-sajuTextDark p-3 rounded-xl rounded-tl-none max-w-[85%] leading-relaxed shadow-sm">
+                                안녕하세요, 반갑습니다 홍길동님. 오늘 전송해주신 을목(乙木) 일간 사주와 대운 흐름을 기반으로 운명 고민을 들어드릴 예정입니다. 어떤 사안이 가장 걱정이신가요?
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CHAT INPUT -->
+                    <div class="p-3 border-t border-rose-100 bg-sajuBg/50">
+                        <div class="relative flex items-center">
+                            <input type="text" id="live-chat-input" onkeypress="handleLiveChatKey(event)" placeholder="마스터에게 질문 전송..." class="w-full bg-sajuCard border border-rose-100 focus:border-sajuAccent focus:ring-1 focus:ring-sajuAccent/20 outline-none rounded-xl pl-3 pr-12 py-2.5 text-xs transition-all text-sajuTextDark font-medium">
+                            <button onclick="sendLiveChatMessage()" class="absolute right-1.5 bg-sajuAccent hover:bg-[#5C0318] text-white w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-sm">
+                                <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- CUSTOM DIALOG ALERT MODAL SYSTEM (REPLACES SYSTEM BROWSER ALERTS) -->
+    <div id="custom-alert-modal" class="fixed inset-0 bg-sajuTextDark/40 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-sajuCard border border-rose-100 p-6 rounded-3xl w-80 text-center burgundy-shadow-intense transform scale-95 transition-transform duration-300">
+            <div class="w-12 h-12 bg-sajuAccentLight text-sajuAccent rounded-full flex items-center justify-center mx-auto mb-4 border border-rose-200">
+                <i class="fa-solid fa-circle-info text-lg animate-pulse"></i>
+            </div>
+            <h4 class="font-serifKR font-bold text-sajuAccent text-base mb-1.5">운세인사이트 알림</h4>
+            <p id="custom-alert-message" class="text-xs text-sajuTextDark font-medium leading-relaxed mb-6"></p>
+            <button onclick="closeCustomAlert()" class="w-full bg-sajuAccent hover:bg-[#5C0318] text-white font-serifKR font-bold py-2.5 rounded-xl text-xs transition-all shadow-md">확인</button>
+        </div>
+    </div>
+
+    <!-- JS LOGIC - SYSTEM CONTROL & SIMULATIONS -->
+    <script>
+        // GLOBAL APP STATES (For Mock System Integration)
+        let sajuInfo = {
+            name: "홍길동",
+            birthdate: "1995-10-24",
+            time: "辰시 (07:30 ~ 09:29)",
+            type: "solar",
+            gender: "male"
+        };
+
+        // Static Master Matching Database
+        let currentSelectedMaster = {
+            name: "혜안 선사",
+            img: "https://placehold.co/100x100/720621/ffffff?text=Hyean"
+        };
+
+        // Initial Reservations Mock Data (Synchronized between Customer and Counselor)
+        let mockBookings = [
+            {
+                id: 1,
+                masterName: "혜안 선사",
+                masterImg: "https://placehold.co/100x100/720621/ffffff?text=Hyean",
+                customerName: "홍길동",
+                method: "video",
+                date: "2026-06-15",
+                time: "14:00",
+                status: "approved" // approved, pending, rejected
+            },
+            {
+                id: 2,
+                masterName: "연주 마스터",
+                masterImg: "https://placehold.co/100x100/720621/ffffff?text=Yeonju",
+                customerName: "김철수",
+                method: "chat",
+                date: "2026-06-18",
+                time: "19:00",
+                status: "pending"
+            },
+            {
+                id: 3,
+                masterName: "혜안 선사",
+                masterImg: "https://placehold.co/100x100/720621/ffffff?text=Hyean",
+                customerName: "이영희",
+                method: "phone",
+                date: "2026-06-20",
+                time: "16:00",
+                status: "pending"
+            }
+        ];
+
+        // CUSTOM MODAL ALERTS FUNCTIONALITY
+        function showCustomAlert(message) {
+            const modal = document.getElementById('custom-alert-modal');
+            const messageEl = document.getElementById('custom-alert-message');
+            messageEl.innerText = message;
+            
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.querySelector('div').classList.remove('scale-95');
+                modal.querySelector('div').classList.add('scale-100');
+            }, 10);
+        }
+
+        function closeCustomAlert() {
+            const modal = document.getElementById('custom-alert-modal');
+            modal.classList.add('opacity-0');
+            modal.querySelector('div').classList.add('scale-95');
+            modal.querySelector('div').classList.remove('scale-100');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // START INITIALIZATION
+        window.onload = function() {
+            renderCustomerBookings();
+            renderMasterApprovals();
+            renderCalendar();
+            updateDashboardBadge();
+        };
+
+        // RESET MOCK DATA
+        function resetMockData() {
+            mockBookings = [
+                {
+                    id: 1,
+                    masterName: "혜안 선사",
+                    masterImg: "https://placehold.co/100x100/720621/ffffff?text=Hyean",
+                    customerName: "홍길동",
+                    method: "video",
+                    date: "2026-06-15",
+                    time: "14:00",
+                    status: "approved"
+                }
+            ];
+            renderCustomerBookings();
+            renderMasterApprovals();
+            renderCalendar();
+            updateDashboardBadge();
+        }
+
+        // TAB SWITCHER
+        function switchTab(tabId) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            // Show target tab
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Reset navigation styles for all buttons
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.className = "w-full flex items-center justify-between px-4 py-3.5 rounded-2xl hover:bg-sajuAccentLight text-sajuTextGray hover:text-sajuAccent font-semibold transition-all";
+                
+                // Restore icon styling (remove white text for inactive buttons)
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('text-white');
+                }
+
+                // Correctly target the specific dot class, resetting active indicators
+                const dot = btn.querySelector('.nav-dot');
+                if (dot) {
+                    dot.className = "nav-dot w-2 h-2 rounded-full bg-transparent";
+                }
+            });
+
+            // Set active nav styling
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if (activeBtn) {
+                activeBtn.className = "w-full flex items-center justify-between px-4 py-3.5 rounded-2xl bg-sajuAccent text-white burgundy-shadow font-semibold transition-all";
+                
+                // Add white text to active icon
+                const icon = activeBtn.querySelector('i');
+                if (icon) {
+                    icon.classList.add('text-white');
+                }
+
+                // Activate specific dot safely without selecting other spans
+                const dot = activeBtn.querySelector('.nav-dot');
+                if (dot) {
+                    dot.className = "nav-dot w-2 h-2 rounded-full bg-white animate-pulse";
+                }
+            }
+        }
+
+        // FORM ACTIONS: GENDER & LUNAR/SOLAR SETTINGS
+        function setCalendarType(type) {
+            sajuInfo.type = type;
+            const solarBtn = document.getElementById('btn-solar');
+            const lunarBtn = document.getElementById('btn-lunar');
+            if (type === 'solar') {
+                solarBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm";
+                lunarBtn.className = "flex-1 text-center py-2 text-xs text-sajuTextGray font-bold hover:text-sajuAccent rounded-lg transition-all";
+            } else {
+                lunarBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm";
+                solarBtn.className = "flex-1 text-center py-2 text-xs text-sajuTextGray font-bold hover:text-sajuAccent rounded-lg transition-all";
+            }
+        }
+
+        function setGender(gender) {
+            sajuInfo.gender = gender;
+            const maleBtn = document.getElementById('btn-male');
+            const femaleBtn = document.getElementById('btn-female');
+            if (gender === 'male') {
+                maleBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm";
+                femaleBtn.className = "flex-1 text-center py-2 text-xs text-sajuTextGray font-bold hover:text-sajuAccent rounded-lg transition-all";
+            } else {
+                femaleBtn.className = "flex-1 text-center py-2 text-xs font-bold rounded-lg bg-sajuAccent text-white transition-all shadow-sm";
+                maleBtn.className = "flex-1 text-center py-2 text-xs text-sajuTextGray font-bold hover:text-sajuAccent rounded-lg transition-all";
+            }
+        }
+
+        // TAB 1: AI CHATBOT SIMULATOR LOGIC
+        function submitSajuToAI() {
+            // Update local object
+            sajuInfo.name = document.getElementById('saju-name').value;
+            sajuInfo.birthdate = document.getElementById('saju-birthdate').value;
+            sajuInfo.time = document.getElementById('saju-time').value;
+
+            // Sync user details to Sidebar profile block
+            document.getElementById('profile-display-name').innerText = `${sajuInfo.name} 님`;
+
+            const chatMessages = document.getElementById('ai-chat-messages');
+            
+            // Simulating analytical calculation state
+            const systemMsg = document.createElement('div');
+            systemMsg.className = "flex items-center gap-2 justify-center py-2.5 text-xs text-sajuAccent border-y border-rose-100 bg-sajuAccentLight/40 rounded-xl font-serifKR font-bold";
+            systemMsg.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-sajuAccent"></i> <span>${sajuInfo.name}님의 사주 천간·지지와 오행을 도출하고 있습니다...</span>`;
+            chatMessages.appendChild(systemMsg);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            setTimeout(() => {
+                systemMsg.remove();
+                
+                // Detailed personalized mock analysis
+                const analysisResult = document.createElement('div');
+                analysisResult.className = "flex items-start gap-3";
+                analysisResult.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-xs font-bold text-sajuAccent flex-shrink-0">AI</div>
+                    <div class="bg-sajuCard border border-rose-100 text-sajuTextDark px-4 py-3 rounded-2xl rounded-tl-none max-w-[85%] leading-relaxed burgundy-shadow">
+                        <span class="text-sajuAccent font-serifKR font-bold text-sm block mb-1">🔮 ${sajuInfo.name}님의 명리 사주 핵심 요약</span>
+                        <p class="text-xs text-sajuTextGray font-semibold mb-2">양력 기준: ${sajuInfo.birthdate} (${sajuInfo.time}) 태생</p>
+                        <div class="grid grid-cols-4 gap-1.5 text-center text-[11px] mb-3">
+                            <div class="bg-sajuBg p-2 rounded-lg border border-rose-100"><p class="text-sajuTextGray font-bold">시주(時)</p><p class="font-bold text-sajuAccent">丙 辰</p></div>
+                            <div class="bg-sajuBg p-2 rounded-lg border border-rose-100"><p class="text-sajuTextGray font-bold">일주(日)</p><p class="font-bold text-sajuAccent">乙 丑</p></div>
+                            <div class="bg-sajuBg p-2 rounded-lg border border-rose-100"><p class="text-sajuTextGray font-bold">월주(月)</p><p class="font-bold text-sajuAccent">丙 戌</p></div>
+                            <div class="bg-sajuBg p-2 rounded-lg border border-rose-100"><p class="text-sajuTextGray font-bold">연주(年)</p><p class="font-bold text-sajuAccent">乙 亥</p></div>
+                        </div>
+                        고객님의 일주는 <strong class="text-sajuAccent">을축(乙丑) 일주</strong>로, 땅속에 움트는 보드라운 풀잎이나 화초를 의미하는 <strong class="text-sajuAccent">을목(乙木)</strong>의 성질을 품고 계십니다. 
+                        수(水)의 기운이 온화하게 목을 돕고 있으나 건조한 토(土) 기운이 많아 올해 세운에서는 <strong class="text-sajuAccent">금(金)과 수(水)</strong>의 오행을 보조받을 때 운세가 강력히 상승할 것입니다. 
+                        더 궁금한 연애운이나 재물운에 대해서도 자유롭게 질문해 보세요!
+                    </div>
+                `;
+                chatMessages.appendChild(analysisResult);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1500);
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendChatMessage();
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('ai-chat-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const chatMessages = document.getElementById('ai-chat-messages');
+
+            // 1. Append User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = "flex items-start gap-3 justify-end";
+            userMsg.innerHTML = `
+                <div class="bg-sajuAccent text-white px-4 py-3 rounded-2xl rounded-tr-none max-w-[80%] leading-relaxed shadow-sm font-medium">
+                    ${messageText}
+                </div>
+            `;
+            chatMessages.appendChild(userMsg);
+            input.value = "";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 2. Simulating AI Response after delay
+            setTimeout(() => {
+                const aiMsg = document.createElement('div');
+                aiMsg.className = "flex items-start gap-3";
+                
+                let reply = "";
+                if (messageText.includes("일간") || messageText.includes("오행")) {
+                    reply = `을목(乙木) 일간은 유연하고 적응력이 극히 뛰어난 성질을 뜻합니다. 바위 틈에서도 기어코 꽃을 피우는 잡초와 같은 생명력이지요. 올해 을축 일간 고객님의 오행 밸런스 상, 가을철 금국(金局)의 기세가 올 때 관직운(직장 및 커리어) 부문에서 기쁜 소식을 쟁취할 확률이 높습니다.`;
+                } else if (messageText.includes("재물") || messageText.includes("돈")) {
+                    reply = `을목 일간에서 축토(丑土)와 술토(戌土)는 본인의 재성(財星)에 해당합니다. 사주에 이미 재물 창고를 튼튼하게 두 개나 안착시키고 있어 기본 자본 운은 유복한 편이나, 올해 세운의 흐름 상 무리한 투자는 삼가시고 하반기 10월 이후 귀인의 도움을 받아 안정을 찾는 재물운이 예정되어 있습니다.`;
+                } else {
+                    reply = `명리 분석에 의하면 ${sajuInfo.name}님이 남겨주신 질문 사안은 올해 사주의 대운 지지가 돕고 있는 양상입니다. 특히 수(水) 오행 보완을 권유 드립니다. 보다 심도 있고 명확한 해답을 원하시면 <strong class="text-sajuAccent">맞춤 마스터 매칭</strong> 탭에서 전문가 '혜안 선사'님 등과의 정식 일대일 화상/전화 카운셀링을 추천드립니다.`;
+                }
+
+                aiMsg.innerHTML = `
+                    <div class="w-8 h-8 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-xs font-bold text-sajuAccent flex-shrink-0">AI</div>
+                    <div class="bg-sajuCard border border-rose-100 text-sajuTextDark px-4 py-3 rounded-2xl rounded-tl-none max-w-[80%] leading-relaxed burgundy-shadow">
+                        ${reply}
+                    </div>
+                `;
+                chatMessages.appendChild(aiMsg);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1000);
+        }
+
+        // TAB 2: SELECTION & ACTION FOR BOOKING FLOW
+        function openBookingFlow(masterName, imgUrl) {
+            currentSelectedMaster.name = masterName;
+            currentSelectedMaster.img = imgUrl;
+
+            // Update UI components in reservation tab
+            document.getElementById('selected-master-name').innerText = masterName;
+            document.getElementById('selected-master-img').src = imgUrl;
+
+            // Move to booking tab
+            switchTab('customer-booking');
+        }
+
+        // TAB 3: RESERVATION LOGIC
+        let selectedBookingMethod = 'video';
+        function setBookingMethod(method) {
+            selectedBookingMethod = method;
+            const methods = ['video', 'phone', 'chat'];
+            methods.forEach(m => {
+                const btn = document.getElementById(`method-${m}`);
+                if (m === method) {
+                    btn.className = "flex flex-col items-center gap-1.5 py-3 border border-sajuAccent text-sajuAccent rounded-xl bg-sajuAccentLight transition-all";
+                } else {
+                    btn.className = "flex flex-col items-center gap-1.5 py-3 border border-rose-100 text-sajuTextGray rounded-xl bg-sajuBg hover:border-sajuAccent/30 hover:bg-sajuAccentLight transition-all";
+                }
+            });
+        }
+
+        function requestBooking() {
+            const date = document.getElementById('booking-date').value;
+            const time = document.getElementById('booking-time').value;
+
+            // Add to client array
+            const newBooking = {
+                id: mockBookings.length + 1,
+                masterName: currentSelectedMaster.name,
+                masterImg: currentSelectedMaster.img,
+                customerName: sajuInfo.name,
+                method: selectedBookingMethod,
+                date: date,
+                time: time,
+                status: "pending"
+            };
+
+            mockBookings.push(newBooking);
+
+            // Notify user via Custom Modal Box
+            showCustomAlert(`${currentSelectedMaster.name} 마스터에게 예약 신청을 성공적으로 전송했습니다! 마스터 대시보드 탭에서 승인 상태를 확인해 보세요.`);
+
+            // Refresh UI
+            renderCustomerBookings();
+            renderMasterApprovals();
+            renderCalendar();
+            updateDashboardBadge();
+
+            // Direct to history
+            switchTab('customer-booking');
+        }
+
+        function renderCustomerBookings() {
+            const list = document.getElementById('customer-booking-list');
+            list.innerHTML = "";
+
+            mockBookings.forEach(book => {
+                // Formatting method string with icon
+                let methodStr = "";
+                if (book.method === 'video') methodStr = `<i class="fa-solid fa-video text-xs mr-1 text-sajuAccent"></i> 화상상담`;
+                else if (book.method === 'phone') methodStr = `<i class="fa-solid fa-phone text-xs mr-1 text-sajuAccent"></i> 전화상담`;
+                else methodStr = `<i class="fa-solid fa-comments text-xs mr-1 text-sajuAccent"></i> 1:1채팅`;
+
+                // Badge colors
+                let statusBadge = "";
+                if (book.status === 'approved') {
+                    statusBadge = `<span class="bg-green-50 text-green-600 border border-green-200 px-2.5 py-1 rounded-md text-[10px] font-bold">승인 완료</span>`;
+                } else if (book.status === 'rejected') {
+                    statusBadge = `<span class="bg-red-50 text-red-500 border border-red-200 px-2.5 py-1 rounded-md text-[10px] font-bold">반려됨</span>`;
+                } else {
+                    statusBadge = `<span class="bg-sajuAccentLight text-sajuAccent border border-sajuAccent/20 px-2.5 py-1 rounded-md text-[10px] font-bold">승인 대기중</span>`;
+                }
+
+                const item = document.createElement('div');
+                item.className = "bg-sajuCard p-4 rounded-2xl border border-rose-100 flex items-center justify-between burgundy-shadow";
+                item.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <img src="${book.masterImg}" class="w-11 h-11 rounded-xl object-cover border border-rose-100">
+                        <div>
+                            <p class="font-serifKR font-bold text-sm text-sajuAccent">${book.masterName}</p>
+                            <div class="flex gap-2 items-center text-[11px] text-sajuTextGray mt-1 font-semibold">
+                                <span>${book.date} (${book.time})</span>
+                                <span class="text-rose-200">|</span>
+                                <span>${methodStr}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div>${statusBadge}</div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // TAB 4: MASTER ACTION LOGIC (APPROVE / REJECT)
+        function approveRequest(bookingId) {
+            const booking = mockBookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'approved';
+                showCustomAlert(`${booking.customerName} 고객님의 상담 예약을 수락했습니다. 스케줄에 일정이 반영되었습니다!`);
+                
+                // Refresh views
+                renderCustomerBookings();
+                renderMasterApprovals();
+                renderCalendar();
+                updateDashboardBadge();
+            }
+        }
+
+        function rejectRequest(bookingId) {
+            const booking = mockBookings.find(b => b.id === bookingId);
+            if (booking) {
+                booking.status = 'rejected';
+                showCustomAlert(`${booking.customerName} 고객님의 상담 예약을 반려 처리했습니다.`);
+                
+                // Refresh views
+                renderCustomerBookings();
+                renderMasterApprovals();
+                renderCalendar();
+                updateDashboardBadge();
+            }
+        }
+
+        function updateDashboardBadge() {
+            const pendCount = mockBookings.filter(b => b.status === 'pending').length;
+            const badge = document.getElementById('badge-pending-count');
+            if (pendCount > 0) {
+                badge.innerText = pendCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderMasterApprovals() {
+            const list = document.getElementById('master-approval-list');
+            list.innerHTML = "";
+
+            const pendingBookings = mockBookings.filter(b => b.status === 'pending');
+
+            if (pendingBookings.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-12 border border-dashed border-rose-200 rounded-2xl bg-sajuBg">
+                        <i class="fa-solid fa-bell-slash text-rose-300 text-3xl mb-3"></i>
+                        <p class="text-xs text-sajuTextGray font-semibold">현재 대기 중인 신규 예약 신청이 없습니다.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            pendingBookings.forEach(book => {
+                let methodIcon = book.method === 'video' ? 'fa-video' : (book.method === 'phone' ? 'fa-phone' : 'fa-comments');
+                
+                const card = document.createElement('div');
+                card.className = "bg-sajuBg p-4 rounded-2xl border border-rose-100 hover:border-sajuAccent/20 transition-all";
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-3.5">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-8 h-8 rounded-lg bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-sajuAccent">
+                                <i class="fa-solid ${methodIcon} text-xs"></i>
+                            </div>
+                            <div>
+                                <span class="text-xs font-bold text-sajuTextDark">${book.customerName} 고객</span>
+                                <span class="text-[10px] text-sajuTextGray font-bold ml-2">${book.date} ${book.time}</span>
+                            </div>
+                        </div>
+                        <span class="text-[10px] bg-sajuAccentLight border border-sajuAccent/20 text-sajuAccent font-bold px-2 py-0.5 rounded-md">대기중</span>
+                    </div>
+                    <p class="text-xs text-sajuTextDark font-serifKR font-bold mb-4">"사주 일간에 관한 을목 분석과 최근 이직 준비에 따른 이직운 매칭을 요청하셨습니다."</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="approveRequest(${book.id})" class="bg-sajuAccent hover:bg-[#5C0318] text-white font-serifKR font-bold py-2 rounded-xl text-xs transition-all shadow-sm">예약 승인</button>
+                        <button onclick="rejectRequest(${book.id})" class="bg-sajuCard hover:bg-rose-50 text-sajuTextGray border border-rose-100 py-2 rounded-xl text-xs font-bold transition-all">반려하기</button>
+                    </div>
+                `;
+                list.appendChild(card);
+            });
+        }
+
+        // TAB 4: CALENDAR GRAPHICAL RENDER
+        function renderCalendar() {
+            const grid = document.getElementById('calendar-grid');
+            grid.innerHTML = "";
+
+            // June 2026 starts on Monday (1st), so offset of 1
+            const offsetDays = 1;
+            const daysInMonth = 30;
+
+            // Fill offset blank days
+            for (let i = 0; i < offsetDays; i++) {
+                const blank = document.createElement('div');
+                blank.className = "bg-transparent";
+                grid.appendChild(blank);
+            }
+
+            // Draw month days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayStr = `2026-06-${day < 10 ? '0' + day : day}`;
+                const hasApprovedBooking = mockBookings.filter(b => b.date === dayStr && b.status === 'approved');
+
+                const dayCell = document.createElement('div');
+                dayCell.className = "bg-sajuCard border border-rose-100 p-1.5 rounded-lg flex flex-col justify-between h-[50px] relative hover:border-sajuAccent/20 transition-all shadow-sm";
+                
+                // Day number style
+                let numColor = "text-sajuTextDark";
+                const dayOfWeek = (day + offsetDays - 1) % 7;
+                if (dayOfWeek === 0) numColor = "text-red-500 font-bold";
+                if (dayOfWeek === 6) numColor = "text-blue-500 font-bold";
+
+                let bookingsBadge = "";
+                if (hasApprovedBooking.length > 0) {
+                    dayCell.className += " border-sajuAccent/30 bg-sajuAccentLight/50";
+                    bookingsBadge = `<div class="w-full bg-sajuAccent text-white text-[8px] font-bold py-0.5 rounded-md mt-1 truncate px-1 text-center shadow-sm" title="${hasApprovedBooking[0].customerName} 예약">${hasApprovedBooking[0].customerName} (${hasApprovedBooking[0].time})</div>`;
+                }
+
+                dayCell.innerHTML = `
+                    <span class="text-[10px] font-bold ${numColor}">${day}</span>
+                    ${bookingsBadge}
+                `;
+                grid.appendChild(dayCell);
+            }
+        }
+
+        // TAB 5: ACTIVE LIVE CONSULTING MODE (Phone, Video, Chat Toggle)
+        function setConsultingMode(mode) {
+            const videoCont = document.getElementById('media-video-container');
+            const phoneCont = document.getElementById('media-phone-container');
+            const chatCont = document.getElementById('media-chat-container');
+
+            const modes = ['video', 'phone', 'chat'];
+            modes.forEach(m => {
+                const btn = document.getElementById(`c-mode-${m === 'chat' ? 'chat' : m}`);
+                btn.className = "px-3 py-1.5 text-xs rounded-lg font-bold text-sajuTextGray hover:text-sajuAccent transition-all";
+            });
+
+            // Set active buttons
+            if (mode === 'video') {
+                videoCont.classList.remove('hidden');
+                phoneCont.classList.add('hidden');
+                chatCont.classList.add('hidden');
+                document.getElementById('c-mode-video').className = "px-3 py-1.5 text-xs rounded-lg font-bold bg-sajuAccent text-white transition-all shadow-sm";
+                document.getElementById('consulting-room-title').innerText = "실시간 화상 상담실";
+                document.getElementById('c-room-indicator').className = "w-3 h-3 rounded-full bg-red-500 animate-pulse";
+            } else if (mode === 'phone') {
+                videoCont.classList.add('hidden');
+                phoneCont.classList.remove('hidden');
+                chatCont.classList.add('hidden');
+                document.getElementById('c-mode-phone').className = "px-3 py-1.5 text-xs rounded-lg font-bold bg-sajuAccent text-white transition-all shadow-sm";
+                document.getElementById('consulting-room-title').innerText = "실시간 안전 전화 상담실";
+                document.getElementById('c-room-indicator').className = "w-3 h-3 rounded-full bg-red-500 animate-pulse";
+            } else {
+                videoCont.classList.add('hidden');
+                phoneCont.classList.add('hidden');
+                chatCont.classList.remove('hidden');
+                document.getElementById('c-mode-chat').className = "px-3 py-1.5 text-xs rounded-lg font-bold bg-sajuAccent text-white transition-all shadow-sm";
+                document.getElementById('consulting-room-title').innerText = "실시간 채팅 전용 상담실";
+                document.getElementById('c-room-indicator').className = "w-3 h-3 rounded-full bg-yellow-500";
+            }
+        }
+
+        function handleLiveChatKey(e) {
+            if (e.key === 'Enter') sendLiveChatMessage();
+        }
+
+        function sendLiveChatMessage() {
+            const input = document.getElementById('live-chat-input');
+            const messageText = input.value.trim();
+            if (!messageText) return;
+
+            const chatMessages = document.getElementById('live-chat-messages');
+
+            // 1. Append User (Customer) Message
+            const customerMsg = document.createElement('div');
+            customerMsg.className = "flex items-start gap-2 justify-end";
+            customerMsg.innerHTML = `
+                <div class="bg-sajuAccent text-white p-2.5 rounded-xl rounded-tr-none max-w-[85%] leading-relaxed font-semibold shadow-sm">
+                    ${messageText}
+                </div>
+            `;
+            chatMessages.appendChild(customerMsg);
+            input.value = "";
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 2. Mock Counselor (Master) Response
+            setTimeout(() => {
+                const masterReply = document.createElement('div');
+                masterReply.className = "flex items-start gap-2";
+                masterReply.innerHTML = `
+                    <div class="w-7 h-7 rounded-full bg-sajuAccentLight border border-rose-200 flex items-center justify-center text-[10px] font-bold text-sajuAccent flex-shrink-0">마스터</div>
+                    <div class="bg-sajuCard border border-rose-100 text-sajuTextDark p-2.5 rounded-xl rounded-tl-none max-w-[85%] leading-relaxed shadow-sm font-medium">
+                        말씀하신 내용에 깊이 공감합니다. 고객님 사주 내 축토(丑土) 편재가 기세가 다소 무거운 편이므로, 이 고민에 대한 해답은 2026년 8월 전후의 목(木) 비견이 힘을 얻을 때 한결 쉽게 풀리실 겁니다. 차주부터 해당 기운 보정용 침구 배치에 유의하세요.
+                    </div>
+                `;
+                chatMessages.appendChild(masterReply);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
