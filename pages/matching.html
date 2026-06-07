@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전문가 대시보드 — 운세인사이트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --burg-deep:#3a0a18;--burg-mid:#5a1828;--burg-soft:#7a2838;--burg-light:#9a3848;
+  --burg-pale:#f5e8ec;--burg-border:#8a3040;
+  --cream:#fdf6f0;--cream2:#f5ede4;
+  --t1:#2a0810;--t2:#6a2030;--t3:#9a6068;--t4:#c8a0a8;
+  --bd:#e0c8cc;--bd2:#d0b0b8;
+  --green:#3a8a4a;--green-pale:#e8f5ec;--green-border:#a8d8b0;
+}
+html,body{height:100%;background:var(--cream);}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--t1);}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--cream);display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,0.12);}
+.nav{height:58px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;background:var(--burg-deep);flex-shrink:0;}
+.nav-back{background:none;border:none;cursor:pointer;color:#9a6068;display:flex;align-items:center;gap:4px;font-size:12px;font-family:'Noto Sans KR',sans-serif;letter-spacing:1px;}
+.nav-back:hover{color:#d4a0a8;}
+.nav-center{display:flex;align-items:center;gap:8px;}
+.nav-main{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:200;color:#f0d8dc;letter-spacing:2px;}
+.nav-eng{font-family:'Cormorant Garamond',serif;font-size:10px;color:#9a6068;letter-spacing:3px;}
+.nav-badge{background:var(--burg-mid);border:0.5px solid var(--burg-border);padding:3px 10px;font-size:10px;color:#d4a0a8;letter-spacing:2px;}
+.profile-header{background:var(--burg-deep);padding:20px 20px 24px;border-bottom:1px solid var(--burg-mid);}
+.profile-row{display:flex;align-items:center;gap:14px;margin-bottom:16px;}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:var(--burg-mid);border:1.5px solid #d4a0a8;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-size:24px;color:#d4a0a8;flex-shrink:0;position:relative;}
+.profile-online{position:absolute;bottom:2px;right:2px;width:13px;height:13px;border-radius:50%;background:#52a865;border:2px solid var(--burg-deep);}
+.profile-name{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:200;color:#f0d8dc;letter-spacing:1px;margin-bottom:3px;}
+.profile-spec{font-size:12px;color:#9a6068;margin-bottom:6px;}
+.profile-rating{display:flex;align-items:center;gap:6px;}
+.rating-stars{color:#d4a0a8;font-size:13px;}
+.rating-num{font-size:12px;color:#9a6068;}
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1px;background:var(--burg-border);}
+.stat-box{background:var(--burg-mid);padding:12px;text-align:center;}
+.stat-num{font-family:'Noto Serif KR',serif;font-size:20px;font-weight:200;color:#d4a0a8;margin-bottom:2px;}
+.stat-label{font-size:10px;color:#9a6068;letter-spacing:1px;}
+.alert-bar{display:none;background:var(--green-pale);border-bottom:1px solid var(--green-border);padding:12px 16px;}
+.alert-bar.on{display:block;}
+.alert-inner{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.alert-label{font-size:10px;color:var(--green);letter-spacing:2px;margin-bottom:3px;}
+.alert-text{font-size:13px;color:var(--t1);}
+.alert-actions{display:flex;gap:6px;flex-shrink:0;}
+.alert-confirm{padding:7px 14px;background:var(--green);border:none;color:#fff;font-size:12px;border-radius:4px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;white-space:nowrap;}
+.alert-reject{padding:7px 14px;background:transparent;border:1px solid var(--green-border);color:var(--green);font-size:12px;border-radius:4px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.tabs{display:flex;background:#fff;border-bottom:1px solid var(--bd);flex-shrink:0;}
+.tab{flex:1;padding:12px 4px;text-align:center;font-size:11px;color:var(--t3);letter-spacing:1px;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab.on{color:var(--burg-soft);border-bottom-color:var(--burg-soft);}
+.content{flex:1;overflow-y:auto;}
+.tab-content{display:none;}
+.tab-content.on{display:block;}
+.sec-title{font-family:'Noto Serif KR',serif;font-size:13px;color:var(--t1);letter-spacing:2px;padding:14px 16px 10px;border-bottom:0.5px solid var(--bd);}
+/* 예약 현황 */
+.reservations{padding:12px 16px;display:flex;flex-direction:column;gap:10px;}
+.resv-card{background:#fff;border:1px solid var(--bd);border-radius:8px;overflow:hidden;}
+.resv-header{padding:10px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:0.5px solid var(--bd);}
+.resv-status{font-size:10px;letter-spacing:2px;padding:3px 10px;border-radius:20px;}
+.resv-status.new{background:#fff8e8;color:#8a6020;border:0.5px solid #d4b060;}
+.resv-status.now{background:var(--green-pale);color:var(--green);border:0.5px solid var(--green-border);}
+.resv-status.soon{background:var(--burg-pale);color:var(--burg-soft);border:0.5px solid var(--burg-border);}
+.resv-status.done{background:#f0f0f0;color:#888;border:0.5px solid #ccc;}
+.resv-time{font-size:12px;color:var(--t3);}
+.resv-body{padding:12px 14px;display:flex;justify-content:space-between;align-items:center;}
+.resv-client{display:flex;align-items:center;gap:10px;}
+.client-avatar{width:36px;height:36px;border-radius:50%;background:var(--burg-pale);border:1px solid var(--burg-border);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--burg-soft);font-family:'Noto Serif KR',serif;flex-shrink:0;}
+.client-name{font-size:13px;color:var(--t1);margin-bottom:2px;}
+.client-topic{font-size:11px;color:var(--t3);}
+.resv-actions{display:flex;gap:6px;}
+.action-btn{padding:7px 12px;font-size:11px;letter-spacing:1px;cursor:pointer;border-radius:4px;font-family:'Noto Sans KR',sans-serif;transition:all .2s;}
+.action-btn.primary{background:var(--burg-soft);border:none;color:#fff;}
+.action-btn.primary:hover{background:var(--burg-light);}
+.action-btn.secondary{background:transparent;border:1px solid var(--bd2);color:var(--t2);}
+/* 달력 */
+.calendar{padding:14px 16px;}
+.cal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.cal-month{font-family:'Noto Serif KR',serif;font-size:16px;color:var(--t1);letter-spacing:2px;}
+.cal-nav{display:flex;gap:8px;}
+.cal-nav-btn{width:28px;height:28px;background:#fff;border:1px solid var(--bd);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--t2);}
+.cal-nav-btn:hover{border-color:var(--burg-border);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px;}
+.cal-day-label{text-align:center;font-size:10px;color:var(--t4);padding:6px 0;letter-spacing:1px;}
+.cal-day{text-align:center;padding:8px 2px;font-size:13px;color:var(--t2);border-radius:4px;cursor:pointer;position:relative;min-height:36px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:2px;}
+.cal-day:hover{background:var(--cream2);}
+.cal-day.today{font-weight:500;color:var(--burg-soft);}
+.cal-day.has-event{background:var(--burg-pale);}
+.cal-day.confirmed{background:var(--green-pale);}
+.cal-day.empty{cursor:default;}
+.cal-dot{width:5px;height:5px;border-radius:50%;background:var(--burg-soft);}
+.cal-dot.green{background:var(--green);}
+.cal-events{display:flex;flex-direction:column;gap:8px;}
+.cal-event-title{font-size:11px;color:var(--t3);letter-spacing:2px;margin-bottom:6px;}
+.cal-event-item{background:#fff;border:1px solid var(--bd);border-left:3px solid var(--burg-soft);border-radius:0 6px 6px 0;padding:10px 14px;display:flex;justify-content:space-between;align-items:center;}
+.cal-event-item.green{border-left-color:var(--green);}
+.cal-event-name{font-size:13px;color:var(--t1);margin-bottom:2px;}
+.cal-event-info{font-size:11px;color:var(--t3);}
+.cal-event-time{font-size:12px;color:var(--burg-soft);font-weight:500;white-space:nowrap;}
+.cal-event-item.green .cal-event-time{color:var(--green);}
+/* 화상 */
+.vod-section{padding:14px 16px;display:flex;flex-direction:column;gap:12px;}
+.vod-card{background:#fff;border:1px solid var(--bd);border-radius:8px;overflow:hidden;}
+.vod-header{padding:12px 14px;background:var(--burg-deep);display:flex;justify-content:space-between;align-items:center;}
+.vod-title{font-family:'Noto Serif KR',serif;font-size:13px;color:#f0d8dc;letter-spacing:1px;}
+.vod-live{display:flex;align-items:center;gap:5px;font-size:10px;color:#52a865;letter-spacing:2px;}
+.live-dot{width:7px;height:7px;border-radius:50%;background:#52a865;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.vod-screen{position:relative;background:#1a0a10;aspect-ratio:16/9;overflow:hidden;}
+.vod-main{width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#2a0818,#1a0a10,#3a1020);}
+.vod-client-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.vod-client-circle{width:72px;height:72px;border-radius:50%;background:var(--burg-mid);border:2px solid #d4a0a8;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-size:28px;color:#d4a0a8;}
+.vod-client-name{font-size:13px;color:#f0d8dc;font-family:'Noto Serif KR',serif;letter-spacing:2px;}
+.vod-client-status{font-size:11px;color:#9a6068;}
+.vod-pip{position:absolute;bottom:10px;right:10px;width:80px;height:80px;border-radius:8px;background:var(--burg-mid);border:1.5px solid #d4a0a8;display:flex;align-items:center;justify-content:center;}
+.vod-pip-inner{display:flex;flex-direction:column;align-items:center;gap:4px;}
+.vod-pip-avatar{font-family:'Noto Serif KR',serif;font-size:22px;color:#d4a0a8;}
+.vod-pip-label{font-size:9px;color:#9a6068;letter-spacing:1px;}
+.vod-timer{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.5);padding:4px 10px;border-radius:20px;font-size:11px;color:#fff;letter-spacing:2px;}
+.vod-controls{padding:14px 16px;display:flex;justify-content:center;align-items:center;gap:16px;background:var(--cream2);border-top:0.5px solid var(--bd);}
+.ctrl-btn{width:46px;height:46px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;border:none;font-size:18px;}
+.ctrl-btn.mic,.ctrl-btn.cam,.ctrl-btn.chat{background:#fff;border:1px solid var(--bd);}
+.ctrl-btn.end{background:var(--burg-soft);color:#fff;width:54px;height:54px;font-size:20px;}
+.ctrl-btn.end:hover{background:#c0304a;}
+.ctrl-btn.start{background:var(--green);color:#fff;width:54px;height:54px;font-size:20px;}
+.ctrl-btn.start:hover{background:#4a9a5a;}
+.vod-chat{padding:12px 14px;border-top:0.5px solid var(--bd);}
+.vod-chat-title{font-size:11px;color:var(--t3);letter-spacing:2px;margin-bottom:8px;}
+.vod-chat-msgs{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;max-height:80px;overflow-y:auto;}
+.vcmsg{font-size:12px;line-height:1.6;}
+.vcmsg.client{color:var(--t2);}
+.vcmsg.me{color:var(--burg-soft);text-align:right;}
+.vcmsg-name{font-size:10px;color:var(--t4);margin-bottom:1px;}
+.vod-input-row{display:flex;gap:6px;}
+.vod-inp{flex:1;background:var(--cream2);border:1px solid var(--bd);border-radius:16px;padding:7px 12px;font-size:12px;font-family:'Noto Sans KR',sans-serif;outline:none;color:var(--t1);}
+.vod-inp:focus{border-color:var(--burg-soft);}
+.vod-send{width:30px;height:30px;background:var(--burg-soft);border:none;border-radius:50%;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+@media(min-width:430px){body{background:#f0e8e0;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <nav class="nav">
+    <button class="nav-back" onclick="location.href='index.html'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      돌아가기
+    </button>
+    <div class="nav-center">
+      <svg width="28" height="28" viewBox="0 0 54 54" fill="none">
+        <polygon points="27,3 50,15.5 50,38.5 27,51 4,38.5 4,15.5" stroke="#d4a0a8" stroke-width="1.2" fill="none"/>
+        <polygon points="27,9 45,19 45,35 27,45 9,35 9,19" stroke="#d4a0a8" stroke-width="0.4" fill="none" opacity="0.4"/>
+        <text x="27" y="33" text-anchor="middle" font-family="serif" font-size="18" font-weight="200" fill="#d4a0a8">運</text>
+      </svg>
+      <div>
+        <div class="nav-main">전문가 대시보드</div>
+        <div class="nav-eng">EXPERT DASHBOARD</div>
+      </div>
+    </div>
+    <div class="nav-badge">온라인</div>
+  </nav>
+
+  <div class="profile-header">
+    <div class="profile-row">
+      <div class="profile-avatar">道<div class="profile-online"></div></div>
+      <div class="profile-info">
+        <div class="profile-name">청운 선생</div>
+        <div class="profile-spec">사주·명리 전문 · 경력 22년</div>
+        <div class="profile-rating">
+          <span class="rating-stars">★★★★★</span>
+          <span class="rating-num">4.9 (리뷰 1,240건)</span>
+        </div>
+      </div>
+    </div>
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="todayCnt">3</div><div class="stat-label">오늘 예약</div></div>
+      <div class="stat-box"><div class="stat-num">12</div><div class="stat-label">이번 주</div></div>
+      <div class="stat-box"><div class="stat-num">248</div><div class="stat-label">누적 상담</div></div>
+    </div>
+  </div>
+
+  <!-- 새 예약 알림 -->
+  <div class="alert-bar" id="alertBar">
+    <div class="alert-inner">
+      <div>
+        <div class="alert-label">🔔 새 예약 신청</div>
+        <div class="alert-text" id="alertText"></div>
+      </div>
+      <div class="alert-actions">
+        <button class="alert-confirm" onclick="confirmBooking()">확인 승인</button>
+        <button class="alert-reject" onclick="rejectBooking()">거절</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab on" onclick="selTab(this,'resv')">예약 현황</div>
+    <div class="tab" onclick="selTab(this,'cal')">달력</div>
+    <div class="tab" onclick="selTab(this,'vod')">화상 상담</div>
+  </div>
+
+  <div class="content">
+
+    <!-- 예약 현황 -->
+    <div class="tab-content on" id="tab-resv">
+      <div class="sec-title">오늘의 예약 현황</div>
+      <div class="reservations" id="resvList">
+        <div class="resv-card">
+          <div class="resv-header"><span class="resv-status now">● 진행 중</span><span class="resv-time">14:00 — 14:30</span></div>
+          <div class="resv-body">
+            <div class="resv-client"><div class="client-avatar">김</div><div><div class="client-name">김○○ 고객</div><div class="client-topic">사주 · 연애운 상담</div></div></div>
+            <div class="resv-actions"><button class="action-btn primary" onclick="selTab(document.querySelectorAll('.tab')[2],'vod')">입장</button></div>
+          </div>
+        </div>
+        <div class="resv-card">
+          <div class="resv-header"><span class="resv-status soon">○ 예정</span><span class="resv-time">15:00 — 15:30</span></div>
+          <div class="resv-body">
+            <div class="resv-client"><div class="client-avatar">이</div><div><div class="client-name">이○○ 고객</div><div class="client-topic">사주 · 직업·재물운 상담</div></div></div>
+            <div class="resv-actions"><button class="action-btn secondary">메모</button><button class="action-btn primary" onclick="selTab(document.querySelectorAll('.tab')[2],'vod')">입장</button></div>
+          </div>
+        </div>
+        <div class="resv-card">
+          <div class="resv-header"><span class="resv-status done">✓ 완료</span><span class="resv-time">11:00 — 11:30</span></div>
+          <div class="resv-body">
+            <div class="resv-client"><div class="client-avatar">최</div><div><div class="client-name">최○○ 고객</div><div class="client-topic">사주 · 건강운 상담</div></div></div>
+            <div class="resv-actions"><button class="action-btn secondary">후기보기</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 달력 -->
+    <div class="tab-content" id="tab-cal">
+      <div class="calendar">
+        <div class="cal-header">
+          <div class="cal-month" id="calMonth"></div>
+          <div class="cal-nav">
+            <button class="cal-nav-btn" onclick="changeMonth(-1)">‹</button>
+            <button class="cal-nav-btn" onclick="changeMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-events">
+          <div class="cal-event-title">이번 달 예약</div>
+          <div id="calEventList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 화상 상담 -->
+    <div class="tab-content" id="tab-vod">
+      <div class="vod-section">
+        <div style="font-family:'Noto Serif KR',serif;font-size:13px;color:var(--t1);letter-spacing:2px;padding:4px 0 10px;border-bottom:0.5px solid var(--bd);margin-bottom:0;">화상 상담 — 김○○ 고객</div>
+        <div class="vod-card">
+          <div class="vod-header">
+            <div class="vod-title">사주 · 연애운 상담</div>
+            <div class="vod-live"><div class="live-dot"></div>LIVE</div>
+          </div>
+          <div class="vod-screen">
+            <div class="vod-main">
+              <div class="vod-client-wrap">
+                <div class="vod-client-circle">김</div>
+                <div class="vod-client-name">김○○ 고객</div>
+                <div class="vod-client-status">연결됨</div>
+              </div>
+            </div>
+            <div class="vod-pip">
+              <div class="vod-pip-inner">
+                <div class="vod-pip-avatar">道</div>
+                <div class="vod-pip-label">나 (청운)</div>
+              </div>
+            </div>
+            <div class="vod-timer" id="timer">00:00</div>
+          </div>
+          <div class="vod-controls">
+            <button class="ctrl-btn mic" onclick="toggleCtrl(this,'🎙️','🔇')">🎙️</button>
+            <button class="ctrl-btn cam" onclick="toggleCtrl(this,'📹','📷')">📹</button>
+            <button class="ctrl-btn start" id="startBtn" onclick="startCall()">📞</button>
+            <button class="ctrl-btn end" id="endBtn" onclick="endCall()" style="display:none">📵</button>
+            <button class="ctrl-btn chat">💬</button>
+          </div>
+          <div class="vod-chat">
+            <div class="vod-chat-title">상담 중 메모</div>
+            <div class="vod-chat-msgs" id="vodMsgs">
+              <div class="vcmsg client"><div class="vcmsg-name">김○○</div>안녕하세요, 선생님.</div>
+              <div class="vcmsg me"><div class="vcmsg-name">청운 선생</div>네, 반갑습니다. 생년월일을 알려주시겠어요?</div>
+            </div>
+            <div class="vod-input-row">
+              <input class="vod-inp" id="vodInp" placeholder="메모 입력..." onkeydown="if(event.key==='Enter')sendVodMsg()">
+              <button class="vod-send" onclick="sendVodMsg()">↑</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// 탭 전환
+function selTab(el, id) {
+  document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.tab-content').forEach(function(c){c.classList.remove('on');});
+  el.classList.add('on');
+  document.getElementById('tab-'+id).classList.add('on');
+  if(id==='cal') renderCal();
+}
+
+// 달력
+var calYear, calMonth2;
+var events = [
+  {date:new Date().getDate(), name:'김○○', topic:'연애운', time:'14:00', confirmed:true},
+  {date:new Date().getDate(), name:'이○○', topic:'재물운', time:'15:00', confirmed:true},
+];
+function initCal(){
+  var now = new Date();
+  calYear = now.getFullYear();
+  calMonth2 = now.getMonth();
+}
+function changeMonth(d){calMonth2+=d;if(calMonth2<0){calMonth2=11;calYear--;}if(calMonth2>11){calMonth2=0;calYear++;}renderCal();}
+function renderCal(){
+  var months=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  document.getElementById('calMonth').textContent = calYear+'년 '+months[calMonth2];
+  var grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+  ['일','월','화','수','목','금','토'].forEach(function(d){
+    var el=document.createElement('div');el.className='cal-day-label';el.textContent=d;grid.appendChild(el);
+  });
+  var first = new Date(calYear,calMonth2,1).getDay();
+  var last = new Date(calYear,calMonth2+1,0).getDate();
+  var today = new Date();
+  for(var i=0;i<first;i++){var el=document.createElement('div');el.className='cal-day empty';grid.appendChild(el);}
+  for(var d=1;d<=last;d++){
+    var el=document.createElement('div');
+    var isToday=(calYear===today.getFullYear()&&calMonth2===today.getMonth()&&d===today.getDate());
+    var evts=events.filter(function(e){return e.date===d;});
+    el.className='cal-day'+(isToday?' today':'')+(evts.length>0?(evts[0].confirmed?' confirmed':' has-event'):'');
+    el.innerHTML='<span>'+d+'</span>';
+    if(evts.length>0){var dot=document.createElement('div');dot.className='cal-dot'+(evts[0].confirmed?' green':'');el.appendChild(dot);}
+    grid.appendChild(el);
+  }
+  var evList=document.getElementById('calEventList');
+  evList.innerHTML='';
+  if(events.length===0){evList.innerHTML='<div style="font-size:12px;color:var(--t4);padding:12px 0;text-align:center;">예약이 없습니다</div>';return;}
+  events.forEach(function(e){
+    evList.innerHTML+='<div class="cal-event-item'+(e.confirmed?' green':'')+'"><div><div class="cal-event-name">'+e.name+' 고객</div><div class="cal-event-info">'+e.topic+' 상담</div></div><div class="cal-event-time">'+e.time+'</div></div>';
+  });
+}
+
+// 새 예약 알림 처리
+function checkPendingBooking(){
+  var raw = localStorage.getItem('pendingBooking');
+  if(!raw) return;
+  var b = JSON.parse(raw);
+  if(b.status==='pending'){
+    document.getElementById('alertBar').classList.add('on');
+    document.getElementById('alertText').textContent = b.date+' '+b.time+' · '+b.type;
+    window._pendingBooking = b;
+  }
+}
+function confirmBooking(){
+  var b = window._pendingBooking;
+  if(!b) return;
+  var d = parseInt(b.date);
+  events.push({date:d,name:'신규 고객',topic:b.type,time:b.time,confirmed:true});
+  var cnt = parseInt(document.getElementById('todayCnt').textContent);
+  document.getElementById('todayCnt').textContent = cnt+1;
+  // 예약 현황에 추가
+  var list = document.getElementById('resvList');
+  list.insertAdjacentHTML('afterbegin','<div class="resv-card"><div class="resv-header"><span class="resv-status soon">○ 신규 예약</span><span class="resv-time">'+b.time+'</span></div><div class="resv-body"><div class="resv-client"><div class="client-avatar">신</div><div><div class="client-name">신규 고객</div><div class="client-topic">'+b.type+'</div></div></div><div class="resv-actions"><button class="action-btn secondary">메모</button></div></div></div>');
+  localStorage.removeItem('pendingBooking');
+  document.getElementById('alertBar').classList.remove('on');
+  alert('✅ 예약이 승인되었습니다!\n달력에 일정이 추가되었어요.');
+}
+function rejectBooking(){
+  localStorage.removeItem('pendingBooking');
+  document.getElementById('alertBar').classList.remove('on');
+}
+
+// 화상 통화
+var timerSec=0,timerInt=null;
+function toggleCtrl(btn,on,off){btn.textContent=btn.textContent.trim()===on?off:on;}
+function startCall(){
+  document.getElementById('startBtn').style.display='none';
+  document.getElementById('endBtn').style.display='flex';
+  timerInt=setInterval(function(){timerSec++;var m=String(Math.floor(timerSec/60)).padStart(2,'0');var s=String(timerSec%60).padStart(2,'0');document.getElementById('timer').textContent=m+':'+s;},1000);
+}
+function endCall(){clearInterval(timerInt);timerSec=0;document.getElementById('timer').textContent='00:00';document.getElementById('endBtn').style.display='none';document.getElementById('startBtn').style.display='flex';alert('상담이 종료되었습니다.');}
+function sendVodMsg(){var inp=document.getElementById('vodInp');var t=inp.value.trim();if(!t)return;inp.value='';var msgs=document.getElementById('vodMsgs');msgs.innerHTML+='<div class="vcmsg me"><div class="vcmsg-name">청운 선생</div>'+t+'</div>';msgs.scrollTop=msgs.scrollHeight;}
+
+initCal();
+checkPendingBooking();
+</script>
+</body>
+</html>

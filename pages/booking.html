@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>전문가 예약 — 운세인사이트</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@200;300;400&family=Noto+Sans+KR:wght@300;400;500&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --burg-deep:#3a0a18;--burg-mid:#5a1828;--burg-soft:#7a2838;--burg-light:#9a3848;
+  --burg-pale:#f5e8ec;--burg-border:#8a3040;
+  --cream:#fdf6f0;--cream2:#f5ede4;
+  --t1:#2a0810;--t2:#6a2030;--t3:#9a6068;--t4:#c8a0a8;
+  --bd:#e0c8cc;--bd2:#d0b0b8;
+  --green:#3a8a4a;--green-pale:#e8f5ec;
+}
+html,body{height:100%;background:var(--cream);}
+body{font-family:'Noto Sans KR',sans-serif;color:var(--t1);}
+.app{max-width:430px;margin:0 auto;min-height:100vh;background:var(--cream);display:flex;flex-direction:column;box-shadow:0 0 40px rgba(0,0,0,0.12);}
+
+/* 네비 */
+.nav{height:58px;display:flex;justify-content:space-between;align-items:center;padding:0 16px;background:var(--burg-deep);flex-shrink:0;}
+.nav-back{background:none;border:none;cursor:pointer;color:#9a6068;display:flex;align-items:center;gap:4px;font-size:12px;font-family:'Noto Sans KR',sans-serif;letter-spacing:1px;}
+.nav-back:hover{color:#d4a0a8;}
+.nav-logo-wrap{display:flex;align-items:center;gap:8px;}
+.nav-main{font-family:'Noto Serif KR',serif;font-size:14px;font-weight:200;color:#f0d8dc;letter-spacing:2px;}
+.nav-eng{font-family:'Cormorant Garamond',serif;font-size:10px;color:#9a6068;letter-spacing:3px;}
+
+/* 전문가 프로필 카드 */
+.expert-card{background:var(--burg-deep);padding:20px;border-bottom:1px solid var(--burg-mid);}
+.expert-row{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.expert-avatar{width:56px;height:56px;border-radius:50%;background:var(--burg-mid);border:1.5px solid #d4a0a8;display:flex;align-items:center;justify-content:center;font-family:'Noto Serif KR',serif;font-size:22px;color:#d4a0a8;flex-shrink:0;position:relative;}
+.expert-online{position:absolute;bottom:2px;right:2px;width:12px;height:12px;border-radius:50%;background:#52a865;border:2px solid var(--burg-deep);}
+.expert-name{font-family:'Noto Serif KR',serif;font-size:18px;font-weight:200;color:#f0d8dc;margin-bottom:3px;}
+.expert-spec{font-size:12px;color:#9a6068;margin-bottom:5px;}
+.expert-rating{display:flex;align-items:center;gap:5px;}
+.stars{color:#d4a0a8;font-size:12px;}
+.rating-txt{font-size:11px;color:#9a6068;}
+.expert-tags{display:flex;gap:6px;flex-wrap:wrap;}
+.tag{padding:4px 10px;background:var(--burg-mid);border:0.5px solid var(--burg-border);font-size:10px;color:#d4a0a8;letter-spacing:1px;border-radius:20px;}
+
+/* 섹션 */
+.section{padding:16px;}
+.sec-title{font-family:'Noto Serif KR',serif;font-size:13px;color:var(--t1);letter-spacing:2px;margin-bottom:12px;padding-bottom:10px;border-bottom:0.5px solid var(--bd);}
+
+/* 상담 유형 선택 */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.type-btn{padding:12px 10px;background:#fff;border:1px solid var(--bd);border-radius:6px;text-align:center;cursor:pointer;transition:all .2s;}
+.type-btn.on{background:var(--burg-pale);border-color:var(--burg-border);}
+.type-btn:hover{border-color:var(--burg-border);}
+.type-ico{font-family:'Noto Serif KR',serif;font-size:18px;color:var(--t4);margin-bottom:4px;}
+.type-btn.on .type-ico{color:var(--burg-soft);}
+.type-name{font-size:12px;color:var(--t2);letter-spacing:1px;}
+.type-btn.on .type-name{color:var(--burg-soft);}
+.type-price{font-size:11px;color:var(--t4);margin-top:2px;}
+
+/* 날짜 선택 */
+.date-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.date-scroll::-webkit-scrollbar{display:none;}
+.date-item{flex-shrink:0;width:52px;padding:10px 6px;background:#fff;border:1px solid var(--bd);border-radius:6px;text-align:center;cursor:pointer;transition:all .2s;}
+.date-item.on{background:var(--burg-soft);border-color:var(--burg-soft);}
+.date-item:hover:not(.on){border-color:var(--burg-border);}
+.date-day{font-size:10px;color:var(--t3);margin-bottom:3px;}
+.date-item.on .date-day{color:rgba(255,255,255,0.7);}
+.date-num{font-family:'Noto Serif KR',serif;font-size:18px;color:var(--t1);}
+.date-item.on .date-num{color:#fff;}
+
+/* 시간 선택 */
+.time-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.time-btn{padding:10px 6px;background:#fff;border:1px solid var(--bd);border-radius:6px;text-align:center;font-size:12px;color:var(--t2);cursor:pointer;transition:all .2s;letter-spacing:1px;}
+.time-btn.on{background:var(--burg-soft);border-color:var(--burg-soft);color:#fff;}
+.time-btn.off{background:#f0f0f0;color:#ccc;cursor:not-allowed;border-color:#e0e0e0;}
+.time-btn:hover:not(.on):not(.off){border-color:var(--burg-border);color:var(--burg-soft);}
+
+/* 요청사항 */
+.textarea{width:100%;background:#fff;border:1px solid var(--bd);border-radius:6px;padding:12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;color:var(--t1);outline:none;resize:none;height:80px;transition:border-color .2s;}
+.textarea:focus{border-color:var(--burg-soft);}
+
+/* 예약 요약 */
+.summary-card{background:#fff;border:1px solid var(--bd);border-left:3px solid var(--burg-soft);border-radius:0 6px 6px 0;padding:14px 16px;}
+.summary-row{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:0.5px solid var(--bd);}
+.summary-row:last-child{border-bottom:none;}
+.summary-label{font-size:12px;color:var(--t3);}
+.summary-val{font-size:12px;color:var(--t1);font-weight:500;}
+.summary-price{font-family:'Noto Serif KR',serif;font-size:16px;color:var(--burg-soft);}
+
+/* 예약 버튼 */
+.book-btn{display:block;width:calc(100% - 32px);margin:0 16px 20px;padding:16px;background:var(--burg-soft);border:none;color:#fff;font-family:'Noto Serif KR',serif;font-size:15px;letter-spacing:4px;cursor:pointer;border-radius:6px;transition:background .2s;}
+.book-btn:hover{background:var(--burg-light);}
+.book-btn:disabled{background:var(--bd2);cursor:not-allowed;}
+
+/* 완료 모달 */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;align-items:center;justify-content:center;}
+.modal-overlay.on{display:flex;}
+.modal{background:#fff;max-width:300px;width:90%;border-radius:12px;overflow:hidden;}
+.modal-header{background:var(--burg-deep);padding:20px;text-align:center;}
+.modal-icon{font-size:36px;margin-bottom:8px;}
+.modal-title{font-family:'Noto Serif KR',serif;font-size:16px;color:#f0d8dc;letter-spacing:1px;}
+.modal-body{padding:20px;}
+.modal-desc{font-size:13px;color:var(--t2);line-height:1.8;text-align:center;margin-bottom:16px;}
+.modal-info{background:var(--burg-pale);border:0.5px solid var(--burg-border);border-radius:6px;padding:12px;margin-bottom:16px;}
+.modal-info-row{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;}
+.modal-info-label{color:var(--t3);}
+.modal-info-val{color:var(--t1);font-weight:500;}
+.modal-btn{display:block;width:100%;padding:12px;background:var(--burg-soft);border:none;color:#fff;font-family:'Noto Serif KR',serif;font-size:13px;letter-spacing:3px;cursor:pointer;border-radius:6px;}
+
+@media(min-width:430px){body{background:#f0e8e0;}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- 네비 -->
+  <nav class="nav">
+    <button class="nav-back" onclick="location.href='index.html'">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      돌아가기
+    </button>
+    <div class="nav-logo-wrap">
+      <svg width="28" height="28" viewBox="0 0 54 54" fill="none">
+        <polygon points="27,3 50,15.5 50,38.5 27,51 4,38.5 4,15.5" stroke="#d4a0a8" stroke-width="1.2" fill="none"/>
+        <polygon points="27,9 45,19 45,35 27,45 9,35 9,19" stroke="#d4a0a8" stroke-width="0.4" fill="none" opacity="0.4"/>
+        <text x="27" y="33" text-anchor="middle" font-family="serif" font-size="18" font-weight="200" fill="#d4a0a8">運</text>
+      </svg>
+      <div>
+        <div class="nav-main">전문가 예약</div>
+        <div class="nav-eng">BOOKING</div>
+      </div>
+    </div>
+    <div style="width:60px;"></div>
+  </nav>
+
+  <!-- 전문가 프로필 -->
+  <div class="expert-card">
+    <div class="expert-row">
+      <div class="expert-avatar">
+        道
+        <div class="expert-online"></div>
+      </div>
+      <div>
+        <div class="expert-name">청운 선생</div>
+        <div class="expert-spec">사주·명리 전문 · 경력 22년</div>
+        <div class="expert-rating">
+          <span class="stars">★★★★★</span>
+          <span class="rating-txt">4.9 (1,240건)</span>
+        </div>
+      </div>
+    </div>
+    <div class="expert-tags">
+      <span class="tag">사주</span>
+      <span class="tag">명리학</span>
+      <span class="tag">연애운</span>
+      <span class="tag">재물운</span>
+      <span class="tag">대운분석</span>
+    </div>
+  </div>
+
+  <!-- 상담 유형 -->
+  <div class="section">
+    <div class="sec-title">상담 유형 선택</div>
+    <div class="type-grid">
+      <div class="type-btn on" onclick="selType(this,'사주 기본상담','30,000원')">
+        <div class="type-ico">命</div>
+        <div class="type-name">사주 기본</div>
+        <div class="type-price">30,000원 · 30분</div>
+      </div>
+      <div class="type-btn" onclick="selType(this,'사주 심층분석','60,000원')">
+        <div class="type-ico">運</div>
+        <div class="type-name">심층 분석</div>
+        <div class="type-price">60,000원 · 60분</div>
+      </div>
+      <div class="type-btn" onclick="selType(this,'연애·궁합 상담','40,000원')">
+        <div class="type-ico">緣</div>
+        <div class="type-name">연애·궁합</div>
+        <div class="type-price">40,000원 · 40분</div>
+      </div>
+      <div class="type-btn" onclick="selType(this,'재물·직업 상담','40,000원')">
+        <div class="type-ico">財</div>
+        <div class="type-name">재물·직업</div>
+        <div class="type-price">40,000원 · 40분</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 날짜 선택 -->
+  <div class="section" style="padding-top:0;">
+    <div class="sec-title">날짜 선택</div>
+    <div class="date-scroll" id="dateScroll"></div>
+  </div>
+
+  <!-- 시간 선택 -->
+  <div class="section" style="padding-top:0;">
+    <div class="sec-title">시간 선택</div>
+    <div class="time-grid">
+      <div class="time-btn off">09:00</div>
+      <div class="time-btn" onclick="selTime(this)">10:00</div>
+      <div class="time-btn" onclick="selTime(this)">11:00</div>
+      <div class="time-btn off">13:00</div>
+      <div class="time-btn on" onclick="selTime(this)">14:00</div>
+      <div class="time-btn" onclick="selTime(this)">15:00</div>
+      <div class="time-btn" onclick="selTime(this)">16:00</div>
+      <div class="time-btn off">17:00</div>
+      <div class="time-btn" onclick="selTime(this)">18:00</div>
+    </div>
+  </div>
+
+  <!-- 요청사항 -->
+  <div class="section" style="padding-top:0;">
+    <div class="sec-title">요청사항 (선택)</div>
+    <textarea class="textarea" id="memo" placeholder="생년월일, 궁금한 점 등을 미리 적어주시면 더 정확한 상담이 가능해요"></textarea>
+  </div>
+
+  <!-- 예약 요약 -->
+  <div class="section" style="padding-top:0;">
+    <div class="sec-title">예약 확인</div>
+    <div class="summary-card">
+      <div class="summary-row">
+        <span class="summary-label">전문가</span>
+        <span class="summary-val">청운 선생</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">상담 유형</span>
+        <span class="summary-val" id="sumType">사주 기본상담</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">날짜</span>
+        <span class="summary-val" id="sumDate">—</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">시간</span>
+        <span class="summary-val" id="sumTime">14:00</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">금액</span>
+        <span class="summary-price" id="sumPrice">30,000원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 예약 버튼 -->
+  <button class="book-btn" onclick="requestBooking()">예 약 신 청</button>
+
+</div>
+
+<!-- 완료 모달 -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-icon">📨</div>
+      <div class="modal-title">예약 신청 완료</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-desc">청운 선생님께 예약 신청이 전달되었어요.<br>확인 후 승인 알림을 보내드려요.</div>
+      <div class="modal-info" id="modalInfo"></div>
+      <button class="modal-btn" onclick="location.href='index.html'">메인으로 돌아가기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var selTypeVal = '사주 기본상담';
+var selPriceVal = '30,000원';
+var selDateVal = '';
+var selTimeVal = '14:00';
+
+// 날짜 생성
+var dateScroll = document.getElementById('dateScroll');
+var today = new Date();
+var days = ['일','월','화','수','목','금','토'];
+for(var i=0;i<14;i++){
+  var d = new Date(today);
+  d.setDate(today.getDate()+i);
+  var el = document.createElement('div');
+  el.className = 'date-item' + (i===0?' on':'');
+  el.innerHTML = '<div class="date-day">'+days[d.getDay()]+'</div><div class="date-num">'+(d.getDate())+'</div>';
+  el.dataset.val = (d.getMonth()+1)+'월 '+d.getDate()+'일';
+  if(i===0) selDateVal = el.dataset.val;
+  el.onclick = function(){
+    document.querySelectorAll('.date-item').forEach(function(x){x.classList.remove('on');});
+    this.classList.add('on');
+    selDateVal = this.dataset.val;
+    document.getElementById('sumDate').textContent = selDateVal;
+  };
+  dateScroll.appendChild(el);
+}
+document.getElementById('sumDate').textContent = selDateVal;
+
+function selType(el, name, price){
+  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  selTypeVal = name; selPriceVal = price;
+  document.getElementById('sumType').textContent = name;
+  document.getElementById('sumPrice').textContent = price;
+}
+function selTime(el){
+  if(el.classList.contains('off')) return;
+  document.querySelectorAll('.time-btn').forEach(function(b){b.classList.remove('on');});
+  el.classList.add('on');
+  selTimeVal = el.textContent;
+  document.getElementById('sumTime').textContent = selTimeVal;
+}
+
+function requestBooking(){
+  var booking = {
+    expert:'청운 선생',
+    type:selTypeVal,
+    date:selDateVal,
+    time:selTimeVal,
+    price:selPriceVal,
+    memo:document.getElementById('memo').value,
+    status:'pending'
+  };
+  localStorage.setItem('pendingBooking', JSON.stringify(booking));
+  document.getElementById('modalInfo').innerHTML =
+    '<div class="modal-info-row"><span class="modal-info-label">상담 유형</span><span class="modal-info-val">'+selTypeVal+'</span></div>'+
+    '<div class="modal-info-row"><span class="modal-info-label">날짜</span><span class="modal-info-val">'+selDateVal+'</span></div>'+
+    '<div class="modal-info-row"><span class="modal-info-label">시간</span><span class="modal-info-val">'+selTimeVal+'</span></div>'+
+    '<div class="modal-info-row"><span class="modal-info-label">금액</span><span class="modal-info-val">'+selPriceVal+'</span></div>';
+  document.getElementById('modal').classList.add('on');
+}
+</script>
+</body>
+</html>
