@@ -13,8 +13,9 @@ export default function Home() {
     gender: '남', calType: '양력', isLeap: false,
     hourInput: '', yajasi: false,
   });
-  const [saju, setSaju] = useState(null);
-  const [metadata, setMetadata] = useState(null);
+  const [saju, setSaju] = useState<any>(null);
+  const [metadata, setMetadata] = useState<any>(null);
+  
   const [interpretation, setInterpretation] = useState('');
   const [loadingSaju, setLoadingSaju] = useState(false);
   const [loadingAI, setLoadingAI] = useState(false);
@@ -71,7 +72,7 @@ export default function Home() {
       if (!res.body) {
         throw new Error('응답 스트림을 받을 수 없습니다.');
       }
-      
+
       const reader = res.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let done = false;
