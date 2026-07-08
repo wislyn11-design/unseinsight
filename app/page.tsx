@@ -67,6 +67,11 @@ export default function Home() {
 
       setLoadingAI(false); // 글자가 날아오기 시작하면 대기 화면(구슬) 해제!
       
+
+      if (!res.body) {
+        throw new Error('응답 스트림을 받을 수 없습니다.');
+      }
+      
       const reader = res.body.getReader();
       const decoder = new TextDecoder('utf-8');
       let done = false;
