@@ -40,7 +40,7 @@ export default function Home() {
       setSaju(data.saju);
       setMetadata(data.metadata);
     } catch (err) {
-      setError('오류: ' + err.message);
+      setError('오류: ' + (err instanceof Error ? err.message : String(err)));
     } finally {
       setLoadingSaju(false);
     }
