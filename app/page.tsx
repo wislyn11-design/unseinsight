@@ -81,7 +81,7 @@ export default function Home() {
         }
       }
     } catch (err) {
-      setError('AI 오류: ' + err.message);
+      setError('AI 오류: ' + (err instanceof Error ? err.message : String(err)));
       setLoadingAI(false);
     }
   }
