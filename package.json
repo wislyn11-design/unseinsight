@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "korean-lunar-calendar": "^0.4.0",
     "lunar-javascript": "^1.7.7",
     "lunar-typescript": "^1.8.6",
     "next": "16.2.9",
