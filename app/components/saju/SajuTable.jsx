@@ -214,7 +214,7 @@ export default function SajuTable({ saju, form }) {
           <div key={'rel'+lineIdx} style={{ ...GRID, ...ROW_BORDER, background: '#fffbe6' }}>
             {pillarOrder.map(pk => {
               const slot = grid[pk][lineIdx];
-              if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 14, color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
+              if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 'clamp(11px, 3.5vw, 14px)', color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
               return (
                 <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 14, color: slot.split(',').some(r => CHUNG_TYPES.includes(r)) ? '#e74c3c' : '#2563eb', fontWeight: 600 }}>
                   {slot === '-' ? '-' : slot}
