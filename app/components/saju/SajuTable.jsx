@@ -187,7 +187,8 @@ export default function SajuTable({ saju, form }) {
     <div style={{ 
       background: '#fff',
       borderRadius: 12, 
-      padding: 20, 
+     // padding: 20, 
+      padding: '20px 10px'
       marginBottom: 16, 
       boxShadow: '0 1px 4px rgba(0,0,0,0.1)', 
       width: '100%',      // 💡 부모 너비를 100%로 고정
