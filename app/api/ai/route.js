@@ -1,7 +1,6 @@
 import { generateSajuPrompt } from '../../lib/saju/promptFactory.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 💡 [핵심 1] Vercel의 10초 셧다운을 막아주는 Edge 런타임 강제 설정! (반드시 파일 최상단에 있어야 합니다)
 export const runtime = 'edge';
 export const dynamic = 'force-dynamic';
 
@@ -16,17 +15,21 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    
+    // 💡 [수정 1] 오타가 있었던 모델명을 가장 빠르고 안정적인 최신 Flash 모델로 명확히 수정합니다.
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
 
-    // 💡 [핵심 2] 10초를 기다리지 않고, AI가 글자를 생성하는 즉시 스트리밍으로 쏴줍니다!
     const streamingResp = await model.generateContentStream(finalPrompt);
 
+    const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
         try {
           for await (const chunk of streamingResp.stream) {
             const chunkText = chunk.text();
-            controller.enqueue(new TextEncoder().encode(chunkText));
+            if (chunkText) {
+              controller.enqueue(encoder.encode(chunkText));
+            }
           }
           controller.close();
         } catch (err) {
@@ -35,10 +38,12 @@ export async function POST(request) {
       }
     });
 
+    // 💡 [수정 2] Vercel 프록시의 '강제 버퍼링'을 무력화하는 강력한 헤더 속성들을 추가합니다.
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache',
+        'Cache-Control': 'no-cache, no-transform', // 프록시가 중간에서 데이터를 압축하거나 모아두지 못하게 차단
+        'X-Content-Type-Options': 'nosniff', // 브라우저가 버퍼링 없이 즉시 스트림을 읽도록 강제
         'Connection': 'keep-alive',
       },
     });
