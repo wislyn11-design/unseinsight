@@ -1,7 +1,9 @@
 import { generateSajuPrompt } from '../../lib/saju/promptFactory.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const runtime = 'edge';
+// 💡 [핵심 수정 1] 문제가 많던 'edge' 런타임을 완전히 삭제했습니다. (자동으로 가장 안정적인 Node.js 환경으로 작동합니다)
+// 💡 [핵심 수정 2] 통신이 끊기지 않도록 여유 시간(maxDuration)을 60초로 넉넉하게 설정합니다.
+export const maxDuration = 60; 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
@@ -15,9 +17,7 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    
-    // 💡 [수정 1] 오타가 있었던 모델명을 가장 빠르고 안정적인 최신 Flash 모델로 명확히 수정합니다.
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }); 
+    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
     const streamingResp = await model.generateContentStream(finalPrompt);
 
@@ -33,17 +33,17 @@ export async function POST(request) {
           }
           controller.close();
         } catch (err) {
+          console.error("스트리밍 중 에러:", err);
           controller.error(err);
         }
       }
     });
 
-    // 💡 [수정 2] Vercel 프록시의 '강제 버퍼링'을 무력화하는 강력한 헤더 속성들을 추가합니다.
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-cache, no-transform', // 프록시가 중간에서 데이터를 압축하거나 모아두지 못하게 차단
-        'X-Content-Type-Options': 'nosniff', // 브라우저가 버퍼링 없이 즉시 스트림을 읽도록 강제
+        'Cache-Control': 'no-cache, no-transform',
+        'X-Content-Type-Options': 'nosniff',
         'Connection': 'keep-alive',
       },
     });
