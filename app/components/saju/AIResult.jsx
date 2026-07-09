@@ -20,8 +20,9 @@ export default function AIResult({ saju, interpretation, loading, error, onReque
 
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, activeStep]); // 단계가 바뀔 때도 아래로 스무스하게 스크롤
+  }, [messages.length, activeStep]); // 💡 해결: 메시지 '개수(length)'가 늘어날 때나 '다음 단계'를 누를 때만 스크롤 실행!
 
+  
   const handleStart = () => {
     setIsOpen(true);
     setActiveStep(1); // 시작할 때는 1단계부터
