@@ -22,7 +22,7 @@ export default function AIResult({ saju, interpretation, loading, error, onReque
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, activeStep]); // 💡 해결: 메시지 '개수(length)'가 늘어날 때나 '다음 단계'를 누를 때만 스크롤 실행!
 
-  
+
   const handleStart = () => {
     setIsOpen(true);
     setActiveStep(1); // 시작할 때는 1단계부터
@@ -80,6 +80,7 @@ export default function AIResult({ saju, interpretation, loading, error, onReque
 
   // 💡 AI가 주는 긴 글을 ### 기준으로 쪼개서 이쁘게 정돈해주는 가공 함수
   const parseSections = (text) => {
+
     if (!text) return [];
     // '###' 기호로 섹션을 나눕니다.
     const rawSections = text.split('###');
@@ -97,6 +98,20 @@ export default function AIResult({ saju, interpretation, loading, error, onReque
     });
     return sections;
   };
+
+// 💡 별표(**)로 감싸진 텍스트를 진하게(bold) 바꿔주는 마법의 함수
+const formatBold = (text) => {
+  if (!text) return null;
+  return text.split(/(\*\*.*?\*\*)/g).map((part, index) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      // 별표를 떼어내고 폰트를 아주 진하게(bold) 만듭니다.
+      return <strong key={index} style={{ color: '#111', fontWeight: '900' }}>{part.slice(2, -2)}</strong>;
+    }
+    return part;
+  });
+};
+
+
 
   if (!isOpen) {
      return (
@@ -152,43 +167,26 @@ return (
           </div>
         )}
 
-        {/* 💡 첫 운세 결과를 선생님의 아이디어대로 단계별 카드로 노출 */}
+        {/* 💡 첫 운세 결과 (다음 버튼 없이 5개 카드를 한 번에 출력) */}
         {!loading && parsedSteps.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <div style={{ fontSize: 28, textAlign: 'center' }}>🧙‍♂️</div>
             
-            {parsedSteps.map((step, index) => {
-              const stepNum = index + 1;
-              if (stepNum > activeStep) return null; // 현재 활성화된 단계까지만 노출
-
-              return (
-                <div key={index} style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)', transition: 'all 0.3s ease' }}>
-                  <h3 style={{ margin: '0 0 12px', color: '#3a5bbf', fontSize: 17, fontWeight: 'bold', borderBottom: '2px solid #f0f2ff', paddingBottom: '8px' }}>
-                    {step.title}
-                  </h3>
-                  <p style={{ margin: 0, fontSize: 15, lineHeight: '1.7', color: '#333', whiteSpace: 'pre-wrap' }}>
-                    {step.content}
-                  </p>
-                  
-                  {/* 다음 단계로 넘어가는 인터랙티브 버튼 */}
-                  {stepNum === activeStep && activeStep < parsedSteps.length && (
-                    <div style={{ marginTop: 20, textAlign: 'center' }}>
-                      <button 
-                        onClick={() => setActiveStep(prev => prev + 1)}
-                        style={{ padding: '10px 20px', background: '#3a5bbf', color: '#fff', border: 'none', borderRadius: '20px', fontSize: 14, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 2px 6px rgba(58,91,191,0.2)' }}
-                      >
-                        👇 다음 운세 내용 보기
-                      </button>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+            {parsedSteps.map((step, index) => (
+              <div key={index} style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+                <h3 style={{ margin: '0 0 12px', color: '#3a5bbf', fontSize: 17, fontWeight: 'bold', borderBottom: '2px solid #f0f2ff', paddingBottom: '8px' }}>
+                  {step.title}
+                </h3>
+                <p style={{ margin: 0, fontSize: 15, lineHeight: '1.7', color: '#333', whiteSpace: 'pre-wrap' }}>
+                {formatBold(step.content)}
+                </p>
+              </div>
+            ))}
           </div>
         )}
 
-        {/* 추가 1:1 대화 메시지들 (4단계를 모두 마친 후 챗창 하단에 자연스럽게 배치) */}
-        {!loading && activeStep >= parsedSteps.length && messages.slice(1).map((msg, idx) => (
+        {/* 추가 1:1 대화 메시지들 (첫 운세 아래에 자연스럽게 배치) */}
+        {!loading && messages.slice(1).map((msg, idx) => (
           <div key={idx} style={{ display: 'flex', flexDirection: msg.type === 'user' ? 'row-reverse' : 'row', gap: '10px' }}>
             {msg.type === 'ai' && <div style={{ fontSize: 28 }}>🧙‍♂️</div>}
             <div style={{ maxWidth: '80%', padding: '14px 18px', fontSize: 15, lineHeight: '1.6', whiteSpace: 'pre-wrap', background: msg.type === 'user' ? '#3a5bbf' : '#fff', color: msg.type === 'user' ? '#fff' : '#333', border: msg.type === 'ai' ? '1px solid #e0e0e0' : 'none', borderRadius: '20px', borderTopRightRadius: msg.type === 'user' ? 4 : 20, borderTopLeftRadius: msg.type === 'ai' ? 4 : 20, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
@@ -209,7 +207,7 @@ return (
       </div>
 
       {/* 하단 입력창 (모든 운세를 다 읽은 후 대화할 수 있도록 활성화) */}
-      {activeStep >= parsedSteps.length && !loading && (
+      {!loading && parsedSteps.length > 0 && (
         chatCount >= MAX_FREE_CHAT ? (
           <div style={{ background: '#fff', padding: '24px 20px', textAlign: 'center', borderTop: '1px solid #e0e0e0', paddingBottom: 'max(24px, env(safe-area-inset-bottom))' }}>
             <p style={{ margin: '0 0 12px', fontSize: 15, color: '#e74c3c', fontWeight: 'bold' }}>무료 상담 횟수가 모두 소진되었습니다.</p>
