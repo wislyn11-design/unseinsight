@@ -1,8 +1,8 @@
 import { generateSajuPrompt } from '../../lib/saju/promptFactory.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// 💡 [핵심 1] Vercel의 10초 셧다운을 막아주는 Edge 런타임 강제 설정! (반드시 파일 최상단에 있어야 합니다)
 export const runtime = 'edge';
-// 💡 Next.js가 응답을 맘대로 캐싱(저장)해서 늦게 보내지 못하도록 강제 설정합니다.
 export const dynamic = 'force-dynamic';
 
 export async function POST(request) {
@@ -18,10 +18,9 @@ export async function POST(request) {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
-    // 💡 [핵심 1] 멈춰서 기다리지 않고, 스트리밍(실시간) 함수를 호출합니다.
+    // 💡 [핵심 2] 10초를 기다리지 않고, AI가 글자를 생성하는 즉시 스트리밍으로 쏴줍니다!
     const streamingResp = await model.generateContentStream(finalPrompt);
 
-    // 💡 [핵심 2] 생성되는 글자를 실시간으로 프론트엔드에 쏴주기 위한 호스(Stream)를 연결합니다.
     const stream = new ReadableStream({
       async start(controller) {
         try {
@@ -36,7 +35,6 @@ export async function POST(request) {
       }
     });
 
-    // 💡 [핵심 3] 조립된 스트림 데이터를 즉시 응답으로 내보냅니다.
     return new Response(stream, {
       headers: {
         'Content-Type': 'text/plain; charset=utf-8',
