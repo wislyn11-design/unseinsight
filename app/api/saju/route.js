@@ -12,6 +12,13 @@ import { getDaeun } from '../../lib/saju/daeun.js';
 import { convertLunarToSolar } from '../../lib/saju/lunarConverter.js';
 // 💡 불필요해진 solarTermsKASI.json은 더 이상 사용하지 않아도 됩니다.
 
+
+// 💡 파일의 가장 위쪽 어딘가에 이 두 줄을 반드시 추가해 주세요!
+export const runtime = 'edge'; // Vercel의 10초 제한을 우회하는 엣지 런타임 적용
+export const maxDuration = 60; // 최대 대기 시간을 60초로 넉넉하게 연장
+
+
+
 // 💡 일간(태어난 날)을 기준으로 천을귀인을 찾는 함수
 function getCheonEulGwiin(dayGan) {
   const map = {
