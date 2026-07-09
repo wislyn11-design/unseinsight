@@ -110,6 +110,8 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
           {/* 년도 - 4자리 입력시 월로 이동 */}
           <input
             type="text"
+            inputMode="numeric"        // 추가
+            pattern="[0-9]*"           // 추가
             placeholder="년도"
             value={form.year}
             onChange={e => {
@@ -125,6 +127,8 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
           <input
             ref={monthRef}
             type="text"
+            inputMode="numeric"        // 추가
+            pattern="[0-9]*"           // 추가
             placeholder="월"
             value={form.month}
             onChange={e => {
@@ -140,6 +144,8 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
           <input
             ref={dayRef}
             type="text"
+            inputMode="numeric"        // 추가
+            pattern="[0-9]*"           // 추가
             placeholder="일"
             value={form.day}
             onChange={e => {
@@ -162,6 +168,8 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
           <input
             ref={hourRef}
             type="text"
+            inputMode="numeric"        // 추가
+            pattern="[0-9]*"           // 추가
             placeholder="시간 입력 (예: 0930)"
             value={form.hourInput || ''}
             onChange={e => {

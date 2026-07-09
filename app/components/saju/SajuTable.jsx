@@ -184,9 +184,22 @@ export default function SajuTable({ saju, form }) {
   });
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: 20, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
+    <div style={{ 
+      background: '#fff',
+      borderRadius: 12, 
+      padding: 20, 
+      marginBottom: 16, 
+      boxShadow: '0 1px 4px rgba(0,0,0,0.1)', 
+      width: '100%',      // 💡 부모 너비를 100%로 고정
+      overflowX: 'auto'   // 💡 내용이 넘치면 가로 스크롤 생성
+      }}>
       {/* ... (상단 정보창 영역) ... */}
-      <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden' }}>
+      <div style={{ 
+        border: '1px solid #e0e0e0', 
+        borderRadius: 8, 
+        overflow: 'hidden', 
+        minWidth: '300px'  // 💡 표가 너무 찌그러지지 않게 최소 너비 설정
+        }}>
         <Row style={{ background: '#f5f7ff' }}>{cell('label')}</Row>
         <Row>{cell('name')}</Row>
         <Row>{cell('chung')}</Row>
