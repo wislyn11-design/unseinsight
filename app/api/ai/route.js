@@ -1,8 +1,6 @@
 import { generateSajuPrompt } from '../../lib/saju/promptFactory.js';
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// 💡 [핵심 수정 1] 문제가 많던 'edge' 런타임을 완전히 삭제했습니다. (자동으로 가장 안정적인 Node.js 환경으로 작동합니다)
-// 💡 [핵심 수정 2] 통신이 끊기지 않도록 여유 시간(maxDuration)을 60초로 넉넉하게 설정합니다.
 export const maxDuration = 60; 
 export const dynamic = 'force-dynamic';
 
@@ -17,7 +15,17 @@ export async function POST(request) {
     }
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+    
+    // 💡 [선생님이 찾아내신 완벽한 해결책 적용] 
+    // AI가 뜸 들이지 않고 즉시 첫 글자를 뱉어내도록 강제합니다.
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.5-flash",
+      generationConfig: {
+        thinkingConfig: {
+          thinkingBudget: 0, 
+        },
+      },
+    });
 
     const streamingResp = await model.generateContentStream(finalPrompt);
 
