@@ -31,3 +31,11 @@ export default function RootLayout({
     </html>
   );
 }
+
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1, // 화면 강제 확대 방지
+  userScalable: false, // 사용자가 손가락으로 확대/축소하는 것 방지
+};

@@ -1,3 +1,16 @@
+/* 모든 요소의 크기 계산에 패딩과 테두리를 포함시킵니다 */
+* {
+  box-sizing: border-box;
+}
+
+/* 스마트폰에서 가로 스크롤이 생기는 것을 원천 차단합니다 */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+  margin: 0;
+  padding: 0;
+}
+
 @import "tailwindcss";
 
 :root {

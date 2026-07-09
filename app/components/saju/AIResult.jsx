@@ -118,10 +118,11 @@ export default function AIResult({ saju, interpretation, loading, error, onReque
   // 첫 번째 AI 총평 메시지 파싱
   const aiFirstResponse = messages.find(m => m.type === 'ai')?.text || '';
   const parsedSteps = parseSections(aiFirstResponse);
-
-  return (
-    <div style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: '#f5f7ff', zIndex: 9999, display: 'flex', flexDirection: 'column' }}>
-      
+// 💡 대략 70번째 줄 부근입니다. width와 height를 100%로 변경해 주세요!
+return (
+  <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', background: '#f5f7ff', zIndex: 9999, display: 'flex', flexDirection: 'column' }}>
+  
+  
       {/* 상단 헤더 */}
       <div style={{ background: '#3a5bbf', color: '#fff', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
         <span style={{ fontWeight: 'bold', fontSize: 16 }}>🤖 AI 명리 상담사</span>
