@@ -132,7 +132,7 @@ export default function Seun({ saju, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={s.year === currentYear} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 14, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

@@ -59,7 +59,7 @@ function Row({ children, style }) {
 function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
-      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 12,
+      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 15,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -113,7 +113,7 @@ export default function Wolun({ saju }) {
 
           <Row>
             {months.map((w, i) => (
-              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 11 }}>
+              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 14 }}>
                 {getSipseong(dayGan, w.gan)}
               </Cell>
             ))}
@@ -152,7 +152,7 @@ export default function Wolun({ saju }) {
                 return (
                   <Cell key={i} isCurrent={w.month === currentMonth} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 11, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

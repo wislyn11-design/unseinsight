@@ -126,7 +126,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={i === currentIdx} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 11, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>
