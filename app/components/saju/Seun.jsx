@@ -83,7 +83,7 @@ export default function Seun({ saju, birthYear }) {
               return (
                 <Cell key={i} isCurrent={isCurrent} style={{
                   fontWeight: isCurrent ? 700 : 400, color: isCurrent ? '#3a5bbf' : '#555',
-                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 11,
+                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 14,
                 }}>
                   {s.year}
                 </Cell>
@@ -93,7 +93,7 @@ export default function Seun({ saju, birthYear }) {
 
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 11 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 14 }}>
                 {getSipseong(dayGan, s.gan)}
               </Cell>
             ))}
@@ -132,7 +132,7 @@ export default function Seun({ saju, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={s.year === currentYear} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 11, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 14, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>
