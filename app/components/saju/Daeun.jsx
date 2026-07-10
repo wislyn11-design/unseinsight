@@ -69,7 +69,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
       <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
-        대운 (대운수: {daeun.daeunSu}, {daeun.isForward ? '순행' : '역행'})
+  전통나이(대운수: {daeun.daeunSu}, {daeun.isForward ? '순행' : '역행'})
       </h2>
 
       <div style={{ overflowX: 'auto' }}>
