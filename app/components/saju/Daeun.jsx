@@ -19,7 +19,7 @@ function Row({ children, style }) {
 function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
-      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 13,
+      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 15,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -111,7 +111,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
 
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 12 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}>
                 {get12un(dayGan, d.ji)}
               </Cell>
             ))}
