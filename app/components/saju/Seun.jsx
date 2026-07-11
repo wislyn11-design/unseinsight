@@ -50,6 +50,19 @@ function Cell({ children, style, isCurrent }) {
   );
 }
 
+// 👇 1. 방금 복사하신 지지 십성 변환기가 이 자리에 들어갑니다.
+function getJiSipseong(dayGan, ji) {
+  const jiToGan = {
+    '자': '계', '축': '기', '인': '갑', '묘': '을',
+    '진': '무', '사': '병', '오': '정', '미': '기',
+    '신': '경', '유': '신', '술': '무', '해': '임'
+  };
+  const convertedGan = jiToGan[ji];
+  return convertedGan ? getSipseong(dayGan, convertedGan) : '';
+}
+
+
+
 // 💡 [수정] dayGan 대신 saju 객체 전체를 받습니다.
 export default function Seun({ saju, birthYear }) {
 
@@ -107,6 +120,7 @@ export default function Seun({ saju, birthYear }) {
             ))}
           </Row>
 
+          
           <Row>
             {seuns.map((s, i) => (
               <Cell key={i} isCurrent={s.year === currentYear}>
@@ -115,13 +129,24 @@ export default function Seun({ saju, birthYear }) {
             ))}
           </Row>
 
+          {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 11 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 14 }}>
+                {getJiSipseong(dayGan, s.ji)}
+              </Cell>
+            ))}
+          </Row>
+          {/* 👆👆👆 ========================================= 👆👆👆 */}
+
+          <Row>
+            {seuns.map((s, i) => (
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}> {/* 👈 글씨 크기 14로 키웠습니다 */}
                 {get12un(dayGan, s.ji)}
               </Cell>
             ))}
           </Row>
+
 
           {/* 💡 [새로 추가] 세운 신살 3줄 출력 */}
           {[0, 1, 2].map(rowIdx => (
