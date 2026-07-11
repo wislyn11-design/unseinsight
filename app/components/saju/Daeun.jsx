@@ -54,6 +54,23 @@ function SmallJiTile({ ji }) {
   );
 }
 
+// 👇👇👇 💡 [여기에 새로 추가!] 지지를 천간으로 변환해 십성을 구하는 마법의 함수 👇👇👇
+function getJiSipseong(dayGan, ji) {
+  // 지지(아래 한자)가 품고 있는 본기(핵심 천간) 매핑표
+  const jiToGan = {
+    '자': '계', '축': '기', '인': '갑', '묘': '을',
+    '진': '무', '사': '병', '오': '정', '미': '기',
+    '신': '경', '유': '신', '술': '무', '해': '임'
+  };
+  const convertedGan = jiToGan[ji];
+  // 변환된 천간으로 기존 십성 함수를 호출해 정확한 값을 반환합니다!
+  return convertedGan ? getSipseong(dayGan, convertedGan) : '';
+}
+// 👆👆👆 ============================================================== 👆👆👆
+
+
+
+
 export default function Daeun({ daeun, dayGan, birthYear }) {
   if (!daeun || !daeun.daeuns || daeun.daeuns.length === 0) return null;
 
@@ -111,14 +128,16 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
             ))}
           </Row>
 
-          {/* 💡 3. 아래쪽 한자(지지)의 십성 - 방금 우리가 새로 추가한 부분 */}
+          
+          {/* 💡 3. 아래쪽 한자(지지)의 십성 */}
           <Row>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
-                {getSipseong(dayGan, d.ji)}
+                {getJiSipseong(dayGan, d.ji)} {/* 👈 여기가 바뀌었습니다! */}
               </Cell>
             ))}
           </Row>
+
 
           {/* 💡 4. 12운성 - 중복으로 들어갔던 것을 하나로 정리했습니다 */}
           <Row>
