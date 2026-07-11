@@ -87,12 +87,22 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
 
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 12 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
                 {getSipseong(dayGan, d.gan)}
               </Cell>
             ))}
           </Row>
 
+          {/* 💡 1. 위쪽 한자 (천간) 타일 - 실수로 지워졌던 부분 복구! */}
+          <Row>
+            {daeuns.map((d, i) => (
+              <Cell key={i} isCurrent={i === currentIdx} style={{ outline: i === currentIdx ? '2px solid #3a5bbf' : 'none' }}>
+                <SmallGanTile gan={d.gan} />
+              </Cell>
+            ))}
+          </Row>
+
+          {/* 💡 2. 아래쪽 한자 (지지) 타일 */}
           <Row>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{ outline: i === currentIdx ? '2px solid #3a5bbf' : 'none' }}>
@@ -101,7 +111,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
             ))}
           </Row>
 
-          {/* 💡 [여기에 새로 추가!] 지지(아래 한자)의 십성 출력 */}
+          {/* 💡 3. 아래쪽 한자(지지)의 십성 - 방금 우리가 새로 추가한 부분 */}
           <Row>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
@@ -110,21 +120,16 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
             ))}
           </Row>
 
+          {/* 💡 4. 12운성 - 중복으로 들어갔던 것을 하나로 정리했습니다 */}
           <Row>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}>
                 {get12un(dayGan, d.ji)}
               </Cell>
             ))}
-          </Row>
+          </Row> 
 
-          <Row>
-            {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}>
-                {get12un(dayGan, d.ji)}
-              </Cell>
-            ))}
-          </Row>
+
 
           {/* 💡 [새로 추가] 대운 신살 3줄 출력 */}
           {[0, 1, 2].map(rowIdx => (
