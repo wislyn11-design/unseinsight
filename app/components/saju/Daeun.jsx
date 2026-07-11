@@ -96,15 +96,24 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
           <Row>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{ outline: i === currentIdx ? '2px solid #3a5bbf' : 'none' }}>
-                <SmallGanTile gan={d.gan} />
+                <SmallJiTile ji={d.ji} />
+              </Cell>
+            ))}
+          </Row>
+
+          {/* 💡 [여기에 새로 추가!] 지지(아래 한자)의 십성 출력 */}
+          <Row>
+            {daeuns.map((d, i) => (
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
+                {getSipseong(dayGan, d.ji)}
               </Cell>
             ))}
           </Row>
 
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ outline: i === currentIdx ? '2px solid #3a5bbf' : 'none' }}>
-                <SmallJiTile ji={d.ji} />
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}>
+                {get12un(dayGan, d.ji)}
               </Cell>
             ))}
           </Row>
