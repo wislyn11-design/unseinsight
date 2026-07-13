@@ -68,6 +68,19 @@ function Cell({ children, style, isCurrent }) {
   );
 }
 
+// 👇👇👇 💡 [여기에 새로 추가!] 지지를 천간으로 변환해 십성을 구하는 함수 👇👇👇
+function getJiSipseong(dayGan, ji) {
+  const jiToGan = {
+    '자': '계', '축': '기', '인': '갑', '묘': '을',
+    '진': '무', '사': '병', '오': '정', '미': '기',
+    '신': '경', '유': '신', '술': '무', '해': '임'
+  };
+  const convertedGan = jiToGan[ji];
+  return convertedGan ? getSipseong(dayGan, convertedGan) : '';
+}
+
+
+
 // 💡 [수정됨] dayGan 대신 saju 객체 전체를 받습니다.
 export default function Wolun({ saju }) {
   const currentYear = new Date().getFullYear();
@@ -134,6 +147,18 @@ export default function Wolun({ saju }) {
               </Cell>
             ))}
           </Row>
+
+          {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
+          <Row>
+            {woluns.map((w, i) => (
+              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 14 }}>
+                {getJiSipseong(dayGan, w.ji)}
+              </Cell>
+            ))}
+          </Row>
+          {/* 👆👆👆 ========================================= 👆👆👆 */}
+
+
 
           <Row>
             {months.map((w, i) => (
