@@ -148,9 +148,9 @@ export default function Wolun({ saju }) {
             ))}
           </Row>
 
-          {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
-          <Row>
-            {woluns.map((w, i) => (
+         {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
+         <Row>
+            {months.map((w, i) => (                 {/* 👈 woluns를 months로 수정했습니다! */}
               <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 14 }}>
                 {getJiSipseong(dayGan, w.ji)}
               </Cell>
