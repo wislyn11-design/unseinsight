@@ -24,8 +24,10 @@ export default function SajuSummary({ saju, gender }) {
       }
     };
 
-    if (saju) fetchSummary();
-  }, [saju, gender]);
+    if (saju && saju.year && saju.month && saju.day) {
+        fetchSummary();
+      }
+    }, [saju, gender]);
 
   return (
     <div style={{ 
