@@ -6,7 +6,13 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 export async function POST(request) {
   try {
     const { saju, gender } = await request.json();
+    
+    console.log("받은 사주 데이터:", saju); 
 
+    if (!saju || !saju.year || !saju.month || !saju.day) {
+      throw new Error("사주 데이터가 불완전합니다.");
+    }
+    
     const year = `${saju.year.gan}${saju.year.ji}`;
     const month = `${saju.month.gan}${saju.month.ji}`;
     const day = `${saju.day.gan}${saju.day.ji}`;
