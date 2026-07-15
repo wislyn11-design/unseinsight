@@ -16,18 +16,24 @@ export default function SajuSummary({ saju, gender }) {
         });
         
         const data = await res.json();
-        if (data.summary) setSummary(data.summary);
-      } catch (error) {
-        setSummary('총론을 불러오는 중 문제가 발생했습니다.');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (saju && saju.year && saju.month && saju.day) {
+        
+        if (res.ok && data.summary) {
+            setSummary(data.summary);
+          } else {
+            setSummary(`[서버 오류] ${data.error || '총론을 불러오지 못했습니다.'}`);
+          }
+        } catch (error) {
+          setSummary('네트워크 오류가 발생했습니다.');
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      if (saju && saju.year && saju.month && saju.day) {
         fetchSummary();
       }
     }, [saju, gender]);
+
 
   return (
     <div style={{ 
