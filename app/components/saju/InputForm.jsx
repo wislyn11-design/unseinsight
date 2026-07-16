@@ -56,15 +56,14 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
   const dayRef   = useRef(null);
   const hourRef  = useRef(null);
 
-// 💡 [여기 추가!] 숫자를 '00시 00분' 형태로 예쁘게 포장해 주는 함수
-const formatTimeDisplay = (value) => {
-  if (!value) return '';
-  const onlyNumbers = value.toString().replace(/[^0-9]/g, ''); 
-  if (onlyNumbers.length === 0) return '';
-  if (onlyNumbers.length <= 2) return `${onlyNumbers}시`;
-  return `${onlyNumbers.slice(0, 2)}시 ${onlyNumbers.slice(2, 4)}분`;
-};
-
+  // 💡 [새로 추가된 코드] 숫자를 '00시 00분' 형태로 예쁘게 포장해 주는 함수
+  const formatTimeDisplay = (value) => {
+    if (!value) return '';
+    const onlyNumbers = value.toString().replace(/[^0-9]/g, ''); 
+    if (onlyNumbers.length === 0) return '';
+    if (onlyNumbers.length <= 2) return `${onlyNumbers}시`;
+    return `${onlyNumbers.slice(0, 2)}시 ${onlyNumbers.slice(2, 4)}분`;
+  };
 
   const hourLabel = form.hour === '-1' || form.hour === -1 ? '모름' : HOUR_LABELS[Number(form.hour)] || '';
   const showYajasi = form.hourInput && form.hourInput.length === 4 && isYajasiTime(form.hourInput);
@@ -120,8 +119,8 @@ const formatTimeDisplay = (value) => {
           {/* 년도 - 4자리 입력시 월로 이동 */}
           <input
             type="text"
-            inputMode="numeric"        // 추가
-            pattern="[0-9]*"           // 추가
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="년도"
             value={form.year}
             onChange={e => {
@@ -137,8 +136,8 @@ const formatTimeDisplay = (value) => {
           <input
             ref={monthRef}
             type="text"
-            inputMode="numeric"        // 추가
-            pattern="[0-9]*"           // 추가
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="월"
             value={form.month}
             onChange={e => {
@@ -154,8 +153,8 @@ const formatTimeDisplay = (value) => {
           <input
             ref={dayRef}
             type="text"
-            inputMode="numeric"        // 추가
-            pattern="[0-9]*"           // 추가
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="일"
             value={form.day}
             onChange={e => {
@@ -178,46 +177,41 @@ const formatTimeDisplay = (value) => {
           <input
             ref={hourRef}
             type="text"
-            inputMode="numeric"        // 추가
-            pattern="[0-9]*"           // 추가
+            inputMode="numeric"
+            pattern="[0-9]*"
             placeholder="시간 입력 (예: 0930)"
+            
+            // 💡 [새로 추가된 코드] 화면에 14시 10분으로 예쁘게 보여주는 기능
             value={formatTimeDisplay(form.hourInput)}
-           
+            
+            // 💡 [새로 추가된 코드] 실시간 시간/분 검증 로직
+            onChange={e => {
+              const val = e.target.value.replace(/\D/g, '').slice(0, 4);
 
-// 💡 [여기서부터 실시간 검증 로직으로 교체!]
-onChange={e => {
-  // 1. 숫자 이외의 문자는 지우고 최대 4자리까지만 가져옵니다.
-  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+              // 1. '시간' (앞 2자리) 검사 (24 이상 막기)
+              if (val.length >= 2) {
+                const h = parseInt(val.slice(0, 2), 10);
+                if (h >= 24) {
+                  alert("올바른 시간이 아닙니다!\n시간은 00~23 사이로 입력해주세요.\n(밤 12시는 '00'으로 시작합니다.)");
+                  setForm({ ...form, hourInput: '', hour: -1, yajasi: false });
+                  return; 
+                }
+              }
 
-  // 2. 실시간 검사 1단계: '시간' (앞 2자리) 검사
-  if (val.length >= 2) {
-    const h = parseInt(val.slice(0, 2), 10);
-    if (h >= 24) {
-      alert("올바른 시간이 아닙니다!\n시간은 00~23 사이로 입력해주세요.\n(밤 12시는 '00'으로 시작합니다.)");
-      // 잘못된 입력을 지우고 폼을 비워줍니다.
-      setForm({ ...form, hourInput: '', hour: -1, yajasi: false });
-      return; // 여기서 함수를 멈춰서 24나 25가 입력되는 것을 원천 차단!
-    }
-  }
+              // 2. '분' (뒤 2자리) 검사 (60 이상 막기)
+              if (val.length === 4) {
+                const m = parseInt(val.slice(2, 4), 10);
+                if (m >= 60) {
+                  alert("올바른 분이 아닙니다!\n분은 00~59 사이로 입력해주세요.");
+                  setForm({ ...form, hourInput: val.slice(0, 2), hour: -1, yajasi: false });
+                  return; 
+                }
+              }
 
-  // 3. 실시간 검사 2단계: '분' (뒤 2자리) 검사
-  if (val.length === 4) {
-    const m = parseInt(val.slice(2, 4), 10);
-    if (m >= 60) {
-      alert("올바른 분이 아닙니다!\n분은 00~59 사이로 입력해주세요.");
-      // 엉뚱한 분을 쳤으니, 앞의 '시(2자리)'까지만 남겨두고 뒤를 지웁니다.
-      setForm({ ...form, hourInput: val.slice(0, 2), hour: -1, yajasi: false });
-      return; 
-    }
-  }
-
-  // 4. 입력이 모두 정상이면 폼에 저장합니다.
-  const hourVal = val.length === 4 ? timeToHourValue(val) : -1;
-  setForm({ ...form, hourInput: val, hour: hourVal, yajasi: false });
-}}
-// 💡 [실시간 검증 로직 교체 끝]
-
-
+              // 3. 정상 입력 시 폼에 저장 (지워졌던 hourVal 계산 로직 안전하게 복구)
+              const hourVal = val.length === 4 ? timeToHourValue(val) : -1;
+              setForm({ ...form, hourInput: val, hour: hourVal, yajasi: false });
+            }}
             style={{ ...inputStyle, flex: 1, textAlign: 'center' }}
           />
           <button
