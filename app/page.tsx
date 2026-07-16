@@ -27,6 +27,28 @@ export default function Home() {
       setError('생년월일을 모두 입력해주세요.');
       return;
     }
+
+    // 💡 [여기서부터 새로 추가하는 시간 검문소(검증 로직) 입니다!]
+    if (form.hourInput && form.hourInput.length > 0) {
+      // 1. 숫자를 4자리까지 다 치지 않고 덜 친 경우 (예: '00'만 입력)
+      if (form.hourInput.length !== 4) {
+        alert("태어난 시간은 4자리 숫자(예: 1410, 0030)로 끝까지 입력해주세요.");
+        return;
+      }
+
+      // 2. 시간(0~23)이나 분(0~59)의 범위를 벗어난 경우 (예: '2430' 입력)
+      const h = parseInt(form.hourInput.slice(0, 2), 10);
+      const m = parseInt(form.hourInput.slice(2, 4), 10);
+
+      if (h >= 24 || m >= 60) {
+        alert("올바른 시간이 아닙니다!\n시간은 00~23, 분은 00~59 사이로 입력해주세요.\n(밤 12시는 '0000'으로 입력하시면 됩니다.)");
+        setForm({ ...form, hourInput: '', hour: -1 }); // 💡 엉뚱한 값을 썼으니 입력창을 모름 상태로 깔끔하게 비워줍니다.
+        return;
+      }
+    }
+    // 💡 [시간 검문소 로직 끝]
+
+
     setError('');
     setLoadingSaju(true);
     setSaju(null);
