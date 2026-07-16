@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import InputForm from './components/saju/InputForm.jsx';
-import SajuSummary from './components/saju/SajuSummary.jsx';
+
 import SajuTable from './components/saju/SajuTable.jsx';
 import AIResult from './components/saju/AIResult.jsx';
 import Daeun from './components/saju/Daeun.jsx';
@@ -102,7 +102,7 @@ export default function Home() {
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px' }}>
         <InputForm form={form} setForm={setForm} onSubmit={handleSaju} loading={loadingSaju} error={error} />
-        {saju && <SajuSummary saju={saju} gender={form.gender} />}
+        
         {saju && <SajuTable saju={saju} form={form} />}
         {saju && saju.daeun && <Daeun daeun={saju.daeun} dayGan={saju.day?.gan} birthYear={Number(form.year)} />}
         {saju && <Seun saju={saju} birthYear={Number(form.year)} />}
