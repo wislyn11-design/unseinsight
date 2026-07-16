@@ -182,11 +182,42 @@ const formatTimeDisplay = (value) => {
             pattern="[0-9]*"           // 추가
             placeholder="시간 입력 (예: 0930)"
             value={formatTimeDisplay(form.hourInput)}
-            onChange={e => {
-              const val = e.target.value.replace(/\D/g, '').slice(0, 4);
-              const hourVal = val.length === 4 ? timeToHourValue(val) : -1;
-              setForm({ ...form, hourInput: val, hour: hourVal, yajasi: false });
-            }}
+           
+
+// 💡 [여기서부터 실시간 검증 로직으로 교체!]
+onChange={e => {
+  // 1. 숫자 이외의 문자는 지우고 최대 4자리까지만 가져옵니다.
+  const val = e.target.value.replace(/\D/g, '').slice(0, 4);
+
+  // 2. 실시간 검사 1단계: '시간' (앞 2자리) 검사
+  if (val.length >= 2) {
+    const h = parseInt(val.slice(0, 2), 10);
+    if (h >= 24) {
+      alert("올바른 시간이 아닙니다!\n시간은 00~23 사이로 입력해주세요.\n(밤 12시는 '00'으로 시작합니다.)");
+      // 잘못된 입력을 지우고 폼을 비워줍니다.
+      setForm({ ...form, hourInput: '', hour: -1, yajasi: false });
+      return; // 여기서 함수를 멈춰서 24나 25가 입력되는 것을 원천 차단!
+    }
+  }
+
+  // 3. 실시간 검사 2단계: '분' (뒤 2자리) 검사
+  if (val.length === 4) {
+    const m = parseInt(val.slice(2, 4), 10);
+    if (m >= 60) {
+      alert("올바른 분이 아닙니다!\n분은 00~59 사이로 입력해주세요.");
+      // 엉뚱한 분을 쳤으니, 앞의 '시(2자리)'까지만 남겨두고 뒤를 지웁니다.
+      setForm({ ...form, hourInput: val.slice(0, 2), hour: -1, yajasi: false });
+      return; 
+    }
+  }
+
+  // 4. 입력이 모두 정상이면 폼에 저장합니다.
+  const hourVal = val.length === 4 ? timeToHourValue(val) : -1;
+  setForm({ ...form, hourInput: val, hour: hourVal, yajasi: false });
+}}
+// 💡 [실시간 검증 로직 교체 끝]
+
+
             style={{ ...inputStyle, flex: 1, textAlign: 'center' }}
           />
           <button
