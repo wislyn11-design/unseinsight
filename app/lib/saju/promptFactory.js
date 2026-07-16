@@ -9,9 +9,13 @@ export function generateSajuPrompt(saju) {
 
   const gender = saju?.gender || '고객';
   
-  // 전체 대운 데이터 및 현재 연도
-  const daeunData = saju?.daeun ? JSON.stringify(saju.daeun) : '데이터 없음';
+  // 💡 [버그 해결!] 생년월일 데이터에서 태어난 연도를 뽑아내고, 현재 나이를 계산합니다.
+  const birthYear = saju?.solarDate ? parseInt(saju.solarDate.split('-')[0], 10) : new Date().getFullYear();
   const currentYear = new Date().getFullYear();
+  const currentAge = currentYear - birthYear + 1; // 명리학에서 주로 쓰는 세는 나이(한국 나이)
+
+  // 전체 대운 데이터
+  const daeunData = saju?.daeun ? JSON.stringify(saju.daeun) : '데이터 없음';
 
   return `
 [시스템 가이드: 운세인사이트]
@@ -21,12 +25,14 @@ export function generateSajuPrompt(saju) {
 
 [사주 정보]
 - 성별 : ${gender}
+- 출생 연도 : ${birthYear}년
 - 현재 연도 : ${currentYear}년
+- 현재 나이 : ${currentAge}세
 - 사주팔자 : 년주(${year}), 월주(${month}), 일주(${day}), 시주(${hour})
 
 [대운 정보]
 - 전체 대운 데이터 : ${daeunData}
-(※ 위 전체 대운 데이터와 현재 연도(${currentYear}년)를 비교하여, 사용자가 '현재 지나고 있는 대운'의 시작 나이, 간지, 십성, 12운성을 정확히 파악한 뒤 아래 질문에 답하십시오.)
+(※ 중요 지시사항: 위 전체 대운 데이터 배열에서 고객의 '현재 나이(${currentAge}세)'가 포함된 대운 구간을 정확히 찾으십시오. 엉뚱한 대운을 해석하지 말고, 반드시 이 현재 대운의 간지와 십성을 기준으로 아래 질문에 답해야 합니다.)
 
 [질문 사항]
 위 데이터를 바탕으로 명리학 전문가의 관점에서 다음 사항을 상세히 분석해 주십시오.
