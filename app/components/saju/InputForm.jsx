@@ -56,6 +56,16 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
   const dayRef   = useRef(null);
   const hourRef  = useRef(null);
 
+// 💡 [여기 추가!] 숫자를 '00시 00분' 형태로 예쁘게 포장해 주는 함수
+const formatTimeDisplay = (value) => {
+  if (!value) return '';
+  const onlyNumbers = value.toString().replace(/[^0-9]/g, ''); 
+  if (onlyNumbers.length === 0) return '';
+  if (onlyNumbers.length <= 2) return `${onlyNumbers}시`;
+  return `${onlyNumbers.slice(0, 2)}시 ${onlyNumbers.slice(2, 4)}분`;
+};
+
+
   const hourLabel = form.hour === '-1' || form.hour === -1 ? '모름' : HOUR_LABELS[Number(form.hour)] || '';
   const showYajasi = form.hourInput && form.hourInput.length === 4 && isYajasiTime(form.hourInput);
 
@@ -171,7 +181,7 @@ export default function InputForm({ form, setForm, onSubmit, loading, error }) {
             inputMode="numeric"        // 추가
             pattern="[0-9]*"           // 추가
             placeholder="시간 입력 (예: 0930)"
-            value={form.hourInput || ''}
+            value={formatTimeDisplay(form.hourInput)}
             onChange={e => {
               const val = e.target.value.replace(/\D/g, '').slice(0, 4);
               const hourVal = val.length === 4 ? timeToHourValue(val) : -1;
