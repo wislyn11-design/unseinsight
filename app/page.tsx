@@ -119,7 +119,7 @@ export default function Home() {
     <main style={{ minHeight: '100vh', background: '#f5f5f5', fontFamily: '-apple-system, sans-serif' }}>
       <div style={{ background: '#3a5bbf', color: '#fff', padding: '16px 20px' }}>
         <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700 }}>운세인사이트</h1>
-        <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.85 }}>AI 사주풀이</p>
+        <p style={{ margin: '4px 0 0', fontSize: 13, opacity: 0.85 }}>사주풀이</p>
       </div>
 
       <div style={{ maxWidth: 480, margin: '0 auto', padding: '20px 16px' }}>

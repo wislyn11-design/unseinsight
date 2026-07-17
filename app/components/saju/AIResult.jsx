@@ -141,7 +141,7 @@ return (
   
       {/* 상단 헤더 */}
       <div style={{ background: '#3a5bbf', color: '#fff', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <span style={{ fontWeight: 'bold', fontSize: 16 }}>🤖 AI 명리 상담사</span>
+        <span style={{ fontWeight: 'bold', fontSize: 16 }}> 사주풀이 상담사</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <span style={{ fontSize: 12, background: chatCount >= MAX_FREE_CHAT ? '#e74c3c' : 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12 }}>
             남은 질문: {MAX_FREE_CHAT - chatCount}회
