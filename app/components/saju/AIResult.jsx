@@ -125,7 +125,7 @@ const formatBold = (text) => {
            onClick={handleStart}
            style={{ width: '100%', padding: '16px', background: '#3a5bbf', color: '#fff', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(58, 91, 191, 0.3)' }}
          >
-           ✨ AI 운세 풀이 및 상담 시작하기
+           ✨운세 풀이 상담 
          </button>
        </div>
      )
