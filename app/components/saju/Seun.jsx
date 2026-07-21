@@ -42,7 +42,8 @@ function Row({ children, style }) {
 function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
-      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 12,
+      // 💡 아래처럼 flex: 1 과 minWidth: '48px' 로 변경해 주세요!
+      flex: 1, minWidth: '48px', textAlign: 'center', padding: '4px 2px', fontSize: 12,
       background: isCurrent ? '#eef2ff' : 'transparent', ...style
     }}>
       {children}
@@ -88,7 +89,9 @@ export default function Seun({ saju, birthYear }) {
       </h2>
 
       <div style={{ overflowX: 'auto' }}>
-        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content' }}>
+        {/* 💡 width: '100%' 를 추가하여, 늘어난 어항(PC화면) 크기에 맞게 꽉 채우라고 명령합니다 */}
+        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content', width: '100%' }}>
+
 
           <Row style={{ background: '#f5f7ff' }}>
             {seuns.map((s, i) => {

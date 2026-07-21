@@ -16,10 +16,13 @@ function Row({ children, style }) {
 }
 
 // 💡 Cell에 isCurrent 속성을 추가하여 배경색 처리를 간소화했습니다.
+
 function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
-      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 15,
+      // 💡 flex: 1로 공평하게 늘어나게 하고, 모바일을 위해 최소 너비 48px을 남겨둡니다.
+      flex: 1, minWidth: '48px', 
+      textAlign: 'center', padding: '4px 2px', fontSize: 15,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -27,6 +30,8 @@ function Cell({ children, style, isCurrent }) {
     </div>
   );
 }
+
+
 
 function SmallGanTile({ gan }) {
   const GAN_COLOR = { 갑:'#008000', 을:'#008000', 병:'#FF0000', 정:'#FF0000', 무:'#FFD700', 기:'#FFD700', 경:'#FFFFFF', 신:'#FFFFFF', 임:'#000000', 계:'#000000' };

@@ -59,7 +59,9 @@ function Row({ children, style }) {
 function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
-      flex: '0 0 48px', textAlign: 'center', padding: '4px 2px', fontSize: 15,
+      // 💡 flex: 1과 minWidth: '48px'로 수정하여 공평하게 늘어나게 합니다!
+      flex: 1, minWidth: '48px', 
+      textAlign: 'center', padding: '4px 2px', fontSize: 15,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -106,7 +108,8 @@ export default function Wolun({ saju }) {
       </h2>
 
       <div style={{ overflowX: 'auto' }}>
-        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content' }}>
+        {/* 💡 width: '100%'를 추가하여 웹 화면에 꽉 차게 만듭니다! */}
+        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content', width: '100%' }}>
 
           <Row style={{ background: '#f5f7ff' }}>
             {months.map((w, i) => {
