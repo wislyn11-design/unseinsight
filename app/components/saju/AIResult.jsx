@@ -216,8 +216,7 @@ return (
       </div>
 
       {/* 중앙 콘텐츠 영역 */}
-      <div style={{ flex: 1, padding: '20px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        
+      <div style={{ flex: 1, padding: '10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>  
         
       {/* 💡 기존의 단순했던 로딩 화면을 프리미엄 카운트다운 화면으로 교체! */}
         {loading && (
@@ -254,7 +253,9 @@ return (
             <div style={{ fontSize: 28, textAlign: 'center' }}>🧙‍♂️</div>
             
             {parsedSteps.map((step, index) => (
-              <div key={index} style={{ background: '#fff', padding: '20px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+              <div key={index} style={{ background: '#fff', padding: '16px 12px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+
+
                 <h3 style={{ margin: '0 0 12px', color: '#3a5bbf', fontSize: 17, fontWeight: 'bold', borderBottom: '2px solid #f0f2ff', paddingBottom: '8px' }}>
                   {step.title}
                 </h3>
