@@ -91,14 +91,12 @@ const handleAiRequest = async () => {
   if (!saju) return null;
 
   return (
-    // 💡 화면 넓게 쓰도록 이전에 수정한 max-w-7xl 유지!
-    <div className="mx-auto max-w-7xl px-5 pt-14 pb-20">
+    // 💡 1. 맨 바깥쪽 양옆 여백을 px-5에서 px-1로 확 줄였습니다. (사주팔자 연주 짤림 해결!)
+    <div className="mx-auto max-w-7xl px-1 pt-14 pb-20">
       
       {/* 상단 헤더 및 다시하기 버튼 */}
-      <div className="mb-6 flex justify-between items-center w-full max-w-3xl mx-auto px-1"> 
+      <div className="mb-6 flex justify-between items-center w-full max-w-3xl mx-auto px-2"> 
         <h2 className="text-2xl font-black text-foreground">사주 분석 결과</h2>
-        
-        {/* 주석을 버튼 태그 바깥으로 뺐습니다 */}
         <button 
           onClick={onReset} 
           className="text-base font-bold text-muted-foreground hover:text-foreground underline transition-colors"
@@ -107,52 +105,35 @@ const handleAiRequest = async () => {
         </button>
       </div>
 
-
-     {/* 1. 만세력 표 (사주 원국) */}
-     <div className="w-full pb-4 px-1 flex justify-center"> {/* 👈 flex justify-center로 화면 가운데 정렬 */}
-        <div className="w-full max-w-3xl"> {/* 👈 max-w-3xl (약 768px)로 PC에서 무한정 늘어나는 것을 방지 */}
+      {/* 1. 만세력 표 (사주 원국) */}
+      <div className="w-full pb-4 flex justify-center">
+        <div className="w-full max-w-3xl">
           <SajuTable saju={saju} form={data} />
         </div>
       </div>
 
       {/* 2. 운의 흐름 (대운, 세운, 월운) */}
-      <div className="mt-3 flex flex-col gap-2 w-full items-center px-1">
+      <div className="mt-3 flex flex-col gap-2 w-full items-center">
         
-        {/* 불필요한 가로 750px 확장(min-w-750px)과 바깥 스크롤을 모두 제거했습니다! */}
-        <div className="w-full max-w-3xl pb-2">
+        {/* 💡 2. 여기에 overflow-hidden을 추가했습니다. 
+            이렇게 하면 제목은 화면 가운데 고정되고, 표 안에만 가로 스크롤바가 생깁니다! */}
+        <div className="w-full max-w-3xl pb-2 overflow-hidden">
           <Daeun daeun={saju.daeun} dayGan={saju.day.gan} birthYear={data.year} />
         </div>
 
-        <div className="w-full max-w-3xl pb-2">
+        <div className="w-full max-w-3xl pb-2 overflow-hidden">
           <Seun saju={saju} />
         </div>
 
-        <div className="w-full max-w-3xl pb-2">
+        <div className="w-full max-w-3xl pb-2 overflow-hidden">
           <Wolun saju={saju} />
-        </div>
-        
-      </div>
-      
-
-        <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-[750px] lg:min-w-full">
-            <Seun saju={saju} />
-          </div>
-        </div>
-
-        <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-[750px] lg:min-w-full">
-            <Wolun saju={saju} />
-          </div>
         </div>
         
       </div>
 
       {/* 3. AI 상담 버튼 */}
-      {/* 👇👇👇 3. 가짜 데이터를 지우고 실제 상태와 함수를 연결했습니다! 👇👇👇 */}
-      
-      <div className="mt-12 w-full">
-      <AIResult 
+      <div className="mt-12 w-full px-2">
+        <AIResult 
           saju={saju} 
           interpretation={aiInterpretation} 
           loading={aiLoading} 
@@ -161,9 +142,6 @@ const handleAiRequest = async () => {
           onRequireLogin={onRequireLogin} 
         />
       </div>
-
-
-
 
     </div>
   )
