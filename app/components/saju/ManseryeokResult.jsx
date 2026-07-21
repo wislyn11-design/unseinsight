@@ -116,17 +116,23 @@ const handleAiRequest = async () => {
       </div>
 
       {/* 2. 운의 흐름 (대운, 세운, 월운) */}
-      <div className="mt-3 flex flex-col gap-2">
+      <div className="mt-3 flex flex-col gap-2 w-full items-center px-1">
         
-        <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
-          <div className="min-w-[750px] lg:min-w-full">
-            <Daeun 
-              daeun={saju.daeun} 
-              dayGan={saju.day.gan} 
-              birthYear={data.year} 
-            />
-          </div>
+        {/* 불필요한 가로 750px 확장(min-w-750px)과 바깥 스크롤을 모두 제거했습니다! */}
+        <div className="w-full max-w-3xl pb-2">
+          <Daeun daeun={saju.daeun} dayGan={saju.day.gan} birthYear={data.year} />
         </div>
+
+        <div className="w-full max-w-3xl pb-2">
+          <Seun saju={saju} />
+        </div>
+
+        <div className="w-full max-w-3xl pb-2">
+          <Wolun saju={saju} />
+        </div>
+        
+      </div>
+      
 
         <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
           <div className="min-w-[750px] lg:min-w-full">

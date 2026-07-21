@@ -187,21 +187,23 @@ export default function SajuTable({ saju, form }) {
     <div style={{ 
       background: '#fff',
       borderRadius: 12, 
-      padding: '20px 10px 0px 10px', // 아래쪽 패딩 0으로
-      marginBottom: 0, // 👈 간격을 0으로 줄임
+      padding: '20px 2px 0px 2px', // 👈 1. 좌우 패딩을 10px에서 2px로 대폭 줄여서 공간 확보!
+      marginBottom: 0, 
       boxShadow: '0 1px 4px rgba(0,0,0,0.1)', 
       width: '100%',      
-      overflowX: 'auto'   
+      overflowX: 'hidden'   // 👈 2. auto를 hidden으로 바꿔서 스크롤이 아예 생기지 않게 방어!
       }}>
-
-
       {/* ... (상단 정보창 영역) ... */}
       <div style={{ 
         border: '1px solid #e0e0e0', 
         borderRadius: 8, 
         overflow: 'hidden', 
-        minWidth: '300px'  // 💡 표가 너무 찌그러지지 않게 최소 너비 설정
+        width: '100%'  // 👈 3. minWidth: '300px'를 지우고 width: '100%'로 변경하여 핸드폰 화면에 강제로 쏙 맞춤!
         }}>
+
+
+
+
         <Row style={{ background: '#f5f7ff' }}>{cell('label')}</Row>
         <Row>{cell('name')}</Row>
         <Row>{cell('chung')}</Row>
