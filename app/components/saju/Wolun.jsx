@@ -61,7 +61,7 @@ function Cell({ children, style, isCurrent }) {
     <div style={{
       // 💡 flex: 1과 minWidth: '48px'로 수정하여 공평하게 늘어나게 합니다!
       flex: 1, minWidth: '48px', 
-      textAlign: 'center', padding: '4px 2px', fontSize: 15,
+      textAlign: 'center', padding: '4px 2px', fontSize: 18,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -103,7 +103,7 @@ export default function Wolun({ saju }) {
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
         {currentYear}년 월운
       </h2>
 
@@ -119,7 +119,7 @@ export default function Wolun({ saju }) {
                   fontWeight: isCurrent ? 700 : 400,
                   color: isCurrent ? '#3a5bbf' : '#555',
                   outline: isCurrent ? '2px solid #3a5bbf' : 'none',
-                  fontSize: 11,
+                  fontSize: 16,
                 }}>
                   {w.month}월
                 </Cell>
@@ -129,7 +129,7 @@ export default function Wolun({ saju }) {
 
           <Row>
             {months.map((w, i) => (
-              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 16 }}>
                 {getSipseong(dayGan, w.gan)}
               </Cell>
             ))}
@@ -154,7 +154,7 @@ export default function Wolun({ saju }) {
         {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
         <Row>
             {months.map((w, i) => (
-              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#555', fontSize: 16 }}>
                 {getJiSipseong(dayGan, w.ji)}
               </Cell>
             ))}
@@ -164,7 +164,7 @@ export default function Wolun({ saju }) {
 
           <Row>
             {months.map((w, i) => (
-              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 11 }}>
+              <Cell key={i} isCurrent={w.month === currentMonth} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 16 }}>
                 {get12un(dayGan, w.ji)}
               </Cell>
             ))}
@@ -179,7 +179,7 @@ export default function Wolun({ saju }) {
                 return (
                   <Cell key={i} isCurrent={w.month === currentMonth} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 16, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

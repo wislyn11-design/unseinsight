@@ -132,7 +132,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
     <div style={{ ...CELL, color: '#7c3aed', fontWeight: 700 }}>
       {isUnknown ? '' : pillar.un12}
       {!isUnknown && pillar.un12Self ? (
-        <div style={{ fontSize: 13, color: '#9f7aea', fontWeight: 400 }}>
+        <div style={{ fontSize: 16, color: '#9f7aea', fontWeight: 400 }}>
           ({pillar.un12Self})
         </div>
       ) : null}

@@ -22,7 +22,7 @@ function Cell({ children, style, isCurrent }) {
     <div style={{
       // 💡 flex: 1로 공평하게 늘어나게 하고, 모바일을 위해 최소 너비 48px을 남겨둡니다.
       flex: 1, minWidth: '48px', 
-      textAlign: 'center', padding: '4px 2px', fontSize: 15,
+      textAlign: 'center', padding: '4px 2px', fontSize: 16,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -90,7 +90,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
   전통나이(대운수: {daeun.daeunSu}, {daeun.isForward ? '순행' : '역행'})
       </h2>
 
@@ -109,7 +109,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
 
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 16 }}>
                 {getSipseong(dayGan, d.gan)}
               </Cell>
             ))}
@@ -137,7 +137,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
           {/* 💡 3. 아래쪽 한자(지지)의 십성 */}
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 16 }}>
                 {getJiSipseong(dayGan, d.ji)} {/* 👈 여기가 바뀌었습니다! */}
               </Cell>
             ))}
@@ -147,7 +147,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
           {/* 💡 4. 12운성 - 중복으로 들어갔던 것을 하나로 정리했습니다 */}
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 16 }}>
                 {get12un(dayGan, d.ji)}
               </Cell>
             ))}
@@ -164,7 +164,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={i === currentIdx} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 16, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

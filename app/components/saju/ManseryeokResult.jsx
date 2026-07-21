@@ -95,25 +95,28 @@ const handleAiRequest = async () => {
     <div className="mx-auto max-w-7xl px-5 pt-14 pb-20">
       
       {/* 상단 헤더 및 다시하기 버튼 */}
-      <div className="mb-6 flex justify-between items-center">
+      <div className="mb-6 flex justify-between items-center w-full max-w-3xl mx-auto px-1"> 
         <h2 className="text-2xl font-black text-foreground">사주 분석 결과</h2>
+        
+        {/* 주석을 버튼 태그 바깥으로 뺐습니다 */}
         <button 
           onClick={onReset} 
-          className="text-sm font-bold text-muted-foreground hover:text-foreground underline transition-colors"
+          className="text-base font-bold text-muted-foreground hover:text-foreground underline transition-colors"
         >
           다시 입력하기
         </button>
       </div>
 
-      {/* 1. 만세력 표 (사주 원국) */}
-      <div className="w-full overflow-x-auto pb-4">
-        <div className="min-w-[400px] md:min-w-full">
+
+     {/* 1. 만세력 표 (사주 원국) */}
+     <div className="w-full pb-4 px-1 flex justify-center"> {/* 👈 flex justify-center로 화면 가운데 정렬 */}
+        <div className="w-full max-w-3xl"> {/* 👈 max-w-3xl (약 768px)로 PC에서 무한정 늘어나는 것을 방지 */}
           <SajuTable saju={saju} form={data} />
         </div>
       </div>
 
       {/* 2. 운의 흐름 (대운, 세운, 월운) */}
-      <div className="mt-8 flex flex-col gap-6">
+      <div className="mt-3 flex flex-col gap-2">
         
         <div className="w-full overflow-x-auto pb-4 scrollbar-hide">
           <div className="min-w-[750px] lg:min-w-full">

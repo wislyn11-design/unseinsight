@@ -187,13 +187,14 @@ export default function SajuTable({ saju, form }) {
     <div style={{ 
       background: '#fff',
       borderRadius: 12, 
-     // padding: 20, 
-      padding: '20px 10px',
-      marginBottom: 16, 
+      padding: '20px 10px 0px 10px', // 아래쪽 패딩 0으로
+      marginBottom: 0, // 👈 간격을 0으로 줄임
       boxShadow: '0 1px 4px rgba(0,0,0,0.1)', 
-      width: '100%',      // 💡 부모 너비를 100%로 고정
-      overflowX: 'auto'   // 💡 내용이 넘치면 가로 스크롤 생성
+      width: '100%',      
+      overflowX: 'auto'   
       }}>
+
+
       {/* ... (상단 정보창 영역) ... */}
       <div style={{ 
         border: '1px solid #e0e0e0', 
@@ -215,9 +216,13 @@ export default function SajuTable({ saju, form }) {
           <div key={'rel'+lineIdx} style={{ ...GRID, ...ROW_BORDER, background: '#fffbe6' }}>
             {pillarOrder.map(pk => {
               const slot = grid[pk][lineIdx];
-              if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 'clamp(11px, 3.5vw, 14px)', color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
-              return (
-                <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 14, color: slot.split(',').some(r => CHUNG_TYPES.includes(r)) ? '#e74c3c' : '#2563eb', fontWeight: 600 }}>
+              // [수정 후: clamp 수치를 높이고, 일반 글씨도 14에서 16으로 키웠습니다]
+                if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 'clamp(14px, 4vw, 18px)', color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
+                return (
+                  <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 16, color: slot.split(',').some(r => CHUNG_TYPES.includes(r)) ? '#e74c3c' : '#2563eb', fontWeight: 600 }}>
+
+
+
                   {slot === '-' ? '-' : slot}
                 </div>
               );
@@ -229,12 +234,12 @@ export default function SajuTable({ saju, form }) {
 {/* ======================================================= */}
       
       {/* 1. 오행 개수 출력 */}
-      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '15px', background: '#fff' }}>
+      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '17px', background: '#fff' }}>
         木 {saju?.ohaengCount?.['목'] || 0}, 火 {saju?.ohaengCount?.['화'] || 0}, 土 {saju?.ohaengCount?.['토'] || 0}, 金 {saju?.ohaengCount?.['금'] || 0}, 水 {saju?.ohaengCount?.['수'] || 0}
       </div>
 
       {/* 2. 공망 및 천을귀인/월령 출력 (안전한 한자 변환 필터 적용) */}
-      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '15px', background: '#fff', lineHeight: '1.7' }}>
+      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '17px', background: '#fff', lineHeight: '1.7' }}>
         <div>
           空亡: [年]{toHanja(saju?.yearGongmang)} [日]{toHanja(saju?.dayGongmang)}
         </div>
@@ -247,13 +252,13 @@ export default function SajuTable({ saju, form }) {
       {/* 3. 신살 제목 및 [전체보기] 토글 버튼 UI (범례 추가) */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#eef2ff', borderTop: '2px solid #ddd' }}>
         <div>
-          <span style={{ fontWeight: 'bold', color: '#333', fontSize: '15px' }}>신살(神殺)</span>
-          <span style={{ fontSize: '12px', color: '#666', marginLeft: '8px' }}>(파랑: 길신, 빨강: 흉살)</span>
+          <span style={{ fontWeight: 'bold', color: '#333', fontSize: '20px' }}>신살(神殺)</span>
+          <span style={{ fontSize: '14px', color: '#666', marginLeft: '8px' }}>(파랑: 길신, 빨강: 흉살)</span>
         </div>
         <button 
           onClick={() => setShowAllSinsal(!showAllSinsal)}
           style={{ 
-            padding: '4px 10px', fontSize: '13px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s',
+            padding: '4px 10px', fontSize: '16px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s',
             border: showAllSinsal ? '1px solid #3a5bbf' : '1px solid #aaa', 
             background: showAllSinsal ? '#3a5bbf' : '#fff', 
             color: showAllSinsal ? '#fff' : '#555' 
@@ -264,8 +269,8 @@ export default function SajuTable({ saju, form }) {
       </div>
 
       {/* 4. 신살 출력 영역 (기둥별 공망 표시 추가) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f9f9f9', paddingBottom: '10px' }}>
-        
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f9f9f9', paddingBottom: '0px' }}> {/* 👈 패딩 0으로 */}
+
         {/* 💡 [새로 추가] 기둥별 공망 표시 (천을귀인 앱의 - - - [일]공망 역할) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridColumn: '1 / -1', borderBottom: '1px dashed #ccc', marginBottom: '4px' }}>
           {[pillars.hour, pillars.day, pillars.month, pillars.year].map((p, idx) => {

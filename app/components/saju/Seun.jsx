@@ -43,7 +43,7 @@ function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
       // 💡 아래처럼 flex: 1 과 minWidth: '48px' 로 변경해 주세요!
-      flex: 1, minWidth: '48px', textAlign: 'center', padding: '4px 2px', fontSize: 12,
+      flex: 1, minWidth: '48px', textAlign: 'center', padding: '4px 2px', fontSize: 16,
       background: isCurrent ? '#eef2ff' : 'transparent', ...style
     }}>
       {children}
@@ -84,7 +84,7 @@ export default function Seun({ saju, birthYear }) {
 
   return (
     <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: 15, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
+      <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
         세운 (년운)
       </h2>
 
@@ -99,7 +99,7 @@ export default function Seun({ saju, birthYear }) {
               return (
                 <Cell key={i} isCurrent={isCurrent} style={{
                   fontWeight: isCurrent ? 700 : 400, color: isCurrent ? '#3a5bbf' : '#555',
-                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 14,
+                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 16,
                 }}>
                   {s.year}
                 </Cell>
@@ -109,7 +109,7 @@ export default function Seun({ saju, birthYear }) {
 
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 16 }}>
                 {getSipseong(dayGan, s.gan)}
               </Cell>
             ))}
@@ -135,7 +135,7 @@ export default function Seun({ saju, birthYear }) {
           {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 14 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 16 }}>
                 {getJiSipseong(dayGan, s.ji)}
               </Cell>
             ))}
@@ -144,7 +144,7 @@ export default function Seun({ saju, birthYear }) {
 
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 14 }}> {/* 👈 글씨 크기 14로 키웠습니다 */}
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 16 }}> {/* 👈 글씨 크기 14로 키웠습니다 */}
                 {get12un(dayGan, s.ji)}
               </Cell>
             ))}
@@ -160,7 +160,7 @@ export default function Seun({ saju, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={s.year === currentYear} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 13, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 16, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

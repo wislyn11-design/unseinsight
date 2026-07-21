@@ -7,7 +7,7 @@ export default function OhaengInfo({ ohaengCount, yearGongmang, dayGongmang }) {
       {ohaengCount && (
         <div style={{
           background: '#f8f8f8', borderRadius: 8, padding: '10px 14px',
-          marginTop: 16, fontSize: 14, color: '#444', textAlign: 'center',
+          marginTop: 16, fontSize: 16, color: '#444', textAlign: 'center',
         }}>
           木 {ohaengCount.목} , 火 {ohaengCount.화} , 土 {ohaengCount.토} , 金 {ohaengCount.금} , 水 {ohaengCount.수}
         </div>
@@ -15,14 +15,14 @@ export default function OhaengInfo({ ohaengCount, yearGongmang, dayGongmang }) {
 
       {/* 공망 */}
       {yearGongmang && (
-        <div style={{ fontSize: 13, color: '#666', textAlign: 'center', marginTop: 8 }}>
+        <div style={{ fontSize: 16, color: '#666', textAlign: 'center', marginTop: 8 }}>
           空亡 [年] {yearGongmang.map(j => JI_HAN[j] || j).join('')} &nbsp;
           [日] {dayGongmang.map(j => JI_HAN[j] || j).join('')}
         </div>
       )}
 
       {/* 오행 범례 */}
-      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '16px 0', fontSize: 12 }}>
+      <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', margin: '16px 0', fontSize: 16 }}>
         {[
           { color: '#008000', label: '木' },
           { color: '#FF0000', label: '火' },
