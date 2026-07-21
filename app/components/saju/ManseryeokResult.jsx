@@ -91,11 +91,11 @@ const handleAiRequest = async () => {
   if (!saju) return null;
 
   return (
-    // 💡 1. 맨 바깥쪽 양옆 여백을 px-5에서 px-1로 확 줄였습니다. (사주팔자 연주 짤림 해결!)
     <div className="mx-auto max-w-7xl px-1 pt-14 pb-20">
       
       {/* 상단 헤더 및 다시하기 버튼 */}
-      <div className="mb-6 flex justify-between items-center w-full max-w-3xl mx-auto px-2"> 
+      {/* 💡 모든 컨테이너에 w-full max-w-4xl mx-auto 를 줘서 폭을 자로 잰 듯 똑같이 맞춥니다! */}
+      <div className="mb-6 flex justify-between items-center w-full max-w-4xl mx-auto px-2"> 
         <h2 className="text-2xl font-black text-foreground">사주 분석 결과</h2>
         <button 
           onClick={onReset} 
@@ -106,33 +106,30 @@ const handleAiRequest = async () => {
       </div>
 
       {/* 1. 만세력 표 (사주 원국) */}
-      <div className="w-full pb-4 flex justify-center">
-        <div className="w-full max-w-3xl">
-          <SajuTable saju={saju} form={data} />
-        </div>
+      <div className="w-full max-w-4xl mx-auto pb-4">
+        <SajuTable saju={saju} form={data} />
       </div>
 
       {/* 2. 운의 흐름 (대운, 세운, 월운) */}
-      <div className="mt-3 flex flex-col gap-2 w-full items-center">
+      <div className="mt-3 flex flex-col gap-2 w-full">
         
-        {/* 💡 2. 여기에 overflow-hidden을 추가했습니다. 
-            이렇게 하면 제목은 화면 가운데 고정되고, 표 안에만 가로 스크롤바가 생깁니다! */}
-        <div className="w-full max-w-3xl pb-2 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto pb-2 overflow-hidden">
           <Daeun daeun={saju.daeun} dayGan={saju.day.gan} birthYear={data.year} />
         </div>
 
-        <div className="w-full max-w-3xl pb-2 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto pb-2 overflow-hidden">
           <Seun saju={saju} />
         </div>
 
-        <div className="w-full max-w-3xl pb-2 overflow-hidden">
+        <div className="w-full max-w-4xl mx-auto pb-2 overflow-hidden">
           <Wolun saju={saju} />
         </div>
         
       </div>
 
       {/* 3. AI 상담 버튼 */}
-      <div className="mt-12 w-full px-2">
+      {/* 💡 mt-12 (아주 넓은 간격)를 mt-4 (좁은 간격)로 줄여서 월운 표에 바짝 붙였습니다! */}
+      <div className="mt-4 w-full max-w-4xl mx-auto px-2">
         <AIResult 
           saju={saju} 
           interpretation={aiInterpretation} 
