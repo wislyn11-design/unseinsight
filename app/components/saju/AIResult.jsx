@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 
 
@@ -16,7 +17,7 @@ import React, { useState, useEffect, useRef } from 'react';
 
 // 🟢 👇👇👇 여기에 아래 코드를 복사해서 붙여넣어 주세요! 👇👇👇 🟢
 const [loadingMsg, setLoadingMsg] = useState("🔮 우주의 기운을 모아 명식을 세우는 중...");
-const [countdown, setCountdown] = useState(45);
+//const [countdown, setCountdown] = useState(45);
 
 useEffect(() => {
   if (!loading) return;
@@ -30,20 +31,20 @@ useEffect(() => {
   ];
   
   let msgIndex = 0;
-  setCountdown(45); // Pro 모델의 평균 소요 시간
+  //setCountdown(45); // Pro 모델의 평균 소요 시간
 
   const msgInterval = setInterval(() => {
     msgIndex = (msgIndex + 1) % messages.length;
     setLoadingMsg(messages[msgIndex]);
   }, 3500);
 
-  const timerInterval = setInterval(() => {
-    setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
-  }, 1000);
+  //const timerInterval = setInterval(() => {
+   // setCountdown((prev) => (prev > 0 ? prev - 1 : 0));
+  //}, 1000);
 
   return () => {
     clearInterval(msgInterval);
-    clearInterval(timerInterval);
+    //clearInterval(timerInterval);
   };
 }, [loading]);
 // 🟢 👆👆👆 여기까지 붙여넣어 주세요! 👆👆👆 🟢
@@ -229,9 +230,11 @@ return (
             </div>
             
             {/* 긴장감을 주는 카운트다운 숫자 */}
+            {/*
             <div style={{ color: '#e74c3c', fontSize: 32, fontWeight: '900', marginTop: 20 }}>
               {countdown > 0 ? `${countdown}초 남음` : "거의 다 되었습니다! 마무리 중..."}
             </div>
+            */}
             
             <div style={{ color: '#888', fontSize: 14, marginTop: 16, lineHeight: '1.6' }}>
               정밀하고 깊이 있는 명리학 분석을 위해<br/> 사주를 풀이하는 데 시간이 소요됩니다.
