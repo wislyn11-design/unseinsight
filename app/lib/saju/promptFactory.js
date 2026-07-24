@@ -7,23 +7,30 @@ export function generateSajuPrompt(saju) {
   const hour = saju?.hour?.gan ? `${saju.hour.gan}${saju.hour.ji}` : '미제공';
 
   const gender = saju?.gender || '고객님';
-  let fallbackDate = '입력하신 생년월일';
-  if (saju?.solarDate) {
-    const parts = saju.solarDate.split('-');
-    if (parts.length === 3) {
-      fallbackDate = `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
+
+  // 🟢 2. 날짜 포맷 변환기 (YYYY-MM-DD 형태를 YYYY년 M월 D일 형태로 예쁘게 변환)
+  const formatDate = (dateString) => {
+    if (!dateString) return '정보 없음';
+    if (dateString.includes('-')) {
+      const parts = dateString.split('-');
+      if (parts.length === 3) {
+        return `${parts[0]}년 ${parseInt(parts[1], 10)}월 ${parseInt(parts[2], 10)}일`;
+      }
     }
-  }
+    return dateString;
+  };
 
-  // 최종적으로 inputDateInfo를 결정
-  const inputDateInfo = saju?.inputDate || fallbackDate;
+  // 🟢 3. 양력, 음력, 시간 텍스트 완성 및 "분" 텍스트 추가
+  const timeText = saju?.birthTime ? ` ${saju.birthTime}분` : '';
+  const solarText = `양력: ${formatDate(saju?.solarDate)}${timeText}`;
+  const lunarText = `음력: ${formatDate(saju?.lunarDate)}${timeText}`;
 
-  
-  // 💡 [핵심 수정 포인트] 현재 연도와 월을 컴퓨터 시간 기준으로 실시간 계산합니다!
+// 🟢 4. 첫 줄에 제목을 넣고, 양력/음력은 본문에서 굵은 두 줄로 출력되게 수정
+const introBlock = `📅 사주 기본 정보\n**${solarText}**\n**${lunarText}**\n\n이 사주(${gender})를 명리학적인 관점에서 분석해 보면 다음과 같은 특징이 나타납니다.`;
+
+// 현재 나이 계산 로직
   const now = new Date();
   const currentYear = now.getFullYear();
-  const currentMonth = now.getMonth() + 1; // 자바스크립트는 0월부터 시작하므로 +1을 해줍니다.
-
   const birthYear = saju?.solarDate ? parseInt(saju.solarDate.split('-')[0], 10) : currentYear;
   const currentAge = currentYear - birthYear + 1; 
 
@@ -31,7 +38,7 @@ export function generateSajuPrompt(saju) {
   const daeunData = saju?.daeun ? JSON.stringify(saju.daeun) : '데이터 없음';
 
   return `
-[시스템 가이드: 운세인사이트 전문 심리 상담사 페르소나]
+[시스템 가이드: 운세인사이트 전문 심리 상담]
 1. 너는 30년 경력의 명리학 대가이자, 사람의 마음을 따뜻하게 어루만져주는 심리 상담사야.
 2. 본 분석은 '운세인사이트'의 정밀한 로직으로 산출된 데이터를 바탕으로 해. 제공된 사주 정보는 검증된 절대적 기준이니 다시 계산하지 말고 그대로 수용해.
 3. 어려운 한자어는 최대한 배제하고, 마치 내 눈앞에서 따뜻한 차를 한잔 마시며 이야기하듯 친절하고 공감 가는 존댓말을 사용해 줘.
@@ -49,8 +56,10 @@ export function generateSajuPrompt(saju) {
 제공된 고객의 사주 원국(연주, 월주, 일주, 시주)을 바탕으로, 아래의 [출력 구조 및 작성 가이드]를 '완벽하게' 준수하여 심층 분석 리포트를 작성해 줘.
 
 [출력 구조 및 작성 가이드]
-- 도입부는 반드시 "제시하신 사주는 ${inputDateInfo} (${gender})로 구성되어 있습니다. 이 사주를 명리학적인 관점에서 분석해 보면 다음과 같은 특징이 나타납니다."로 시작할 것.
-- 아래 제시된 4개의 넘버링된 목차(1~4)와 하단의 '> 요약:' 양식을 글자 하나 틀리지 않고 그대로 목차로 사용할 것.
+- 도입부는 반드시 아래의 텍스트를 글자 하나 틀리지 않고, 줄바꿈까지 똑같이 출력하여 시작할 것:
+${introBlock}
+
+- 아래 제시된 4개의 넘버링된 목차(1~4)와 하단의 '요약:' 양식을 글자 하나 틀리지 않고 그대로 목차로 사용할 것.
 - 각 목차 내의 세부 항목은 불릿 기호(*)를 사용해 명확하게 구분할 것.
 - 각 불릿 기호 항목의 제목이나 핵심 키워드는 반드시 **Bold** 처리할 것.
 
