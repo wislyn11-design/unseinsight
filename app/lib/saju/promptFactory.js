@@ -6,8 +6,18 @@ export function generateSajuPrompt(saju) {
   const day = saju?.day?.gan ? `${saju.day.gan}${saju.day.ji}` : '미제공';
   const hour = saju?.hour?.gan ? `${saju.hour.gan}${saju.hour.ji}` : '미제공';
 
-  const gender = saju?.gender || '고객';
-  const inputDateInfo = saju?.inputDate || '1972년 10월 10일(음력)';
+  const gender = saju?.gender || '고객님';
+  let fallbackDate = '입력하신 생년월일';
+  if (saju?.solarDate) {
+    const parts = saju.solarDate.split('-');
+    if (parts.length === 3) {
+      fallbackDate = `${parts[0]}년 ${parts[1]}월 ${parts[2]}일`;
+    }
+  }
+
+  // 최종적으로 inputDateInfo를 결정
+  const inputDateInfo = saju?.inputDate || fallbackDate;
+
   
   // 💡 [핵심 수정 포인트] 현재 연도와 월을 컴퓨터 시간 기준으로 실시간 계산합니다!
   const now = new Date();
