@@ -19,7 +19,7 @@ export default function FortuneLayout({ children }: FortuneLayoutProps) {
     <div className="h-dvh flex flex-col overflow-hidden bg-[#f5f7ff] text-[#14213a]">
       {/* 고정 상단 헤더 */}
       <div className="shrink-0 z-40">
-        <SiteHeader />
+      <SiteHeader onUserChange={() => {}} />
       </div>
 
       <div className="relative flex flex-1 min-h-0 overflow-hidden">
