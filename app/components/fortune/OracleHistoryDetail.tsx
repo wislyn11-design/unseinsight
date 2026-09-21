@@ -65,7 +65,16 @@ export default function OracleHistoryDetail({ readingId }: { readingId: string }
 
   return (
     <main className="min-h-[calc(100vh-74px)] bg-[radial-gradient(circle_at_50%_0%,#e8efff_0%,#f7f9ff_38%,#f5f7fc_100%)]">
-      <FortunePageIntro serviceTitle="지난 고민 점괘" description="당시의 고민과 두 장의 카드 풀이를 다시 살펴보세요." showProfile={false} />
+      <FortunePageIntro 
+      serviceTitle="지난 고민 점괘" 
+      description="당시의 고민과 두 장의 카드 풀이를 다시 살펴보세요." 
+      showProfile={false} 
+       sentence=""
+      />
+      
+      
+      
+      
       <div className="mx-auto w-full max-w-4xl px-5 pb-14 pt-8 sm:px-8">
         {status === "loading" && <div className="rounded-[28px] border border-[#d8e3f6] bg-white px-6 py-14 text-center"><p className="animate-pulse text-sm font-extrabold text-[#315fca]">점괘 기록을 불러오고 있습니다.</p></div>}
         {status === "error" && (
