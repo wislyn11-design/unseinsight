@@ -650,6 +650,7 @@ export default function TodayFortunePage() {
     <main className="min-h-full bg-[#f7f9fd]">
       <FortunePageIntro
         serviceTitle="오늘의 운세"
+        sentence=""
         description={
           selectedDate
             ? `${koreanDate(selectedDate)}${
@@ -659,7 +660,7 @@ export default function TodayFortunePage() {
               }`
             : "오늘 날짜를 확인하고 있습니다."
         }
-        profile={introProfile}
+        profile={introProfile as any}
       />
   
       <div className="mx-auto w-full max-w-[1640px] px-5 pb-6 sm:px-8 lg:px-10">

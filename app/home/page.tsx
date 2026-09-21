@@ -177,7 +177,7 @@ const services: ServiceItem[] = [
 ];
 export default function HomePage() {
   return <div className="min-h-screen bg-white text-[#071536]">
-    <SiteHeader />
+    <SiteHeader onUserChange={() => {}} />
 
     <main>
       <section className="relative overflow-hidden bg-[#f7f9ff]">
