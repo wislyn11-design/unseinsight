@@ -74,7 +74,7 @@ function parseTiming(value: unknown, sajuConnected: boolean): TimingResult | nul
 }
 
 function wait(milliseconds: number) {
-  return new Promise<void>((resolve) => window.setTimeout(() => resolve(), milliseconds));
+  return new Promise<void>((resolve) =>  setTimeout(() => resolve(), milliseconds));
 }
 
 async function requestOracleInterpretation(
@@ -241,7 +241,7 @@ export default function DailyOracleExperience() {
   const sessionRef = useRef(0);
 
   useEffect(() => () => {
-    if (timerRef.current) window.clearTimeout(timerRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
   }, []);
 
   const currentCard = useMemo(
@@ -278,7 +278,7 @@ export default function DailyOracleExperience() {
 
       if (sessionRef.current === sessionId) {
         setCurrentReading({ status: "success", reading: result.reading, summary: "", timing: null });
-        window.setTimeout(() => document.getElementById("oracle-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        setTimeout(() => document.getElementById("oracle-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
       }
     } catch {
       if (sessionRef.current === sessionId) {
@@ -311,7 +311,7 @@ export default function DailyOracleExperience() {
 
       if (sessionRef.current === sessionId) {
         setFutureReading({ status: "success", reading: result.reading, summary: result.summary, timing: result.timing });
-        window.setTimeout(() => document.getElementById("oracle-future-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        setTimeout(() => document.getElementById("oracle-future-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
       }
     } catch {
       if (sessionRef.current === sessionId) {
@@ -333,7 +333,7 @@ export default function DailyOracleExperience() {
     setPendingStart(null);
     setSessionStatus("idle");
     setSessionError("");
-    window.setTimeout(() => document.getElementById("oracle-draw")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    setTimeout(() => document.getElementById("oracle-draw")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
   const submitQuestion = async (event: FormEvent<HTMLFormElement>) => {
@@ -398,7 +398,7 @@ export default function DailyOracleExperience() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId: abandonedSessionId, action: "abandon" }),
     });
-    window.setTimeout(() => document.getElementById("oracle-question")?.focus(), 50);
+    setTimeout(() => document.getElementById("oracle-question")?.focus(), 50);
   };
 
   const viewPreviousReading = () => {
@@ -435,7 +435,7 @@ export default function DailyOracleExperience() {
   };
 
   const resetOracle = () => {
-    if (timerRef.current) window.clearTimeout(timerRef.current);
+    if (timerRef.current) clearTimeout(timerRef.current);
     sessionRef.current += 1;
     setQuestionDraft("");
     setQuestion("");

@@ -89,6 +89,7 @@ export default function OracleHistoryList() {
         serviceTitle="지난 고민 점괘"
         description="완료한 고민 점괘와 카드의 흐름을 다시 살펴보세요."
         showProfile={false}
+        sentence=""
       />
 
       <div className="mx-auto w-full max-w-5xl px-5 pb-14 pt-8 sm:px-8">
