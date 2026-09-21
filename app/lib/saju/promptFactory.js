@@ -23,7 +23,13 @@ export function generateSajuPrompt(saju) {
   // 🟢 3. 양력, 음력, 시간 텍스트 완성 및 "분" 텍스트 추가
   const timeText = saju?.birthTime ? ` ${saju.birthTime}분` : '';
   const solarText = `양력: ${formatDate(saju?.solarDate)}${timeText}`;
-  const lunarText = `음력: ${formatDate(saju?.lunarDate)}${timeText}`;
+  
+
+  const lunarText =
+  `음력: ${formatDate(saju?.lunarDate)}` +
+  `${saju?.lunarIsLeap ? " (윤달)" : ""}` +
+  `${timeText}`;
+
 
 // 🟢 4. 첫 줄에 제목을 넣고, 양력/음력은 본문에서 굵은 두 줄로 출력되게 수정
 const introBlock = `📅 사주 기본 정보\n**${solarText}**\n**${lunarText}**\n\n이 사주(${gender})를 명리학적인 관점에서 분석해 보면 다음과 같은 특징이 나타납니다.`;
@@ -85,5 +91,162 @@ ${introBlock}
 
 요약:
 이 사주는 **"[일간과 사주 전체의 형국을 자연물에 비유한 시적인 한 문장]"**입니다. [사주의 타고난 강점과 잠재력을 요약하는 한 문장], [사주의 단점을 보완하기 위해 현실적으로 수반되어야 할 핵심 조언 한 문장]이 수반될 때 비로소 큰 성취를 이룰 수 있는 명식입니다.
+`;
+}
+
+
+
+/**
+ * 오늘의 운세 전용 프롬프트
+ *
+ * @param {object} saju 고객의 만세력 계산 결과
+ * @param {object} target 오늘 날짜의 간지 및 운세 데이터
+ */
+export function generateTodayFortunePrompt(saju, target) {
+  const getPillarText = (pillar) => {
+    if (!pillar?.gan || !pillar?.ji) {
+      return "미제공";
+    }
+
+    return `${pillar.gan}${pillar.ji}`;
+  };
+
+  const birthYearPillar = getPillarText(saju?.year);
+  const birthMonthPillar = getPillarText(saju?.month);
+  const birthDayPillar = getPillarText(saju?.day);
+  const birthHourPillar = getPillarText(saju?.hour);
+
+  const targetYearPillar = getPillarText(
+    target?.pillars?.year
+  );
+
+  const targetMonthPillar = getPillarText(
+    target?.pillars?.month
+  );
+
+  const targetDayPillar = getPillarText(
+    target?.pillars?.day
+  );
+
+  const gender = saju?.gender || "미제공";
+  const targetDate = target?.date || "미제공";
+
+  const ohaengCount = saju?.ohaengCount
+    ? JSON.stringify(saju.ohaengCount)
+    : "데이터 없음";
+
+  const daeunData = saju?.daeun
+    ? JSON.stringify(saju.daeun)
+    : "데이터 없음";
+
+  const todaySipseong =
+    target?.daySipseong || "데이터 없음";
+
+  const todayUn12 =
+    target?.dayUn12 || "데이터 없음";
+
+  const todaySinsal = Array.isArray(target?.sinsal)
+    ? target.sinsal.join(", ")
+    : target?.sinsal || "데이터 없음";
+
+  return `
+[역할]
+
+너는 운세인사이트의 명리학 분석가이자 따뜻한 심리 상담가다.
+
+고객의 사주 원국과 오늘 날짜의 연주·월주·일주를 비교하여
+오늘 하루의 흐름을 이해하기 쉬운 한국어로 분석한다.
+
+미래를 확정적으로 단정하지 말고,
+고객이 오늘 더 좋은 선택을 할 수 있도록 현실적이고 따뜻하게 안내한다.
+
+제공된 만세력과 간지 데이터는 이미 계산된 값이므로
+절대로 다시 계산하거나 변경하지 않는다.
+
+[고객 사주 원국]
+
+- 성별: ${gender}
+- 양력 생일: ${saju?.solarDate || "미제공"}
+- 음력 생일: ${saju?.lunarDate || "미제공"}
+- 윤달 여부: ${saju?.lunarIsLeap ? "윤달" : "평달"}
+- 연주: ${birthYearPillar}
+- 월주: ${birthMonthPillar}
+- 일주: ${birthDayPillar}
+- 시주: ${birthHourPillar}
+- 오행 분포: ${ohaengCount}
+- 대운 데이터: ${daeunData}
+
+[분석할 날짜]
+
+- 날짜: ${targetDate}
+- 오늘의 연주: ${targetYearPillar}
+- 오늘의 월주: ${targetMonthPillar}
+- 오늘의 일주: ${targetDayPillar}
+- 오늘 일간의 십성: ${todaySipseong}
+- 오늘의 12운성: ${todayUn12}
+- 오늘의 신살: ${todaySinsal}
+
+[분석 원칙]
+
+1. 고객의 일간과 오늘의 천간 관계를 중심으로 분석한다.
+2. 고객 원국의 지지와 오늘의 지지 사이의 합·충·형·파·해를 고려한다.
+3. 현재 대운과 오늘의 연주·월주·일주가 만드는 흐름을 함께 고려한다.
+4. 재물운은 투자 수익이나 금전적 성공을 보장하지 않는다.
+5. 건강운은 질병을 진단하지 말고 생활 관리 수준으로 안내한다.
+6. 불안이나 공포를 유발하는 표현을 사용하지 않는다.
+7. 점수는 반드시 0부터 100 사이의 정수로 작성한다.
+8. 모든 설명은 존댓말로 작성한다.
+9. 결과는 반드시 아래 JSON 형식으로만 출력한다.
+10. JSON 앞뒤에 설명이나 마크다운 코드 블록을 붙이지 않는다.
+
+[출력 JSON 구조]
+
+{
+  "date": "${targetDate}",
+  "dayPillar": "${targetDayPillar}",
+  "overall": {
+    "score": 0,
+    "title": "오늘의 전체 흐름을 나타내는 짧은 제목",
+    "description": "오늘의 종합적인 흐름을 2~3문장으로 설명"
+  },
+  "wealth": {
+    "score": 0,
+    "description": "소비, 재물 관리, 금전 판단에 관한 내용을 2문장으로 설명"
+  },
+  "love": {
+    "score": 0,
+    "description": "연애, 가족, 친구 등 감정과 관계의 흐름을 2문장으로 설명"
+  },
+  "workStudy": {
+    "score": 0,
+    "description": "직장, 사업, 공부, 집중력과 관련된 흐름을 2문장으로 설명"
+  },
+  "health": {
+    "score": 0,
+    "description": "컨디션과 생활 관리에 관한 일반적인 조언을 2문장으로 설명"
+  },
+  "timeFlow": [
+    {
+      "period": "오전",
+      "score": 0,
+      "description": "오전의 흐름과 행동 조언"
+    },
+    {
+      "period": "오후",
+      "score": 0,
+      "description": "오후의 흐름과 행동 조언"
+    },
+    {
+      "period": "저녁",
+      "score": 0,
+      "description": "저녁의 흐름과 행동 조언"
+    }
+  ],
+  "luckyColor": "오늘의 행운 색상 한 가지",
+  "luckyNumbers": [0, 0],
+  "luckyTime": "좋은 흐름을 활용하기 적합한 시간대",
+  "caution": "오늘 특히 주의하면 좋은 행동 한 가지",
+  "advice": "오늘 고객에게 전하는 따뜻하고 현실적인 핵심 조언"
+}
 `;
 }

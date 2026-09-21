@@ -172,9 +172,37 @@ export async function POST(request) {
 
     // 💡 3. 정확한 '시간'과 '분'을 포함하여 태양력 객체 생성!
     // 이렇게 하면 lunar-typescript가 1995년 청명 진입 시각(15:05)을 정확히 인식합니다.
-    const solar = Solar.fromYmdHms(baseYear, baseMonth, baseDay, correctedHour, correctedMinute, 0);
-    const lunar = Lunar.fromSolar(solar); 
+    
+    const solar = Solar.fromYmdHms(
+      baseYear,
+      baseMonth,
+      baseDay,
+      correctedHour,
+      correctedMinute,
+      0
+    );
+    
+    const lunar = Lunar.fromSolar(solar);
+    
+
+
+    
+    // 음력 월은 윤달일 경우 음수로 반환될 수 있습니다.
+    const lunarMonth = lunar.getMonth();
+    
+    const lunarDate = [
+      lunar.getYear(),
+      String(Math.abs(lunarMonth)).padStart(2, '0'),
+      String(lunar.getDay()).padStart(2, '0'),
+    ].join('-');
+    
+    const lunarIsLeap = lunarMonth < 0;
+    
     const bazi = lunar.getEightChar();
+
+
+
+
 
     // 💡 4. JSON 파일 비교 없이, 정밀 계산된 라이브러리에서 년주/월주를 다이렉트로 가져옵니다.
     const yearGan = ganMap[bazi.getYearGan()] || bazi.getYearGan();
@@ -302,6 +330,10 @@ daeun.daeuns = daeun.daeuns.map(d => {
       day:   { ...dayPillar,   chungHyung: [], relationMap: {}, sinsal: sinsal.day },
       hour:  { ...hourPillar,  chungHyung: chungHyung[hourJi]  || [], relationMap: relationMap[hourJi]  || {}, sinsal: sinsal.hour },
       solarDate: solar.toYmd(),
+      // 아래 두 줄 추가
+      lunarDate,
+      lunarIsLeap,
+
       yearGongmang,
       dayGongmang,
       ohaengCount,

@@ -32,8 +32,9 @@ export async function POST(request) {
     // 💡 (여기에 남아있던 예전 2줄의 코드를 깔끔하게 삭제했습니다!)
 
     const ai = new GoogleGenAI({
-      vertexai: { project: '906229574147', location: 'us-central1' },
-      project: '906229574147', location: 'us-central1',
+      vertexai: true,
+      project: '906229574147',
+      location: 'us-central1',
     });
 
     // 💡 1. 한 번에 받는 generateContent가 아니라, 실시간으로 쏘는 generateContentStream 사용!

@@ -12,6 +12,8 @@
     "@google-cloud/vertexai": "^1.12.0",
     "@google/genai": "^2.12.0",
     "@google/generative-ai": "^0.24.1",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "korean-lunar-calendar": "^0.4.0",

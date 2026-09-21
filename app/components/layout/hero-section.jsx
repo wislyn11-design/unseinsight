@@ -5,7 +5,7 @@ import { ShieldCheck } from "lucide-react"
 
 import { SajuForm } from "../saju/InputForm"
 
-export function HeroSection({ onSajuSubmit }) {
+export function HeroSection({ currentUser, onSajuSubmit }) {
   // 폼에서 데이터가 완성되어 Submit 되었을 때 실행될 함수입니다.
   const handleSajuSubmit = (sajuData) => {
     console.log("프론트엔드에서 완성된 사주 데이터:", sajuData)
@@ -41,13 +41,13 @@ export function HeroSection({ onSajuSubmit }) {
           <span className="text-primary">2026년의 흐름</span>을 확인해 보세요.
         </h1>
         
-        {/* 서브 카피 */}
-        <p className="mx-auto mt-4 max-w-xl text-pretty text-base leading-relaxed text-muted-foreground sm:text-lg">
-          명리학 데이터에 기반한 정밀한 운세 분석
-        </p>
+       
 
         {/* 💡 기능과 디자인이 결합된 우리의 완벽한 사주 폼 컴포넌트 호출 */}
-        <SajuForm onSubmitData={handleSajuSubmit} />
+        <SajuForm
+          currentUser={currentUser}
+          onSubmitData={handleSajuSubmit}
+        />
       </div>
     </section>
   )
