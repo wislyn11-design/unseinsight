@@ -120,6 +120,7 @@ export default function LoginButton({ onUserChange }: LoginButtonProps) {
       <LoginModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        nextPath=""
       />
     </>
   );
