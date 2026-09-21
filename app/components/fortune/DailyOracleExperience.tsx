@@ -453,10 +453,11 @@ export default function DailyOracleExperience() {
 
   return (
     <main className="min-h-[calc(100vh-74px)] bg-[radial-gradient(circle_at_50%_0%,#e8efff_0%,#f7f9ff_38%,#f5f7fc_100%)]">
-      <FortunePageIntro
+     <FortunePageIntro
         serviceTitle="고민 점괘"
         description="두 장의 카드와 나의 사주 흐름으로 고민을 차분히 살펴보세요."
         showProfile={false}
+        sentence="" 
       />
 
       <div className="mx-auto w-full max-w-6xl px-5 pb-12 pt-3 sm:px-8 sm:pb-14">
