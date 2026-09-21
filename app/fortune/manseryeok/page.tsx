@@ -205,12 +205,17 @@ export default function ManseryeokPage() {
             birthYear={form.year}
           />
         </section>
+
+       
+
         <section className="w-full max-w-3xl overflow-hidden pb-2" aria-label="세운">
-          <SeunSinsalView saju={saju} />
+          <SeunSinsalView saju={saju} birthYear={Number(form.year)} />
         </section>
         <section className="w-full max-w-3xl overflow-hidden pb-2" aria-label="월운">
-          <WolunSinsalView saju={saju} />
+          <WolunSinsalView saju={saju}  />
+ 
         </section>
+
       </div>
 
       <div className="mx-auto mt-7 flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-[#dbe5f7] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
