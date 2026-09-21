@@ -417,7 +417,7 @@ export default function DailyOracleExperience() {
   const selectCurrent = (index: number) => {
     if (!question || drawing || currentCard || !ORACLE_CARDS[index]) return;
     setDrawing("current");
-    timerRef.current = window.setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setCurrentIndex(index);
       setDrawing(null);
       void generateCurrentReading(index);
