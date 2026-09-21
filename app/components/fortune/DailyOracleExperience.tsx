@@ -427,7 +427,7 @@ export default function DailyOracleExperience() {
   const selectFuture = (index: number) => {
     if (currentIndex === null || index === currentIndex || drawing || futureCard || currentReading.status !== "success" || !ORACLE_CARDS[index]) return;
     setDrawing("future");
-    timerRef.current = window.setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setFutureIndex(index);
       setDrawing(null);
       void generateFutureReading(index);
