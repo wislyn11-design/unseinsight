@@ -15,7 +15,7 @@ export const maxDuration = 120;
 const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || "906229574147";
 const LOCATION = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const DAILY_PROMPT_VERSION = "today-v6.4-deep-precision";
+const DAILY_PROMPT_VERSION = "today-v6.6-concise-3-sentences";
 const LOADING_MESSAGE = "오늘의 흐름을 꼼꼼히 살펴 오늘의 운세를 풀이하고 있습니다.";
 
 const SECTION_KEYS = ["overall", "wealth", "workStudy", "love", "health"];
@@ -267,6 +267,10 @@ ${JSON.stringify(target, null, 2)}
 3. 절대로 문장을 생략하거나 줄이지 말고, 깊고 풍부한 어조로 정성껏 설명하세요.
 4. 행운의 색, 행운의 숫자, 추천 활동은 오늘 명리 흐름상 가장 상생을 돕는 단 하나씩만 엄선하세요.
 5. 추천 활동은 실제 일상에서 자연스럽게 실천할 수 있는 행동으로 구체적으로 작성하세요. (예: "햇볕을 쬐며 15분 산책하기", "따뜻한 차 마시며 상반기 계획 정리하기")
+6. dailyInsight.headline은 24자 이내의 강한 한 문장, scene은 3문장 이내, caution과 prescription은 각각 1문장으로 작성하세요.
+7. 각 분야 title은 20자 이내, description은 핵심만 2문장 이내, detail.reason은 명리적 근거를 2문장 이내로 작성하세요.
+8. goodActions와 avoidActions는 각각 가장 중요한 행동 하나만 넣고, 각 문장은 45자 이내로 작성하세요.
+
 
 [스트리밍 출력 형식 - NDJSON 7줄]
 마크다운 태그, 코드블록(\`\`\`), 기타 설명 문장을 절대 포함하지 마시고, 아래 JSON 객체 7개를 순서대로 한 줄에 하나씩 출력하세요.
@@ -371,7 +375,7 @@ async function generateGeminiFortune(ai, saju, target, send) {
         model: MODEL,
         contents: buildStreamingPrompt(saju, target),
         config: {
-          thinkingConfig: { thinkingBudget: 1024 },
+          thinkingConfig: { thinkingBudget: 256 },
         },
       });
 

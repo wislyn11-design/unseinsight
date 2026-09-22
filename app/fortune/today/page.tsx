@@ -224,12 +224,12 @@ function LuckyItem({
         <div className="flex h-11 w-11 shrink-0 items-center justify-center">
           {icon}
         </div>
-        <p className="whitespace-nowrap text-[19px] font-bold leading-6 text-[#111111]">
+        <p className="today-fortune-lucky-label whitespace-nowrap font-bold text-[#111111]">
           {label}
         </p>
       </div>
 
-      <strong className="block break-keep text-center text-[20px] font-extrabold leading-7 tracking-[-0.02em] text-[#111111]">
+      <strong className="today-fortune-lucky-value block break-keep text-center font-extrabold tracking-[-0.02em] text-[#111111]">
         {children}
       </strong>
     </div>
@@ -262,19 +262,19 @@ function FortuneDetailCard({
       <div className="px-6 py-6 sm:px-8 sm:py-8">
         <div>
           <p
-            className="text-[12px] font-extrabold tracking-[.13em]"
+            className="today-detail-eyebrow font-extrabold tracking-[.13em]"
             style={{ color }}
           >
             {eyebrow}
           </p>
-          <h3 className="mt-1.5 text-[24px] sm:text-[28px] font-bold tracking-[-.025em] text-[#303a4f]">
+          <h3 className="today-detail-name mt-1.5 font-bold tracking-[-.025em] text-[#303a4f]">
             {label}
           </h3>
         </div>
 
         <h4
-          className={`mt-4 font-extrabold leading-[1.4] tracking-[-.035em] text-[#172033] ${
-            featured ? "text-[26px] sm:text-[30px]" : "text-[22px] sm:text-[25px]"
+          className={`today-detail-title mt-4 font-extrabold tracking-[-.035em] text-[#172033] ${
+            featured ? "today-detail-title-featured" : ""
           }`}
         >
           {section.title || label}
@@ -282,8 +282,8 @@ function FortuneDetailCard({
 
         {/* Gemini가 작성한 사주풀이 원문 전체 그대로 출력 */}
         <p
-          className={`mt-4 whitespace-pre-wrap font-normal leading-[1.95] tracking-[-.012em] text-[#384252] ${
-            featured ? "max-w-[1120px] text-[19px] sm:text-[21px]" : "text-[18px] sm:text-[20px]"
+          className={`today-fortune-body mt-4 whitespace-pre-wrap font-normal tracking-[-.012em] text-[#384252] ${
+            featured ? "max-w-[1120px]" : ""
           }`}
         >
           {section.description}
@@ -292,8 +292,10 @@ function FortuneDetailCard({
         {/* Gemini의 명리적 분석 근거 및 흐름 원문 */}
         {section.detail?.reason && (
           <div className="mt-5 rounded-2xl bg-[#f4f7fc] p-5">
-            <p className="text-[15px] font-extrabold text-[#3a5bbf]">명리적 원인 및 분석 근거</p>
-            <p className="mt-2 whitespace-pre-wrap text-[17px] sm:text-[18px] leading-8 text-[#414d61]">
+            <p className="today-fortune-label font-extrabold text-[#3a5bbf]">
+              명리적 원인 및 분석 근거
+            </p>
+            <p className="today-fortune-body mt-2 whitespace-pre-wrap text-[#414d61]">
               {section.detail.reason}
             </p>
           </div>
@@ -303,16 +305,20 @@ function FortuneDetailCard({
           <div className={`mt-6 grid gap-4 ${featured ? "sm:grid-cols-2" : ""}`}>
             {goodAction && (
               <div className="rounded-2xl bg-[#eff6ff] px-5 py-4 border border-[#dbeafe]">
-                <p className="text-[16px] font-extrabold text-[#1d4ed8]">오늘의 추천 실천</p>
-                <p className="mt-2 text-[18px] font-medium leading-8 text-[#1e3a8a]">
+                <p className="today-fortune-label font-extrabold text-[#1d4ed8]">
+                  오늘의 추천 실천
+                </p>
+                <p className="today-fortune-body mt-2 font-medium text-[#1e3a8a]">
                   {goodAction}
                 </p>
               </div>
             )}
             {avoidAction && (
               <div className="rounded-2xl bg-[#fffbe2] px-5 py-4 border border-[#fef08a]">
-                <p className="text-[16px] font-extrabold text-[#a16207]">오늘의 주의할 점</p>
-                <p className="mt-2 text-[18px] font-medium leading-8 text-[#713f12]">
+                <p className="today-fortune-label font-extrabold text-[#a16207]">
+                  오늘의 주의할 점
+                </p>
+                <p className="today-fortune-body mt-2 font-medium text-[#713f12]">
                   {avoidAction}
                 </p>
               </div>
@@ -335,7 +341,7 @@ function LoadingState({
     <section className="min-h-[430px] rounded-2xl border border-[#e0e6ef] bg-white px-6 py-10 shadow-sm sm:px-10">
       <div className="text-center">
         <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-[#dbe5ff] border-t-[#2563eb]" />
-        <p className="mt-6 text-[20px] font-extrabold leading-8 text-[#1a2542] sm:text-[22px]">
+        <p className="today-loading-title mt-6 font-extrabold text-[#1a2542]">
           {status || LOADING_MESSAGE}
         </p>
       </div>
@@ -347,8 +353,8 @@ function LoadingState({
               key={section.key}
               className="rounded-2xl border border-[#e3e8f0] bg-[#f8f9fc] px-6 py-5 text-left"
             >
-              <h2 className="text-[22px] font-extrabold text-[#1d2537]">{section.title}</h2>
-              <p className="mt-3 whitespace-pre-wrap text-[18px] leading-8 text-[#4f5b70] sm:text-[19px]">
+              <h2 className="today-loading-section-title font-extrabold text-[#1d2537]">{section.title}</h2>
+              <p className="today-loading-section-body mt-3 whitespace-pre-wrap text-[#4f5b70]">
                 {section.description}
               </p>
             </article>
@@ -647,7 +653,7 @@ export default function TodayFortunePage() {
   };
 
   return (
-    <main className="min-h-full bg-[#f7f9fd]">
+    <main className="today-fortune-page min-h-full bg-[#f7f9fd]">
       <FortunePageIntro
         serviceTitle="오늘의 운세"
         sentence=""
@@ -678,7 +684,7 @@ export default function TodayFortunePage() {
             <button
               type="button"
               onClick={() => setSelectedDate(seoulToday())}
-              className="h-10 rounded-xl border border-[#dce2ed] bg-white px-5 text-[15px] font-bold text-[#5f697d] transition hover:border-[#aebde9] hover:text-[#3a5bbf]"
+              className="today-date-button h-10 rounded-xl border border-[#dce2ed] bg-white px-5 font-bold text-[#5f697d] transition hover:border-[#aebde9] hover:text-[#3a5bbf]"
             >
               오늘
             </button>
@@ -716,21 +722,21 @@ export default function TodayFortunePage() {
 
         {!loading && error && (
           <section className="rounded-2xl border border-red-100 bg-white p-8 shadow-sm">
-            <h2 className="text-xl font-extrabold text-red-600">
+            <h2 className="today-error-title font-extrabold text-red-600">
               오늘의 운세를 불러오지 못했습니다
             </h2>
-            <p className="mt-3 break-words text-[17px] leading-7 text-[#5c6678]">{error}</p>
+            <p className="today-error-body mt-3 break-words text-[#5c6678]">{error}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
                 onClick={() => void loadFortune(selectedDate)}
-                className="rounded-xl bg-[#2563eb] px-6 py-3.5 font-bold text-white text-[16px]"
+                className="today-action-button rounded-xl bg-[#2563eb] px-6 py-3.5 font-bold text-white"
               >
                 다시 시도
               </button>
               <Link
                 href="/"
-                className="rounded-xl border border-[#dce3ed] px-6 py-3.5 font-bold text-[#263149] text-[16px]"
+                className="today-action-button rounded-xl border border-[#dce3ed] px-6 py-3.5 font-bold text-[#263149]"
               >
                 만세력 화면으로 돌아가기
               </Link>
@@ -752,7 +758,7 @@ export default function TodayFortunePage() {
                   }}
                 >
                   <div className="grid h-full w-full place-items-center rounded-full bg-white text-center">
-                    <strong className="text-[48px] font-black leading-none tracking-[-.05em] text-[#1d2537]">
+                    <strong className="today-score font-black tracking-[-.05em] text-[#1d2537]">
                       {Number(fortune.overall?.score) || 0}
                     </strong>
                   </div>
@@ -760,23 +766,25 @@ export default function TodayFortunePage() {
               </div>
 
               <div className="min-w-0">
-                <p className="text-[15px] font-extrabold text-[#3a5bbf]">
+                <p className="today-fortune-label font-extrabold text-[#3a5bbf]">
                   오늘 가장 먼저 읽을 명리학 사주풀이
                 </p>
                 
                 {/* 데스크톱 화면에서 한 줄로 시원하게 표시되는 메인 제목 */}
-                <h2 className="mt-3 whitespace-nowrap overflow-hidden text-ellipsis text-[26px] font-black leading-snug tracking-[-.04em] text-[#1d2537] sm:text-[32px] md:text-[34px]">
+                <h2 
+                   
+                   className="today-main-headline mt-3 whitespace-nowrap overflow-hidden text-ellipsis font-black tracking-[-.04em] text-[#1d2537]">
                   {fortune.dailyInsight?.headline || fortune.overall?.title}
                 </h2>
 
                 {/* Gemini 사주풀이 상세 내용 그대로 출력 */}
-                <p className="mt-4 max-w-[1100px] text-[19px] sm:text-[21px] font-normal leading-9 text-[#414d61]">
+                <p className="today-fortune-lead mt-4 max-w-[1100px] font-normal text-[#414d61]">
                   {fortune.dailyInsight?.scene || fortune.overall?.description}
                 </p>
 
                 {fortune.dailyInsight?.keyword && (
                   <div className="mt-5 flex flex-wrap gap-2">
-                    <span className="rounded-full bg-[#eef2ff] px-4 py-2 text-[14px] font-bold text-[#3a5bbf]">
+                    <span className="today-keyword rounded-full bg-[#eef2ff] px-4 py-2 font-bold text-[#3a5bbf]">
                       #{fortune.dailyInsight.keyword}
                     </span>
                   </div>
@@ -787,13 +795,13 @@ export default function TodayFortunePage() {
             {/* 행운 포인트 (색 1개, 숫자 1개, 추천활동 1개) */}
             <section className="mt-6 grid gap-4">
               <article className="rounded-[16px] border border-[#e0e5ed] bg-white px-7 py-6 shadow-[0_4px_14px_rgba(26,46,84,.045)]">
-                <h2 className="text-[26px] font-black tracking-[-.03em] text-[#0f172a]">
-                  오늘의 행운 포인트
-                </h2>
+              <h2 className="today-section-title font-black tracking-[-.03em] text-[#0f172a]">
+                오늘의 행운 포인트
+              </h2>
                 <div className="mt-5 grid gap-5 md:grid-cols-3">
                   <LuckyItem
                     icon={
-                      <span className="grid h-10 w-10 place-items-center rounded-full bg-[#e9f1ff] text-2xl text-[#2563eb]">
+                      <span className="today-lucky-icon grid h-10 w-10 place-items-center rounded-full bg-[#e9f1ff] text-[#2563eb]">
                         ●
                       </span>
                     }
@@ -803,7 +811,7 @@ export default function TodayFortunePage() {
                   </LuckyItem>
                   <LuckyItem
                     icon={
-                      <span className="grid h-10 w-10 place-items-center rounded-full bg-[#245bca] text-[20px] font-bold text-white">
+                      <span className="today-lucky-number-icon grid h-10 w-10 place-items-center rounded-full bg-[#245bca] font-bold text-white">
                         {fortune.luckyNumbers?.[0] ?? "-"}
                       </span>
                     }
@@ -813,7 +821,7 @@ export default function TodayFortunePage() {
                   </LuckyItem>
                   <LuckyItem
                     icon={
-                      <span className="grid h-10 w-10 place-items-center rounded-full bg-[#eaf7f1] text-xl font-bold text-[#168456]">
+                      <span className="today-lucky-check-icon grid h-10 w-10 place-items-center rounded-full bg-[#eaf7f1] font-bold text-[#168456]">
                         ✓
                       </span>
                     }
@@ -828,10 +836,10 @@ export default function TodayFortunePage() {
             {/* 분야별 상세 운세 섹션 */}
             <section className="mt-6 rounded-[24px] border border-[#e3e8f0] bg-[#f8f9fc] px-6 py-7 shadow-[0_8px_28px_rgba(31,47,78,.035)] sm:px-8 sm:py-9">
               <div className="mb-6">
-                <p className="text-[13px] font-extrabold tracking-[.12em] text-[#3a5bbf]">
+                <p className="today-section-eyebrow font-extrabold tracking-[.12em] text-[#3a5bbf]">
                   TODAY'S FORTUNE
                 </p>
-                <h2 className="mt-2 text-[28px] sm:text-[32px] font-black tracking-[-.035em] text-[#172033]">
+                <h2 className="today-section-heading mt-2 font-black tracking-[-.035em] text-[#172033]">
                   분야별 명리학 세부 운세
                 </h2>
               </div>
@@ -851,7 +859,7 @@ export default function TodayFortunePage() {
 
               {/* 피드백 영역 */}
               <div className="mt-8 border-t border-[#dde3ec] pt-8">
-                <p className="text-[20px] font-extrabold leading-8 tracking-[-.025em] text-[#172033] sm:text-[22px]">
+                <p className="today-feedback-title font-extrabold tracking-[-.025em] text-[#172033]">
                   오늘의 운세 해석이 도움이 되었나요?
                 </p>
                 {!feedbackLocked && (
@@ -865,7 +873,7 @@ export default function TodayFortunePage() {
                         setIssueTypes([]);
                         setFeedbackStatus("");
                       }}
-                      className={`rounded-xl px-6 py-3.5 text-[17px] font-bold disabled:opacity-60 ${
+                      className={`today-feedback-button rounded-xl px-6 py-3.5 font-bold disabled:opacity-60 ${
                         feedbackChoice === true
                           ? "bg-[#2563eb] text-white"
                           : "border border-[#d5dce7] bg-white text-[#354157]"
@@ -882,7 +890,7 @@ export default function TodayFortunePage() {
                         setIssueTypes([]);
                         setFeedbackStatus("");
                       }}
-                      className={`rounded-xl px-6 py-3.5 text-[17px] font-bold disabled:opacity-60 ${
+                      className={`today-feedback-button rounded-xl px-6 py-3.5 font-bold disabled:opacity-60 ${
                         feedbackChoice === false
                           ? "bg-[#2563eb] text-white"
                           : "border border-[#d5dce7] bg-white text-[#354157]"
@@ -897,7 +905,7 @@ export default function TodayFortunePage() {
                     {HELPFUL_OPTIONS.map(([value, label]) => (
                       <label
                         key={value}
-                        className="cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 text-[16px] font-medium text-[#596579]"
+                        className="today-feedback-option cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 font-medium text-[#596579]"
                       >
                         <input
                           type="checkbox"
@@ -924,7 +932,7 @@ export default function TodayFortunePage() {
                     {ISSUE_OPTIONS.map(([value, label]) => (
                       <label
                         key={value}
-                        className="cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 text-[16px] font-medium text-[#596579]"
+                        className="today-feedback-option cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 font-medium text-[#596579]"
                       >
                         <input
                           type="checkbox"
@@ -947,12 +955,12 @@ export default function TodayFortunePage() {
                   </div>
                 )}
                 {feedbackStatus === "rewarded" && (
-                  <p className="mt-4 rounded-xl bg-[#effaf5] px-6 py-4 text-[16px] font-bold text-[#168456]">
+                  <p className="today-feedback-status mt-4 rounded-xl bg-[#effaf5] px-6 py-4 font-bold text-[#168456]">
                     ✓ 소중한 평가 감사합니다. 1포인트 적립되었습니다.
                   </p>
                 )}
                 {feedbackLocked && feedbackStatus !== "rewarded" && (
-                  <p className="mt-4 rounded-xl bg-white px-6 py-4 text-[16px] font-bold text-[#596579]">
+                  <p className="today-feedback-status mt-4 rounded-xl bg-white px-6 py-4 font-bold text-[#596579]">
                     ✓ 오늘의 운세 평가를 완료했습니다.
                   </p>
                 )}
@@ -961,24 +969,24 @@ export default function TodayFortunePage() {
 
             <section className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-[12px] border border-[#7ea1ff] bg-gradient-to-r from-[#f3f6ff] to-[#f6f5ff] px-8 py-5">
               <div className="flex items-center gap-4">
-                <span className="text-3xl" aria-hidden="true">
+                <span className="today-tomorrow-icon" aria-hidden="true">
                   🗓️
                 </span>
                 <div>
-                  <strong className="text-[19px] font-extrabold tracking-[-.025em] text-[#151f3b]">
+                  <strong className="today-tomorrow-title font-extrabold tracking-[-.025em] text-[#151f3b]">
                     내일의 운세는 자정부터 확인할 수 있어요
                   </strong>
-                  <p className="mt-1 text-[14px] text-[#667085]">
+                  <p className="today-tomorrow-body mt-1 text-[#667085]">
                     한국 시간 기준으로 날짜가 바뀐 뒤 확인할 수 있습니다.
                   </p>
                 </div>
               </div>
-              <span className="inline-flex h-11 items-center gap-2 rounded-lg border border-[#d5dbe6] bg-white/80 px-6 text-[15px] font-extrabold text-[#788296]">
+              <span className="today-tomorrow-badge inline-flex h-11 items-center gap-2 rounded-lg border border-[#d5dbe6] bg-white/80 px-6 font-extrabold text-[#788296]">
                 🔒 자정에 열려요
               </span>
             </section>
 
-            <p className="mx-auto mt-6 max-w-4xl text-center text-[13px] leading-6 text-[#788296]">
+            <p className="today-disclaimer mx-auto mt-6 max-w-4xl text-center text-[#788296]">
               이 운세는 만세력 계산에 따른 명리학적 경향을 일상 언어로 풀어낸 참고 정보입니다.
               건강·투자·법률·시험 등 중요한 결정은 해당 분야의 객관적인 정보와 전문가 판단을 함께 확인해 주세요.
             </p>

@@ -7,6 +7,7 @@ import LoginButton from "@/app/components/common/LoginButton"
 import { clearActiveSajuChart } from "@/app/lib/saju/chart-storage"
 
 const navigation = [
+  { label: "오늘의 운세", href: "/fortune/today" },
   { label: "고민 점괘", href: "/fortune/oracle" },
   { label: "만세력", href: "/fortune/manseryeok" },
   { label: "운세 캘린더", href: "/fortune/calendar" },
@@ -55,7 +56,7 @@ export function SiteHeader({ onUserChange }) {
                 key={item.label}
                 href={item.href}
                 aria-current={active ? "page" : undefined}
-                className={`relative py-2 text-[16px] font-semibold transition after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:transition ${
+                className={`relative py-2 text-[20px] font-semibold transition after:absolute after:inset-x-0 after:-bottom-1 after:h-0.5 after:rounded-full after:transition ${
                   active
                     ? "text-[#2f62dc] after:bg-[#2f62dc]"
                     : "text-[#111b35] after:bg-transparent hover:text-[#2f62dc]"
@@ -94,7 +95,7 @@ export function SiteHeader({ onUserChange }) {
                   href={item.href}
                   onClick={() => setIsMenuOpen(false)}
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-xl px-4 py-3 font-semibold ${
+                  className={`rounded-xl px-4 py-3 text-[20px] font-semibold ${
                     active ? "bg-[#edf3ff] text-[#2f62dc]" : "hover:bg-[#f3f6ff]"
                   }`}
                 >

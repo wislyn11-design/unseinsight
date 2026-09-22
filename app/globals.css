@@ -146,3 +146,118 @@ html, body {
     @apply bg-background text-foreground;
   }
 }
+
+/* 오늘의 운세 페이지 글자 설정
+ * 아래 변수의 숫자만 바꾸면 페이지 전체 글자 크기가 함께 변경됩니다.
+ */
+.today-fortune-page {
+  --today-font-breadcrumb: 18px;
+  --today-font-breadcrumb-separator: 24px;
+  --today-font-profile: 22px;
+  --today-font-page-title: 52px;
+  --today-font-intro-description: 19px;
+  --today-font-loading-title: 22px;
+  --today-font-loading-section-title: 22px;
+  --today-font-loading-section-body: 19px;
+  --today-font-date-button: 15px;
+  --today-font-error-title: 20px;
+  --today-font-error-body: 17px;
+  --today-font-action-button: 16px;
+  --today-font-score: 48px;
+  --today-font-label: 22px;
+  --today-font-main-headline: 34px;
+  --today-font-lead: 26px;
+  --today-font-keyword: 14px;
+  --today-font-section-title: 34px;
+  --today-font-section-eyebrow: 30px;
+  --today-font-section-heading: 32px;
+  --today-font-lucky-label: 28px;
+  --today-font-lucky-value: 25px;
+  --today-font-detail-eyebrow: 12px;
+  --today-font-detail-name: 28px;
+  --today-font-detail-title: 25px;
+  --today-font-detail-title-featured: 30px;
+  --today-font-body: 24px;
+  --today-font-feedback-title: 22px;
+  --today-font-feedback-button: 17px;
+  --today-font-feedback-option: 16px;
+  --today-font-feedback-status: 16px;
+  --today-font-tomorrow-title: 19px;
+  --today-font-tomorrow-body: 14px;
+  --today-font-tomorrow-badge: 15px;
+  --today-font-disclaimer: 13px;
+  --today-line-profile: 1.7;
+  --today-line-lead: 1.7;
+  --today-line-body: 1.7;
+}
+
+.today-loading-title {
+  font-size: var(--today-font-loading-title);
+  line-height: 1.45;
+}
+
+.today-loading-section-title {
+  font-size: var(--today-font-loading-section-title);
+  line-height: 1.45;
+}
+
+.today-loading-section-body {
+  font-size: var(--today-font-loading-section-body);
+  line-height: 1.7;
+}
+
+.today-date-button { font-size: var(--today-font-date-button); }
+.today-error-title { font-size: var(--today-font-error-title); line-height: 1.45; }
+.today-error-body { font-size: var(--today-font-error-body); line-height: 1.7; }
+.today-action-button { font-size: var(--today-font-action-button); line-height: 1.5; }
+.today-score { font-size: var(--today-font-score); line-height: 1; }
+.today-fortune-label { font-size: var(--today-font-label); line-height: 1.5; }
+.today-main-headline { font-size: var(--today-font-main-headline); line-height: 1.35; }
+.today-fortune-lead { font-size: var(--today-font-lead); line-height: var(--today-line-lead); }
+.today-keyword { font-size: var(--today-font-keyword); line-height: 1.5; }
+.today-section-title { font-size: var(--today-font-section-title); line-height: 1.35; }
+.today-section-eyebrow { font-size: var(--today-font-section-eyebrow); line-height: 1.35; }
+.today-section-heading { font-size: var(--today-font-section-heading); line-height: 1.35; }
+.today-fortune-lucky-label { font-size: var(--today-font-lucky-label); line-height: 1.5; }
+.today-fortune-lucky-value { font-size: var(--today-font-lucky-value); line-height: 1.6; }
+.today-detail-eyebrow { font-size: var(--today-font-detail-eyebrow); line-height: 1.5; }
+.today-detail-name { font-size: var(--today-font-detail-name); line-height: 1.4; }
+.today-detail-title { font-size: var(--today-font-detail-title); line-height: 1.4; }
+.today-detail-title-featured { font-size: var(--today-font-detail-title-featured); }
+.today-fortune-body { font-size: var(--today-font-body); line-height: var(--today-line-body); }
+.today-feedback-title { font-size: var(--today-font-feedback-title); line-height: 1.55; }
+.today-feedback-button { font-size: var(--today-font-feedback-button); line-height: 1.5; }
+.today-feedback-option { font-size: var(--today-font-feedback-option); line-height: 1.5; }
+.today-feedback-status { font-size: var(--today-font-feedback-status); line-height: 1.5; }
+.today-tomorrow-icon { font-size: 30px; line-height: 1; }
+.today-tomorrow-title { font-size: var(--today-font-tomorrow-title); line-height: 1.5; }
+.today-tomorrow-body { font-size: var(--today-font-tomorrow-body); line-height: 1.5; }
+.today-tomorrow-badge { font-size: var(--today-font-tomorrow-badge); line-height: 1.5; }
+.today-disclaimer { font-size: var(--today-font-disclaimer); line-height: 1.85; }
+.today-lucky-icon { font-size: 24px; line-height: 1; }
+.today-lucky-number-icon,
+.today-lucky-check-icon { font-size: 20px; line-height: 1; }
+
+@media (max-width: 800px) {
+  .today-fortune-page {
+    --today-font-breadcrumb: 15px;
+    --today-font-breadcrumb-separator: 20px;
+    --today-font-profile: 18px;
+    --today-font-page-title: 36px;
+    --today-font-intro-description: 16px;
+    --today-font-loading-title: 20px;
+    --today-font-loading-section-title: 20px;
+    --today-font-loading-section-body: 18px;
+    --today-font-main-headline: 26px;
+    --today-font-lead: 22px;
+    --today-font-label: 19px;
+    --today-font-section-heading: 28px;
+    --today-font-lucky-label: 22px;
+    --today-font-lucky-value: 20px;
+    --today-font-detail-name: 24px;
+    --today-font-detail-title: 22px;
+    --today-font-detail-title-featured: 26px;
+    --today-font-body: 20px;
+    --today-font-feedback-title: 20px;
+  }
+}
