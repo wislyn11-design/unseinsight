@@ -390,6 +390,7 @@ export default function TodayFortunePage() {
       setError("");
       setStreamStatus(LOADING_MESSAGE);
       setStreamSections([]);
+      let showedCachedFortune = false;
 
       try {
         const storedSaju = sessionStorage.getItem("unseinsight:lastSaju");
@@ -470,6 +471,37 @@ export default function TodayFortunePage() {
           throw new Error(
             "저장된 만세력과 연결할 수 없습니다. 로그인 상태에서 만세력을 다시 계산해 주세요.",
           );
+        }
+
+        const fortuneCacheKey = `unseinsight:today-fortune:${chartId}:${date}`;
+
+        try {
+          const cachedText = sessionStorage.getItem(fortuneCacheKey);
+          if (cachedText) {
+            const cached = JSON.parse(cachedText);
+            if (cached?.fortune && cached?.date === date) {
+              showedCachedFortune = true;
+              setFortune(cached.fortune as TodayFortune);
+              setInterpretationId(String(cached.interpretationId || ""));
+              setStreamSections([]);
+              setStreamStatus("");
+              setFeedbackStatus("");
+              setFeedbackChoice(null);
+              setHelpfulTopics([]);
+              setIssueTypes([]);
+              setFeedbackLocked(false);
+              setLoading(false);
+              return;
+            } else {
+              sessionStorage.removeItem(fortuneCacheKey);
+            }
+          }
+        } catch {
+          try {
+            sessionStorage.removeItem(fortuneCacheKey);
+          } catch {
+            // 브라우저 저장소를 사용할 수 없으면 DB 결과만 사용합니다.
+          }
         }
 
         const response = await fetch("/api/fortune/today", {
@@ -564,6 +596,21 @@ export default function TodayFortunePage() {
         setIssueTypes([]);
         setFeedbackLocked(false);
 
+        try {
+          sessionStorage.setItem(
+            fortuneCacheKey,
+            JSON.stringify({
+              fortune: completedFortune,
+              interpretationId: nextInterpretationId,
+              chartId,
+              date,
+              cachedAt: Date.now(),
+            }),
+          );
+        } catch {
+          // 브라우저 저장에 실패해도 DB에서 받은 운세는 그대로 표시합니다.
+        }
+
         if (nextInterpretationId) {
           const statusResponse = await fetch(
             `/api/fortune/feedback?interpretationId=${encodeURIComponent(nextInterpretationId)}`,
@@ -579,6 +626,12 @@ export default function TodayFortunePage() {
       } catch (reason) {
         if (reason instanceof DOMException && reason.name === "AbortError")
           return;
+
+        if (showedCachedFortune) {
+          console.error("오늘의 운세 백그라운드 갱신 오류:", reason);
+          return;
+        }
+
         setFortune(null);
         setError(
           reason instanceof Error

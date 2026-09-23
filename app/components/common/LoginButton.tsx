@@ -31,15 +31,15 @@ function preloadTodayFortune(userId: string) {
   const today = getTodayInKorea();
   if (!today) return;
 
-  const cacheKey = `unseinsight:today-preloaded:${userId}:${today}`;
+  const preloadKey = `unseinsight:today-preloaded-v2:${userId}:${today}`;
 
   try {
-    if (sessionStorage.getItem(cacheKey) === "completed") return;
+    if (sessionStorage.getItem(preloadKey) === "completed") return;
   } catch {
     // 저장소를 사용할 수 없어도 사전 생성은 계속 진행합니다.
   }
 
-  if (todayFortunePreloadTasks.has(cacheKey)) return;
+  if (todayFortunePreloadTasks.has(preloadKey)) return;
 
   const task = (async () => {
     try {
@@ -53,6 +53,15 @@ function preloadTodayFortune(userId: string) {
       // 저장된 만세력이 없는 회원은 오늘의 운세 페이지에서 먼저 계산하도록 둡니다.
       if (!chartResponse.ok || !chartData?.success || !chartId) return;
 
+      try {
+        sessionStorage.setItem(
+          "unseinsight:lastSaju",
+          JSON.stringify(chartData.entry),
+        );
+      } catch {
+        // 만세력 브라우저 저장에 실패해도 DB 조회는 계속 진행합니다.
+      }
+
       const fortuneResponse = await fetch("/api/fortune/today", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -63,21 +72,35 @@ function preloadTodayFortune(userId: string) {
 
       // 스트리밍 응답을 끝까지 읽어 생성과 DB 저장이 완료되도록 합니다.
       const responseText = await fortuneResponse.text();
-      const completed = responseText
-        .split("\n")
-        .filter(Boolean)
-        .some((line) => {
-          try {
-            return JSON.parse(line)?.type === "complete";
-          } catch {
-            return false;
-          }
-        });
+      let completedEvent: any = null;
 
-      if (!completed) return;
+      for (const line of responseText.split("\n").filter(Boolean)) {
+        try {
+          const event = JSON.parse(line);
+          if (event?.type === "complete" && event?.fortune) {
+            completedEvent = event;
+          }
+        } catch {
+          // 완성 이벤트가 아닌 손상된 한 줄은 건너뜁니다.
+        }
+      }
+
+      if (!completedEvent) return;
+
+      const fortuneCacheKey = `unseinsight:today-fortune:${chartId}:${today}`;
 
       try {
-        sessionStorage.setItem(cacheKey, "completed");
+        sessionStorage.setItem(
+          fortuneCacheKey,
+          JSON.stringify({
+            fortune: completedEvent.fortune,
+            interpretationId: String(completedEvent.interpretationId || ""),
+            chartId,
+            date: today,
+            cachedAt: Date.now(),
+          }),
+        );
+        sessionStorage.setItem(preloadKey, "completed");
       } catch {
         // 저장에 실패해도 DB에 저장된 운세 결과는 그대로 사용할 수 있습니다.
       }
@@ -86,10 +109,10 @@ function preloadTodayFortune(userId: string) {
       console.error("오늘의 운세 사전 생성 오류:", error);
     }
   })().finally(() => {
-    todayFortunePreloadTasks.delete(cacheKey);
+    todayFortunePreloadTasks.delete(preloadKey);
   });
 
-  todayFortunePreloadTasks.set(cacheKey, task);
+  todayFortunePreloadTasks.set(preloadKey, task);
 }
 
 export default function LoginButton({ onUserChange }: LoginButtonProps) {
