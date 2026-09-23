@@ -588,6 +588,8 @@ export default function TodayFortunePage() {
 
         setFortune(completedFortune);
         setInterpretationId(nextInterpretationId);
+        setLoading(false);
+        
         setStreamSections([]);
         setStreamStatus("");
         setFeedbackStatus("");
