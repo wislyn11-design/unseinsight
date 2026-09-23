@@ -539,47 +539,7 @@ export async function POST(request) {
     const existingInterpretation = existingResult.data || null;
 
     const cachedFortune = existingInterpretation?.structured_result;
-    
-
-    const cacheDiagnostics = {
-      hasExisting: Boolean(existingInterpretation),
-    
-      statusMatches:
-        existingInterpretation?.generation_status === "completed",
-    
-      promptMatches:
-        existingInterpretation?.prompt_version === DAILY_PROMPT_VERSION,
-    
-      modelMatches:
-        existingInterpretation?.model_name === MODEL,
-    
-      sinsalMatches:
-        existingInterpretation?.input_snapshot?.target?.sinsalVersion ===
-        target.sinsalVersion,
-    
-      savedStatus:
-        existingInterpretation?.generation_status,
-    
-      savedPromptVersion:
-        existingInterpretation?.prompt_version,
-    
-      currentPromptVersion:
-        DAILY_PROMPT_VERSION,
-    
-      savedModel:
-        existingInterpretation?.model_name,
-    
-      currentModel:
-        MODEL,
-    
-      savedSinsalVersion:
-        existingInterpretation?.input_snapshot?.target?.sinsalVersion,
-    
-      currentSinsalVersion:
-        target.sinsalVersion,
-    };
-    
-    console.log("🔥 오늘의 운세 캐시 진단:", cacheDiagnostics);
+   
     
     const cacheMatches =
       existingInterpretation?.prompt_version === DAILY_PROMPT_VERSION &&
@@ -588,11 +548,7 @@ export async function POST(request) {
       existingInterpretation?.input_snapshot?.target?.sinsalVersion ===
         target.sinsalVersion;
     
-    console.log(
-      cacheMatches
-        ? "✅ 오늘의 운세 CACHE HIT"
-        : "❌ 오늘의 운세 CACHE MISS",
-    );
+    
 
     if (cacheMatches) {
       try {
