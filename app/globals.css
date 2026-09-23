@@ -261,3 +261,38 @@ html, body {
     --today-font-feedback-title: 20px;
   }
 }
+
+/* 왼쪽 운세 메뉴 글씨 크기 */
+:root {
+  --fortune-sidebar-heading-font-size: 20px;
+  --fortune-sidebar-menu-font-size: 24px;
+  --fortune-sidebar-badge-font-size: 13px;
+  --fortune-sidebar-consult-title-font-size: 18px;
+  --fortune-sidebar-consult-status-font-size: 14px;
+}
+
+.fortune-sidebar-heading {
+  font-size: var(--fortune-sidebar-heading-font-size);
+  line-height: 1.4;
+}
+
+.fortune-sidebar-menu-item,
+.fortune-sidebar-menu-label {
+  font-size: var(--fortune-sidebar-menu-font-size) !important;
+  line-height: 1.45 !important;
+}
+
+.fortune-sidebar-badge {
+  font-size: var(--fortune-sidebar-badge-font-size);
+  line-height: 1.35;
+}
+
+.fortune-sidebar-consult-title {
+  font-size: var(--fortune-sidebar-consult-title-font-size);
+  line-height: 1.4;
+}
+
+.fortune-sidebar-consult-status {
+  font-size: var(--fortune-sidebar-consult-status-font-size);
+  line-height: 1.4;
+}

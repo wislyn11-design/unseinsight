@@ -130,13 +130,17 @@ function SidebarBody({
         >
           <Menu className="h-7 w-7" aria-hidden="true" />
         </button>
-        {open && <span className="ml-3 text-[17px] font-bold text-[#15213b]">메뉴</span>}
+        {open && (
+          <span className="fortune-sidebar-heading ml-3 font-bold text-[#15213b]">
+            메뉴
+          </span>
+        )}
       </div>
 
       <nav className="space-y-2" aria-label="운세 서비스 메뉴">
         {MENUS.map((menu) => {
           const active = pathname === menu.href;
-          const menuClassName = `flex h-[62px] w-full items-center rounded-xl text-[17px] font-semibold transition ${open ? "gap-4 px-4" : "justify-center px-0"} ${active ? "bg-gradient-to-r from-[#edf3ff] to-[#f2efff] text-[#1760ee]" : menu.comingSoon ? "cursor-not-allowed text-[#8d98aa]" : "text-[#263149] hover:bg-[#f7f9fc]"}`;
+          const menuClassName = `fortune-sidebar-menu-item flex h-[62px] w-full items-center rounded-xl font-semibold transition ${open ? "gap-4 px-4" : "justify-center px-0"} ${active ? "bg-gradient-to-r from-[#edf3ff] to-[#f2efff] text-[#1760ee]" : menu.comingSoon ? "cursor-not-allowed text-[#8d98aa]" : "text-[#263149] hover:bg-[#f7f9fc]"}`;
 
           const menuContent = (
             <>
@@ -153,9 +157,11 @@ function SidebarBody({
               </span>
               {open && (
                 <>
-                  <span className="whitespace-nowrap">{menu.label}</span>
+                  <span className="fortune-sidebar-menu-label whitespace-nowrap">
+                    {menu.label}
+                  </span>
                   {menu.comingSoon && (
-                    <span className="ml-auto rounded-full bg-[#eef1f6] px-2 py-0.5 text-[11px] font-bold text-[#7f8999]">
+                    <span className="fortune-sidebar-badge ml-auto rounded-full bg-[#eef1f6] px-2 py-0.5 font-bold text-[#7f8999]">
                       준비중
                     </span>
                   )}
@@ -202,9 +208,11 @@ function SidebarBody({
         >
           <div className="flex items-center gap-3">
             <span className="text-2xl text-[#6c56e8]">✦</span>
-            <strong className="text-[16px]">도사님 1:1 상담</strong>
+            <strong className="fortune-sidebar-consult-title">
+              도사님 1:1 상담
+            </strong>
           </div>
-          <p className="mt-2 pl-9 text-[12px] font-semibold text-[#7968aa]">
+          <p className="fortune-sidebar-consult-status mt-2 pl-9 font-semibold text-[#7968aa]">
             <span className="mr-1 text-[#7b61ff]">●</span> 상담 가능
           </p>
         </Link>
