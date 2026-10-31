@@ -26,6 +26,7 @@ export default function FortunePageIntro({
   profile = null,
   sentence,
   showProfile = true,
+  variant = "default",
 }) {
   const {
     name = "사용자",
@@ -41,6 +42,40 @@ export default function FortunePageIntro({
   const calendarText = getCalendarLabel(calendarType, isLeapMonth);
   const timeText = birthTimeUnknown || !birthTime ? "출생 시간 미상" : birthTime;
   const serviceSentence = sentence || `사주로 본 ${serviceTitle}입니다`;
+  const isSaju = variant === "saju";
+
+  if (isSaju) {
+    return (
+      <header className={`${styles.pageIntro} ${styles.sajuIntro}`}>
+        <div className={styles.sajuHeadingRow}>
+          <div className={styles.sajuTitleGroup}>
+            <h1>{serviceTitle}</h1>
+            {description ? (
+              <p className={styles.description}>{description}</p>
+            ) : null}
+          </div>
+
+          {showProfile && (
+            profile ? (
+              <div className={styles.sajuProfile}>
+                <strong className={styles.sajuProfileName}>{displayName}</strong>
+                <p className={styles.sajuProfileDetails}>
+                  <span>{dateText} ({calendarText})</span>
+                  <span aria-hidden="true">·</span>
+                  <span>{timeText}</span>
+                </p>
+                <span className={styles.sajuProfileBadge}>{serviceSentence}</span>
+              </div>
+            ) : (
+              <p className={`${styles.sajuProfile} ${styles.profileLoading}`}>
+                사주 정보를 불러오고 있습니다.
+              </p>
+            )
+          )}
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className={styles.pageIntro}>

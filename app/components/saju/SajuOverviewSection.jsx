@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import FortunePageIntro from "@/app/components/fortune/page-intro/FortunePageIntro";
 import styles from "./SajuOverviewSection.module.css";
 
 export const sampleServices = [
@@ -18,8 +17,6 @@ export const sampleServices = [
   { id:11, group:"현재의 흐름과 조언", icon:"◷", title:"현재 내가 지나고 있는 시기", short:"지금 대운의 핵심 주제와 준비해야 할 일을 확인해요.", eyebrow:"지금 10년의 핵심 주제", headline:"지금은 흩어진 경험을 하나의 방향으로 모으고, 내 이름의 기반을 만드는 시기입니다.", paragraphs:[{title:"현재의 기회",body:"오랫동안 생각해 온 일을 구체적인 형태로 만들기에 좋은 흐름입니다."},{title:"주의할 선택",body:"가장 오래 이어갈 한 가지를 중심에 두고 나머지는 그 목표를 돕는 방식으로 정리해 보세요."}], tip:"더 많이 시작하기보다 이미 시작한 것의 완성도를 높이는 데 힘을 모아보세요." },
   { id:12, group:"현재의 흐름과 조언", icon:"☼", title:"나를 위한 실천 조언", short:"사주 흐름을 오늘의 작은 행동으로 연결해봐요.", eyebrow:"오늘부터 시작하는 세 가지", headline:"내가 가진 힘을 믿되, 혼자 버티지 않고 세상과 나누는 연습이 필요합니다.", paragraphs:[{title:"더 살려야 할 것",body:"꾸준함과 현실 감각, 사람을 세심하게 살피는 힘은 이미 충분한 자산입니다."},{title:"조금 내려놓을 것",body:"완벽하게 준비해야 시작할 수 있다는 생각과 모든 기대를 만족시켜야 한다는 부담은 내려놓아도 좋습니다."}], tip:"미뤄 둔 일 하나를 20분만 시작하고, 믿는 사람 한 명에게 계획을 이야기해 보세요." },
 ];
-
-const groupCopy = {"나의 본질":"타고난 나를 이해해요","균형과 관계":"나와 사람 사이를 살펴봐요","일·돈·사랑":"삶의 중요한 선택 기준을 찾아요","현재의 흐름과 조언":"지금의 흐름을 삶의 선택으로 연결해요"};
 
 const overviewSections = [
   { key: "essence", label: "나의 본질", ids: [1, 2, 3] },
@@ -102,6 +99,17 @@ function buildIntroProfile(entry) {
     calendarType,
     isLeapMonth,
   };
+}
+
+function formatProfileBirthDate(profile) {
+  const match = String(profile?.birthDate || "").match(
+    /^(\d{4})[-./](\d{1,2})[-./](\d{1,2})/,
+  );
+  if (!match) return String(profile?.birthDate || "");
+
+  const calendarLabel = profile?.calendarType === "lunar" ? "음력" : "양력";
+  const leapLabel = profile?.isLeapMonth ? " · 윤달" : "";
+  return `${match[1]}년 ${Number(match[2])}월 ${Number(match[3])}일 (${calendarLabel}${leapLabel})`;
 }
 
 const LIFE_MAP_DECADES = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
@@ -205,10 +213,6 @@ function buildSectionStatusServices(
   });
 }
 
-function Chevron({ open = false }) {
-  return <span className={`${styles.chevron} ${open ? styles.chevronOpen : ""}`} aria-hidden="true" />;
-}
-
 function DetailContent({ service }) {
   if (service.loading) {
     return <div className={styles.loadingState} role="status" aria-live="polite">
@@ -232,6 +236,7 @@ function DetailContent({ service }) {
 function SajuLifeMap({ stories, daeunPeriods, currentAge, loading, error }) {
   const currentDecade = decadeForAge(currentAge);
   const [selectedDecade, setSelectedDecade] = useState(currentDecade);
+  const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
     setSelectedDecade(currentDecade);
@@ -257,54 +262,68 @@ function SajuLifeMap({ stories, daeunPeriods, currentAge, loading, error }) {
     ? currentPeriod.endAge + 1
     : null;
 
-  return <section className={styles.lifeMap} aria-labelledby="saju-life-map-title">
+  return <section id="saju-life-map" className={styles.lifeMap} aria-labelledby="saju-life-map-title" style={{ scrollMarginTop: "100px" }}>
     <div className={styles.lifeMapHeading}>
       <div>
         <small>사주총평의 시작</small>
         <h2 id="saju-life-map-title">나의 인생 지도</h2>
         <p>10대부터 100세까지, 연령별 삶의 주제와 실제 대운의 흐름을 함께 살펴보세요.</p>
       </div>
-      <span className={styles.lifeMapMark}>⌁</span>
+      <button
+        type="button"
+        className={styles.lifeMapToggle}
+        onClick={() => setExpanded((value) => !value)}
+        aria-expanded={expanded}
+        aria-controls="saju-life-map-content"
+        aria-label={expanded ? "나의 인생 지도 접기" : "나의 인생 지도 펼치기"}
+      >
+        {expanded ? "−" : "+"}
+      </button>
     </div>
 
-    {loading && <div className={styles.lifeMapLoading} role="status" aria-live="polite">
+    {expanded && loading && <div className={styles.lifeMapLoading} role="status" aria-live="polite">
       <span className={styles.loadingSpinner} aria-hidden="true" />
       <b>인생의 큰 흐름을 분석하고 있습니다</b>
       <p>원국과 전체 대운을 연결해 10대부터 100세까지 차근차근 살펴보고 있습니다.</p>
       <small>잠시만 기다려 주세요.</small>
     </div>}
 
-    {!loading && error && <div className={styles.lifeMapError} role="alert">
+    {expanded && !loading && error && <div className={styles.lifeMapError} role="alert">
       <b>나의 인생 지도를 불러오지 못했습니다</b>
       <p>{error}</p>
       <small>잠시 후 페이지를 새로고침해 다시 확인해 주세요.</small>
     </div>}
 
-    {!loading && !error && selectedStory && <>
+    {expanded && !loading && !error && selectedStory && <div id="saju-life-map-content">
       <div className={styles.lifeMapSummary}>
         <div><small>현재 나이</small><b>{Number.isFinite(currentAge) ? `${currentAge}세` : "확인 중"}</b></div>
         <div><small>현재 대운</small><b>{daeunLabel(currentPeriod)}</b></div>
         <div><small>다음 전환</small><b>{nextTransitionAge ? `${nextTransitionAge}세` : "대운 정보 확인 중"}</b></div>
       </div>
 
-      <div className={styles.decadeNavigation} aria-label="연령대 선택">
-        {LIFE_MAP_DECADES.map((decade) => <button
-          type="button"
-          key={decade}
-          className={`${styles.decadeButton} ${selectedDecade === decade ? styles.decadeButtonActive : ""} ${currentDecade === decade ? styles.decadeButtonCurrent : ""}`}
-          onClick={() => setSelectedDecade(decade)}
-          aria-pressed={selectedDecade === decade}
-        >
-          <b>{decade === 100 ? "100세+" : `${decade}대`}</b>
-          <small>{decade === 100 ? "100세 이후" : `${decade}~${decade + 9}세`}</small>
-        </button>)}
+      <div className={styles.lifeMapTimelineScroll}>
+        <div className={styles.lifeMapTimeline} aria-label="연령대 선택">
+          <span className={styles.lifeMapTimelineLine} aria-hidden="true" />
+          {LIFE_MAP_DECADES.map((decade) => <button
+            type="button"
+            key={decade}
+            className={`${styles.lifeMapTimelineItem} ${selectedDecade === decade ? styles.lifeMapTimelineItemActive : ""} ${currentDecade === decade ? styles.lifeMapTimelineItemCurrent : ""}`}
+            onClick={() => setSelectedDecade(decade)}
+            aria-label={`${decade === 100 ? "100세 이후" : `${decade}대`} 사주총평 보기`}
+            aria-pressed={selectedDecade === decade}
+          >
+            <span className={styles.lifeMapTimelinePoint} aria-hidden="true" />
+            {currentDecade === decade && <em>현재</em>}
+            <b>{decade === 100 ? "100세+" : `${decade}대`}</b>
+            <small>{decade === 100 ? "100세 이후" : `${decade}~${decade + 9}세`}</small>
+          </button>)}
+        </div>
       </div>
 
       <article className={styles.lifeMapStory}>
         <aside className={styles.lifeMapAge}>
           <small>선택한 시기</small>
           <strong>{selectedDecade === 100 ? "100+" : `${selectedDecade}대`}</strong>
-          <span>{selectedStory.eyebrow}</span>
         </aside>
         <div className={styles.lifeMapCopy}>
           <small>{selectedStory.eyebrow}</small>
@@ -322,7 +341,7 @@ function SajuLifeMap({ stories, daeunPeriods, currentAge, loading, error }) {
           <div className={styles.lifeMapInsight}><span>✦</span><div><b>이 시기를 위한 인사이트</b><p>{selectedStory.tip}</p></div></div>
         </div>
       </article>
-    </>}
+    </div>}
   </section>;
 }
 
@@ -333,7 +352,7 @@ export default function SajuOverviewSection({
   essence: providedEssence = null,
 }) {
   const [activeId, setActiveId] = useState(1);
-  const [readIds, setReadIds] = useState([1]);
+  const [, setReadIds] = useState([1]);
   const [introProfile, setIntroProfile] = useState(providedProfile);
   const [chartId, setChartId] = useState("");
   const [overviewSummary, setOverviewSummary] = useState(providedSummary);
@@ -366,10 +385,10 @@ export default function SajuOverviewSection({
 
     // 이전 아코디언이 닫히고 선택한 아코디언이 열린 뒤의 위치를 기준으로 이동합니다.
     const frameId = window.requestAnimationFrame(() => {
-      const targetCard = accordionCardRefs.current.get(targetId);
-      if (!targetCard) return;
+      const targetGroup = document.getElementById("saju-insights");
+      if (!targetGroup) return;
 
-      targetCard.scrollIntoView({
+      targetGroup.scrollIntoView({
         behavior: "smooth",
         block: "start",
         inline: "nearest",
@@ -379,6 +398,109 @@ export default function SajuOverviewSection({
 
     return () => window.cancelAnimationFrame(frameId);
   }, [activeId]);
+
+  useEffect(() => {
+    const scrollToInsight = (id) => {
+      const insightId = Number(id);
+      if (!Number.isInteger(insightId) || insightId < 1 || insightId > 12) return;
+
+      pendingScrollIdRef.current = insightId;
+      setActiveId(insightId);
+      setReadIds((previous) =>
+        previous.includes(insightId) ? previous : [...previous, insightId],
+      );
+
+      // 이미 열려 있는 메뉴를 다시 눌러도 해당 위치로 이동하도록 두 프레임 뒤에 확인합니다.
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          const target = document.getElementById("saju-insights");
+          target?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+            inline: "nearest",
+          });
+          pendingScrollIdRef.current = null;
+        });
+      });
+    };
+
+    const scrollToLifeMap = () => {
+      window.requestAnimationFrame(() => {
+        document.getElementById("saju-life-map")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+          inline: "nearest",
+        });
+      });
+    };
+
+    const scrollToOverviewTop = () => {
+      window.requestAnimationFrame(() => {
+        const overview = document.getElementById("saju-overview-top");
+        if (!overview) return;
+
+        overview.scrollTop = 0;
+
+        let scrollParent = overview.parentElement;
+        while (scrollParent) {
+          if (scrollParent.scrollHeight > scrollParent.clientHeight) {
+            scrollParent.scrollTop = 0;
+          }
+          scrollParent = scrollParent.parentElement;
+        }
+
+        document.scrollingElement?.scrollTo({ top: 0, behavior: "auto" });
+        window.scrollTo({ top: 0, behavior: "auto" });
+      });
+    };
+
+    const handleOverviewMenuClick = (event) => {
+      if (!(event.target instanceof Element)) return;
+
+      const link = event.target.closest('a[href="/fortune/saju"]');
+      if (!link) return;
+
+      event.preventDefault();
+      window.history.replaceState(
+        window.history.state,
+        "",
+        "/fortune/saju",
+      );
+      pendingScrollIdRef.current = null;
+      scrollToOverviewTop();
+    };
+
+    const handleHashNavigation = () => {
+      const hash = window.location.hash;
+      if (!hash) {
+        scrollToOverviewTop();
+        return;
+      }
+
+      if (hash === "#saju-life-map") {
+        scrollToLifeMap();
+        return;
+      }
+
+      const match = hash.match(/^#saju-insight-(\d+)$/);
+      if (match) scrollToInsight(Number(match[1]));
+    };
+
+    const handleInsightEvent = (event) => scrollToInsight(event.detail?.id);
+
+    handleHashNavigation();
+    window.addEventListener("hashchange", handleHashNavigation);
+    window.addEventListener("saju:open-insight", handleInsightEvent);
+    window.addEventListener("saju:scroll-life-map", scrollToLifeMap);
+    document.addEventListener("click", handleOverviewMenuClick, true);
+
+    return () => {
+      window.removeEventListener("hashchange", handleHashNavigation);
+      window.removeEventListener("saju:open-insight", handleInsightEvent);
+      window.removeEventListener("saju:scroll-life-map", scrollToLifeMap);
+      document.removeEventListener("click", handleOverviewMenuClick, true);
+    };
+  }, []);
 
   useEffect(() => {
     if (providedProfile) setIntroProfile(providedProfile);
@@ -619,33 +741,66 @@ export default function SajuOverviewSection({
     keywords: [],
   };
 
+  const activeService =
+    overviewServices.find((service) => service.id === activeId) ||
+    overviewServices[0];
+  const activeGroup = activeService?.group || groups[0] || "나의 본질";
+  const activeGroupIndex = Math.max(0, groups.indexOf(activeGroup));
+  const activeGroupServices = overviewServices.filter(
+    (service) => service.group === activeGroup,
+  );
+  const selectedService =
+    activeGroupServices.find((service) => service.id === activeId) ||
+    activeGroupServices[0];
+  const activeGroupTitle =
+    activeGroup === "일·돈·사랑" ? "직업·돈·사랑" : activeGroup;
+
   const openService = (id) => {
     setActiveId(id);
     setReadIds((previous) => previous.includes(id) ? previous : [...previous, id]);
   };
 
   const toggleService = (id) => {
-    if (activeId === id) {
-      pendingScrollIdRef.current = null;
-      setActiveId(null);
-      return;
-    }
     pendingScrollIdRef.current = id;
     openService(id);
   };
 
-  return <section className={styles.overview}>
-    <FortunePageIntro
-      serviceTitle="사주총평"
-      description="타고난 나부터 지금의 흐름까지, 12가지 이야기로 차근차근 알아보세요."
-      profile={introProfile}
-    />
+  return <section id="saju-overview-top" className={styles.overview}>
+    {introProfile && <div className={styles.profileHeader} aria-label="사주 대상 정보">
+      <div className={styles.profileIdentity}>
+        <strong>{introProfile.name}님</strong>
+        <span>
+          {formatProfileBirthDate(introProfile)}
+          {introProfile.birthTimeUnknown
+            ? " · 출생 시간 모름"
+            : introProfile.birthTime
+              ? ` · ${introProfile.birthTime}`
+              : ""}
+        </span>
+      </div>
+      <small>사주로 본 사주총평입니다</small>
+    </div>}
 
     <div className={styles.summaryWrap}>
       <div className={styles.summaryCard}>
-        <div className={styles.summarySymbol}>{summaryLoading ? <span className={styles.summaryLoadingSpinner} aria-label="분석 중" /> : <span>{displaySummary.element}</span>}<small>중심 기운</small></div>
-        <div className={styles.summaryCopy}><small>나를 대표하는 한 문장</small><strong>“{displaySummary.sentence}”</strong><div>{displaySummary.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}</div></div>
-        <div className={styles.progress}><div><span>읽은 이야기</span><b>{readIds.length}<small> / {overviewServices.length}</small></b></div><div className={styles.track}><i style={{ width: `${readIds.length / overviewServices.length * 100}%` }} /></div><small>천천히, 나의 속도로 살펴보세요</small></div>
+        <div className={styles.summarySymbol}>
+          {summaryLoading
+            ? <span className={styles.summaryLoadingSpinner} aria-label="분석 중" />
+            : <span>{displaySummary.element}</span>}
+          <small>중심 기운</small>
+        </div>
+        <div className={styles.summaryCopy}>
+          <small>나를 대표하는 한 문장</small>
+          <strong>
+            “{displaySummary.sentence.replace(
+              "지혜를 바탕으로,",
+              "지혜를 바탕으로,\n",
+            )}”
+          </strong>
+          <div>
+            {displaySummary.keywords.map((keyword) => <span key={keyword}>{keyword}</span>)}
+          </div>
+        </div>
       </div>
     </div>
 
@@ -657,36 +812,45 @@ export default function SajuOverviewSection({
       error={lifeMapError}
     />
 
-    <div className={styles.accordionExperience}>
+    <div id="saju-insights" className={styles.accordionExperience}>
       <div className={styles.accordionHeading}>
-        <div><small>전체 이야기</small><b>12가지 사주 인사이트</b></div>
-        <span>{readIds.length}개 읽음</span>
+        <div>
+          <b>{activeGroupTitle}</b>
+        </div>
       </div>
 
-      {groups.map((group, groupIndex) => <section className={styles.accordionGroup} key={group}>
-        <div className={styles.groupTitle}><span>{groupIndex + 1}</span><div><b>{group}</b><small>{groupCopy[group]}</small></div></div>
-        {overviewServices.filter((item) => item.group === group).map((service) => {
-          const open = activeId === service.id;
-          return <article
-            className={`${styles.accordionCard} ${open ? styles.accordionCardOpen : ""}`}
-            key={service.id}
-            ref={(node) => {
-              if (node) accordionCardRefs.current.set(service.id, node);
-              else accordionCardRefs.current.delete(service.id);
-            }}
-            style={{ scrollMarginTop: "112px" }}
-          >
-            <button className={styles.accordionToggle} onClick={() => toggleService(service.id)} aria-expanded={open}>
-              <span className={styles.serviceIcon}>{service.icon}</span>
-              <span className={styles.accordionLabel}><small>{String(service.id).padStart(2, "0")} · {service.group}</small><b>{service.title}</b><em>{service.short}</em></span>
-              {readIds.includes(service.id) && !open ? <span className={styles.readCheck}>✓</span> : <Chevron open={open} />}
+      <section
+        id={`saju-group-${activeGroupIndex + 1}`}
+        className={styles.accordionGroup}
+      >
+        <nav className={styles.insightTabs} aria-label={`${activeGroupTitle} 세부 이야기`}>
+          {activeGroupServices.map((service) => (
+            <button
+              type="button"
+              key={service.id}
+              className={`${styles.insightTab} ${service.id === selectedService?.id ? styles.insightTabActive : ""}`}
+              onClick={() => toggleService(service.id)}
+              aria-current={service.id === selectedService?.id ? "page" : undefined}
+            >
+              {service.title}
             </button>
-            {open && <div className={styles.accordionBody} aria-live="polite">
-              <DetailContent service={service} />
-            </div>}
-          </article>;
-        })}
-      </section>)}
+          ))}
+        </nav>
+
+        {selectedService && <article
+          id={`saju-insight-${selectedService.id}`}
+          className={`${styles.accordionCard} ${styles.accordionCardOpen}`}
+          ref={(node) => {
+            if (node) accordionCardRefs.current.set(selectedService.id, node);
+            else accordionCardRefs.current.delete(selectedService.id);
+          }}
+          style={{ scrollMarginTop: "112px" }}
+        >
+          <div className={styles.accordionBody} aria-live="polite">
+            <DetailContent service={selectedService} />
+          </div>
+        </article>}
+      </section>
     </div>
   </section>;
 }

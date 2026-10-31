@@ -95,6 +95,81 @@
   word-break: keep-all;
 }
 
+/* 사주총평 전용: 흰색 바탕의 차분한 무테 리포트 헤더 */
+.sajuIntro {
+  padding-top: 44px;
+  padding-bottom: 34px;
+  background: #ffffff;
+}
+
+.sajuHeadingRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: clamp(32px, 6vw, 96px);
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e4e9f2;
+}
+
+.sajuTitleGroup {
+  min-width: 0;
+}
+
+.sajuIntro h1 {
+  font-size: clamp(44px, 3.3vw, 58px);
+}
+
+.sajuIntro .description {
+  max-width: 760px;
+  margin-top: 14px;
+  color: #68738b;
+}
+
+.sajuProfile {
+  min-width: 300px;
+  padding-left: clamp(28px, 3vw, 50px);
+  border-left: 1px solid #e4e9f2;
+  text-align: right;
+}
+
+.sajuProfileName {
+  display: block;
+  color: #111d3d;
+  font-size: 24px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+
+.sajuProfileDetails {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 5px 8px;
+  margin: 7px 0 12px;
+  color: #68738b;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.sajuProfileDetails > span[aria-hidden="true"] {
+  color: #a2adbf;
+}
+
+.sajuProfileBadge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 5px 11px;
+  border: 1px solid #d8e3f8;
+  border-radius: 999px;
+  color: #315da8;
+  background: #ffffff;
+  font-size: 13px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
 @media (max-width: 800px) {
   .pageIntro {
     padding: 22px 16px 16px;
@@ -118,5 +193,32 @@
 
   .description {
     margin-top: 9px;
+  }
+
+  .sajuIntro {
+    padding-top: 28px;
+    padding-bottom: 20px;
+  }
+
+  .sajuHeadingRow {
+    grid-template-columns: 1fr;
+    gap: 22px;
+    padding-bottom: 24px;
+  }
+
+  .sajuIntro h1 {
+    font-size: clamp(38px, 11vw, 48px);
+  }
+
+  .sajuProfile {
+    min-width: 0;
+    padding: 20px 0 0;
+    border-top: 1px solid #edf0f5;
+    border-left: 0;
+    text-align: left;
+  }
+
+  .sajuProfileDetails {
+    justify-content: flex-start;
   }
 }

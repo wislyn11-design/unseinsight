@@ -2,8 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, type ReactNode } from "react";
-import { Menu } from "lucide-react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type PointerEvent,
+  type ReactNode,
+} from "react";
+import { ChevronDown, Menu } from "lucide-react";
 
 type MenuItem = {
   label: string;
@@ -71,7 +79,7 @@ function Icon({ name }: { name: string }) {
       strokeWidth="1.65"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-[26px] w-[26px]"
+      className="h-[30px] w-[30px]"
       aria-hidden="true"
     >
       {paths[name]}
@@ -104,6 +112,141 @@ const MENUS: MenuItem[] = [
   { label: "토정비결", href: "/fortune/tojeong", icon: <Icon name="doc" /> },
 ];
 
+const SAJU_SUBMENU_GROUPS = [
+  {
+    label: "나의 본질",
+    items: [
+      { id: 1, label: "한눈에 보는 나의 사주" },
+      { id: 2, label: "타고난 성격과 기질" },
+      { id: 3, label: "나의 강점과 숨은 가능성" },
+    ],
+  },
+  {
+    label: "균형과 관계",
+    items: [
+      { id: 4, label: "주의해야 할 사항" },
+      { id: 5, label: "인간관계 방식" },
+      { id: 6, label: "오행으로 보는 에너지 균형" },
+    ],
+  },
+  {
+    label: "직업·돈·사랑",
+    items: [
+      { id: 7, label: "일과 직업 성향" },
+      { id: 8, label: "돈을 대하는 기본 성향" },
+      { id: 9, label: "사랑과 연애의 기본 성향" },
+    ],
+  },
+  {
+    label: "현재의 흐름과 조언",
+    items: [
+      { id: 10, label: "지금까지 이어진 성장 흐름" },
+      { id: 11, label: "현재 내가 지나고 있는 시기" },
+      { id: 12, label: "나를 위한 실천 조언" },
+    ],
+  },
+];
+
+const SIDEBAR_THUMB_HEIGHT = 96;
+const SIDEBAR_TRACK_PADDING = 10;
+
+function SidebarScrollArea({
+  children,
+  className = "",
+  style,
+}: {
+  children: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ startY: 0, startScrollTop: 0 });
+  const [thumb, setThumb] = useState({ visible: false, top: 0 });
+
+  const updateThumb = useCallback(() => {
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const maxScroll = element.scrollHeight - element.clientHeight;
+    const maxThumbTop = Math.max(
+      0,
+      element.clientHeight - SIDEBAR_THUMB_HEIGHT - SIDEBAR_TRACK_PADDING * 2,
+    );
+    const top =
+      SIDEBAR_TRACK_PADDING +
+      (maxScroll > 0 ? (element.scrollTop / maxScroll) * maxThumbTop : 0);
+
+    setThumb({ visible: maxScroll > 2, top });
+  }, []);
+
+  useEffect(() => {
+    const element = scrollRef.current;
+    if (!element) return undefined;
+
+    updateThumb();
+    element.addEventListener("scroll", updateThumb, { passive: true });
+    window.addEventListener("resize", updateThumb);
+
+    const resizeObserver = new ResizeObserver(updateThumb);
+    resizeObserver.observe(element);
+    if (element.firstElementChild) {
+      resizeObserver.observe(element.firstElementChild);
+    }
+
+    return () => {
+      element.removeEventListener("scroll", updateThumb);
+      window.removeEventListener("resize", updateThumb);
+      resizeObserver.disconnect();
+    };
+  }, [updateThumb]);
+
+  const handlePointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
+
+    const element = scrollRef.current;
+    if (!element) return;
+
+    const maxScroll = element.scrollHeight - element.clientHeight;
+    const maxThumbTop = Math.max(
+      1,
+      element.clientHeight - SIDEBAR_THUMB_HEIGHT - SIDEBAR_TRACK_PADDING * 2,
+    );
+    const deltaY = event.clientY - dragRef.current.startY;
+    element.scrollTop =
+      dragRef.current.startScrollTop + (deltaY / maxThumbTop) * maxScroll;
+  };
+
+  return (
+    <div className={`relative ${className}`} style={style}>
+      <div ref={scrollRef} className="fortune-sidebar-scroll h-full overflow-y-auto">
+        {children}
+      </div>
+      {thumb.visible && (
+        <div
+          role="scrollbar"
+          aria-controls="fortune-sidebar"
+          aria-orientation="vertical"
+          className="absolute right-[4px] top-0 z-30 w-[6px] cursor-grab touch-none rounded-full bg-[#d5d8de] transition-colors hover:bg-[#b9bec7] active:cursor-grabbing active:bg-[#aeb4be]"
+          style={{
+            height: `${SIDEBAR_THUMB_HEIGHT}px`,
+            transform: `translateY(${thumb.top}px)`,
+          }}
+          onPointerDown={(event) => {
+            const element = scrollRef.current;
+            if (!element) return;
+            dragRef.current = {
+              startY: event.clientY,
+              startScrollTop: element.scrollTop,
+            };
+            event.currentTarget.setPointerCapture(event.pointerId);
+          }}
+          onPointerMove={handlePointerMove}
+        />
+      )}
+    </div>
+  );
+}
+
 function SidebarBody({
   open,
   onToggle,
@@ -114,12 +257,30 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const sajuActive = pathname === "/fortune/saju";
+  const [sajuExpanded, setSajuExpanded] = useState(sajuActive);
+  const [openSajuGroups, setOpenSajuGroups] = useState<Set<number>>(
+    () => new Set(),
+  );
+
+  const toggleSajuGroup = (groupIndex: number) => {
+    setOpenSajuGroups((previous) => {
+      const next = new Set(previous);
+      if (next.has(groupIndex)) next.delete(groupIndex);
+      else next.add(groupIndex);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    if (sajuActive) setSajuExpanded(true);
+  }, [sajuActive]);
 
   return (
     <div
-      className={`flex h-full flex-col bg-white py-3 ${open ? "px-3" : "px-2"}`}
+      className={`flex min-h-full flex-col bg-white pb-20 pt-4 ${open ? "px-5" : "px-2"}`}
     >
-      <div className={`mb-3 flex h-12 items-center ${open ? "px-2" : "justify-center"}`}>
+      <div className={`mb-3 flex h-12 items-center ${open ? "px-1" : "justify-center"}`}>
         <button
           type="button"
           onClick={onToggle}
@@ -131,16 +292,19 @@ function SidebarBody({
           <Menu className="h-7 w-7" aria-hidden="true" />
         </button>
         {open && (
-          <span className="fortune-sidebar-heading ml-3 font-bold text-[#15213b]">
+          <span
+            className="ml-3 font-bold text-[#15213b]"
+            style={{ fontSize: "25px", lineHeight: 1.4 }}
+          >
             메뉴
           </span>
         )}
       </div>
 
-      <nav className="space-y-2" aria-label="운세 서비스 메뉴">
+      <nav className="space-y-1.5" aria-label="운세 서비스 메뉴">
         {MENUS.map((menu) => {
           const active = pathname === menu.href;
-          const menuClassName = `fortune-sidebar-menu-item flex h-[62px] w-full items-center rounded-xl font-semibold transition ${open ? "gap-4 px-4" : "justify-center px-0"} ${active ? "bg-gradient-to-r from-[#edf3ff] to-[#f2efff] text-[#1760ee]" : menu.comingSoon ? "cursor-not-allowed text-[#8d98aa]" : "text-[#263149] hover:bg-[#f7f9fc]"}`;
+          const menuClassName = `flex h-[72px] w-full items-center rounded-[15px] font-semibold transition ${open ? "gap-4 px-5" : "justify-center px-0"} ${active ? "bg-[#eef3ff] text-[#1760ee]" : menu.comingSoon ? "cursor-not-allowed text-[#8d98aa]" : "text-[#263149] hover:bg-[#f7f9fc]"}`;
 
           const menuContent = (
             <>
@@ -157,11 +321,17 @@ function SidebarBody({
               </span>
               {open && (
                 <>
-                  <span className="fortune-sidebar-menu-label whitespace-nowrap">
+                  <span
+                    className="whitespace-nowrap"
+                    style={{ fontSize: "24px", lineHeight: 1.45 }}
+                  >
                     {menu.label}
                   </span>
                   {menu.comingSoon && (
-                    <span className="fortune-sidebar-badge ml-auto rounded-full bg-[#eef1f6] px-2 py-0.5 font-bold text-[#7f8999]">
+                    <span
+                      className="ml-auto rounded-full bg-[#eef1f6] px-2 py-0.5 font-bold text-[#7f8999]"
+                      style={{ fontSize: "15px", lineHeight: 1.35 }}
+                    >
                       준비중
                     </span>
                   )}
@@ -169,6 +339,120 @@ function SidebarBody({
               )}
             </>
           );
+
+          if (menu.href === "/fortune/saju") {
+            return (
+              <div key={menu.href}>
+                <div className="relative">
+                  <Link
+                    href={menu.href}
+                    onClick={() => {
+                      setSajuExpanded(true);
+                      onNavigate?.();
+                    }}
+                    aria-current={active ? "page" : undefined}
+                    title={!open ? menu.label : undefined}
+                    className={`${menuClassName} ${open ? "pr-12" : ""}`}
+                  >
+                    {menuContent}
+                  </Link>
+
+                  {open && (
+                    <button
+                      type="button"
+                      onClick={() => setSajuExpanded((value) => !value)}
+                      className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[#66738a] transition hover:bg-white/70 hover:text-[#1760ee]"
+                      aria-label={sajuExpanded ? "사주총평 하위 메뉴 접기" : "사주총평 하위 메뉴 펼치기"}
+                      aria-expanded={sajuExpanded}
+                    >
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform ${sajuExpanded ? "rotate-180" : ""}`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {open && sajuExpanded && (
+                  <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
+                    <Link
+                      href="/fortune/saju#saju-life-map"
+                      onClick={() => {
+                        window.dispatchEvent(new Event("saju:scroll-life-map"));
+                        onNavigate?.();
+                      }}
+                      className="block rounded-[10px] px-3 py-3 font-semibold text-[#315b9f] transition hover:bg-[#f2f6ff] hover:text-[#1760ee]"
+                      style={{ fontSize: "23px", lineHeight: 1.5 }}
+                    >
+                      나의 인생 지도
+                    </Link>
+
+                    {SAJU_SUBMENU_GROUPS.map((group, groupIndex) => {
+                      const groupOpen = openSajuGroups.has(groupIndex);
+                      return (
+                        <div key={group.label} className="relative mt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              toggleSajuGroup(groupIndex);
+                              window.history.replaceState(
+                                null,
+                                "",
+                                `/fortune/saju#saju-insight-${group.items[0].id}`,
+                              );
+                              window.dispatchEvent(
+                                new CustomEvent("saju:open-insight", {
+                                  detail: { id: group.items[0].id },
+                                }),
+                              );
+                            }}
+                            className="flex min-h-14 w-full items-center justify-between rounded-[10px] px-3 py-3 text-left font-semibold text-[#263754] transition hover:bg-[#f5f7fb] hover:text-[#1760ee]"
+                            style={{ fontSize: "23px", lineHeight: 1.5 }}
+                            aria-expanded={groupOpen}
+                          >
+                            <span>{group.label}</span>
+                            <ChevronDown
+                              className={`h-4 w-4 shrink-0 transition-transform ${groupOpen ? "rotate-180" : ""}`}
+                              aria-hidden="true"
+                            />
+                          </button>
+
+                          {groupOpen && (
+                            <div className="relative mb-2 ml-3 border-l border-[#dbe5f3] py-1 pl-4">
+                              {group.items.map((item) => (
+                                <Link
+                                  key={item.id}
+                                  href={`/fortune/saju#saju-insight-${item.id}`}
+                                  onClick={(event) => {
+                                    event.preventDefault();
+                                    window.history.replaceState(
+                                      null,
+                                      "",
+                                      `/fortune/saju#saju-insight-${item.id}`,
+                                    );
+                                    window.dispatchEvent(
+                                      new CustomEvent("saju:open-insight", {
+                                        detail: { id: item.id },
+                                      }),
+                                    );
+                                    onNavigate?.();
+                                  }}
+                                  className="relative block min-h-11 rounded-[9px] px-3 py-3 text-[#53627a] transition before:absolute before:-left-[19px] before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full before:bg-[#cad8ed] hover:bg-[#f2f6ff] hover:text-[#1760ee] hover:before:bg-[#6c94df]"
+                                  style={{ fontSize: "21px", lineHeight: 1.55 }}
+                                >
+                                  {item.label}
+                                </Link>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
 
           if (menu.comingSoon) {
             return (
@@ -204,15 +488,18 @@ function SidebarBody({
         <Link
           href="/fortune/consultation"
           onClick={onNavigate}
-          className="mt-4 rounded-[10px] border border-[#9477ff] bg-gradient-to-r from-[#f7f5ff] to-[#f4f7ff] p-4 text-[#2d3551] shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          className="mt-5 rounded-[12px] border border-[#a58cff] bg-[#f8f7ff] p-4 text-[#2d3551] transition hover:-translate-y-0.5 hover:shadow-md"
         >
           <div className="flex items-center gap-3">
             <span className="text-2xl text-[#6c56e8]">✦</span>
-            <strong className="fortune-sidebar-consult-title">
+            <strong style={{ fontSize: "21px", lineHeight: 1.4 }}>
               도사님 1:1 상담
             </strong>
           </div>
-          <p className="fortune-sidebar-consult-status mt-2 pl-9 font-semibold text-[#7968aa]">
+          <p
+            className="mt-2 pl-9 font-semibold text-[#7968aa]"
+            style={{ fontSize: "16px", lineHeight: 1.4 }}
+          >
             <span className="mr-1 text-[#7b61ff]">●</span> 상담 가능
           </p>
         </Link>
@@ -232,6 +519,8 @@ export default function FortuneSidebar({
   onClose,
   onToggle,
 }: FortuneSidebarProps) {
+  const sidebarWidth = open ? "clamp(420px, 26vw, 460px)" : "76px";
+
   useEffect(() => {
     if (window.matchMedia("(max-width: 767px)").matches && open) onClose();
     // 모바일 첫 진입 때 메뉴가 화면을 가리지 않도록 한 번만 실행합니다.
@@ -253,11 +542,15 @@ export default function FortuneSidebar({
     <>
       <aside
         id="fortune-sidebar"
-        className={`${open ? "md:w-[260px]" : "md:w-[76px]"} sticky top-[74px] hidden h-[calc(100vh-74px)] shrink-0 self-start overflow-hidden border-r border-[#e1e7f0] bg-white transition-[width] duration-300 md:block`}
+        className="sticky top-[74px] hidden h-[calc(100vh-74px)] shrink-0 self-start overflow-hidden border-r border-[#e1e7f0] bg-white transition-[width] duration-300 md:block"
+        style={{ width: sidebarWidth }}
       >
-        <div className={`${open ? "w-[260px]" : "w-[76px]"} h-full overflow-y-auto transition-[width] duration-300`}>
+        <SidebarScrollArea
+          className="h-full transition-[width] duration-300"
+          style={{ width: sidebarWidth }}
+        >
           <SidebarBody open={open} onToggle={onToggle} />
-        </div>
+        </SidebarScrollArea>
       </aside>
 
       {open && (
@@ -268,7 +561,10 @@ export default function FortuneSidebar({
             onClick={onClose}
             aria-label="운세 메뉴 닫기"
           />
-          <aside className="relative h-full w-[min(84vw,300px)] bg-white shadow-2xl">
+          <aside
+            className="relative h-full max-w-[94vw] bg-white shadow-2xl"
+            style={{ width: "420px" }}
+          >
             <div className="flex h-[58px] items-center justify-end border-b px-4">
               <button
                 type="button"
@@ -279,10 +575,24 @@ export default function FortuneSidebar({
                 ×
               </button>
             </div>
-            <SidebarBody open onToggle={onClose} onNavigate={onClose} />
+            <SidebarScrollArea className="h-[calc(100%-58px)]">
+              <SidebarBody open onToggle={onClose} onNavigate={onClose} />
+            </SidebarScrollArea>
           </aside>
         </div>
       )}
+
+      <style jsx global>{`
+        .fortune-sidebar-scroll {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+
+        .fortune-sidebar-scroll::-webkit-scrollbar {
+          width: 0;
+          height: 0;
+        }
+      `}</style>
     </>
   );
 }
