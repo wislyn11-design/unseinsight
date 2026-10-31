@@ -3,7 +3,7 @@ import { get12un } from '../../lib/saju/un12.js';
 import { getSeun } from '../../lib/saju/seun.js';
 import { getTransitSinsalNames } from '../../lib/saju/transit-sinsal-adapter.js';
 
-const ROW_BORDER = { borderTop: '1px solid #e0e0e0' };
+const ROW_BORDER = { borderTop: '1px solid #e5ebf4' };
 const HYUNGSIN = ['겁살','재살','천살','망신살','양인살','백호살','원진살','귀문관살','현침살','고란살','비인살','육해살','낙정관살','급각살','탕화살'];
 
 const GAN_COLOR = { 갑:'#008000', 을:'#008000', 병:'#FF0000', 정:'#FF0000', 무:'#FFD700', 기:'#FFD700', 경:'#FFFFFF', 신:'#FFFFFF', 임:'#000000', 계:'#000000' };
@@ -16,8 +16,8 @@ function SmallGanTile({ gan }) {
   const isLight = bg === '#FFFFFF' || bg === '#FFD700';
   return (
     <div style={{
-      background: bg, color: isLight ? '#000' : '#fff', fontSize: 20, fontWeight: 700, width: 44, height: 44,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: '1.5px solid #333', margin: '0 auto',
+      background: bg, color: isLight ? '#000' : '#fff', fontSize: 26, fontWeight: 700, width: 54, height: 54,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{GAN_HAN[gan] || gan}</div>
   );
 }
@@ -27,8 +27,8 @@ function SmallJiTile({ ji }) {
   const isLight = bg === '#FFFFFF' || bg === '#FFD700';
   return (
     <div style={{
-      background: bg, color: isLight ? '#000' : '#fff', fontSize: 20, fontWeight: 700, width: 44, height: 44,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 4, border: '1.5px solid #333', margin: '0 auto',
+      background: bg, color: isLight ? '#000' : '#fff', fontSize: 26, fontWeight: 700, width: 54, height: 54,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{JI_HAN[ji] || ji}</div>
   );
 }
@@ -43,7 +43,7 @@ function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
       // 💡 아래처럼 flex: 1 과 minWidth: '48px' 로 변경해 주세요!
-      flex: 1, minWidth: '48px', textAlign: 'center', padding: '4px 2px', fontSize: 16,
+      flex: 1, minWidth: '72px', textAlign: 'center', padding: '10px 5px', fontSize: 17,
       background: isCurrent ? '#eef2ff' : 'transparent', ...style
     }}>
       {children}
@@ -86,23 +86,23 @@ export default function SeunSinsalView({ saju, birthYear }) {
   const dayGan = saju.day.gan;
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
+    <div style={{ background: '#fff', borderRadius: 20, padding: 22, marginBottom: 0, border: '1px solid #dfe7f3', boxShadow: '0 10px 28px rgba(35, 61, 112, 0.05)' }}>
+      <h2 style={{ fontSize: 23, fontWeight: 800, margin: '0 0 16px', color: '#263a5b', textAlign: 'left' }}>
         세운 (년운)
       </h2>
 
       <div style={{ overflowX: 'auto' }}>
         {/* 💡 width: '100%' 를 추가하여, 늘어난 어항(PC화면) 크기에 맞게 꽉 채우라고 명령합니다 */}
-        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content', width: '100%' }}>
+        <div style={{ border: '1px solid #e1e8f2', borderRadius: 12, overflow: 'hidden', minWidth: 'max-content', width: '100%' }}>
 
 
-          <Row style={{ background: '#f5f7ff' }}>
+          <Row style={{ background: '#f4f7fc' }}>
             {seuns.map((s, i) => {
               const isCurrent = s.year === currentYear;
               return (
                 <Cell key={i} isCurrent={isCurrent} style={{
                   fontWeight: isCurrent ? 700 : 400, color: isCurrent ? '#3a5bbf' : '#555',
-                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 16,
+                  outline: isCurrent ? '2px solid #3a5bbf' : 'none', fontSize: 17,
                 }}>
                   {s.year}
                 </Cell>
@@ -112,7 +112,7 @@ export default function SeunSinsalView({ saju, birthYear }) {
 
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 16 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 17 }}>
                 {getSipseong(dayGan, s.gan)}
               </Cell>
             ))}
@@ -138,7 +138,7 @@ export default function SeunSinsalView({ saju, birthYear }) {
           {/* 👇👇👇 💡 [여기에 새로 추가!] 아래쪽 한자(지지)의 십성 👇👇👇 */}
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 16 }}>
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#555', fontSize: 17 }}>
                 {getJiSipseong(dayGan, s.ji)}
               </Cell>
             ))}
@@ -147,7 +147,7 @@ export default function SeunSinsalView({ saju, birthYear }) {
 
           <Row>
             {seuns.map((s, i) => (
-              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 16 }}> {/* 👈 글씨 크기 14로 키웠습니다 */}
+              <Cell key={i} isCurrent={s.year === currentYear} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 17 }}> {/* 👈 글씨 크기 14로 키웠습니다 */}
                 {get12un(dayGan, s.ji)}
               </Cell>
             ))}
@@ -163,7 +163,7 @@ export default function SeunSinsalView({ saju, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={s.year === currentYear} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 16, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 17, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>

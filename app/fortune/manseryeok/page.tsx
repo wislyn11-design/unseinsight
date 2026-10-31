@@ -48,8 +48,9 @@ function formFromStoredChart(entry: StoredSajuChart) {
 
 function formatBirthSummary(entry: StoredSajuChart) {
   const calendar = normalizeCalendarType(entry.birthProfile.calendarType);
+  const gender = normalizeGender(entry.birthProfile.gender);
   const time = entry.birthProfile.birthTime || "시간 미입력";
-  return `${entry.birthProfile.birthDate} (${calendar}) · ${time}`;
+  return `${entry.birthProfile.birthDate} (${calendar}) · ${time} · ${gender}성`;
 }
 
 export default function ManseryeokPage() {
@@ -150,55 +151,55 @@ export default function ManseryeokPage() {
   const saju = enrichDaeunSinsal(entry.chart, entry.birthProfile.gender);
 
   return (
-    <div className="mx-auto w-full max-w-7xl px-5 pb-20 pt-10 sm:px-8 lg:px-10">
-      <nav className="text-sm font-semibold text-[#71809c]" aria-label="현재 위치">
-        <Link href="/home" className="transition hover:text-[#2e63df]">
-          홈
-        </Link>
-        <span className="mx-2" aria-hidden="true">›</span>
-        <span className="text-[#233250]">만세력</span>
-      </nav>
-
-      <section className="mt-5 rounded-[28px] border border-[#dbe5f7] bg-[linear-gradient(135deg,#eef4ff_0%,#ffffff_68%)] px-6 py-7 shadow-[0_18px_50px_rgba(42,76,145,.08)] sm:px-9 sm:py-9">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
-          <div>
-            <span className="inline-flex rounded-full bg-[#dfeaff] px-3 py-1.5 text-xs font-extrabold text-[#2459c6]">
+    <div className="min-h-[calc(100vh-74px)] w-full bg-white">
+    <main className="mx-auto w-full max-w-[1180px] bg-white px-5 pb-24 pt-10 sm:px-8 lg:px-10 lg:pt-14">
+      <section className="pb-8 sm:pb-10">
+        <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+          <div className="min-w-0 lg:flex-1">
+            <span className="text-[15px] font-extrabold tracking-[-.02em] text-[#2e63df] sm:text-[18px]">
               저장된 만세력
             </span>
-            <h1 className="mt-4 text-3xl font-black tracking-[-.045em] text-[#101f40] sm:text-4xl">
+            <h1 className="mt-3 text-[34px] font-black tracking-[-.05em] text-[#102650] sm:text-[48px]">
               {entry.birthProfile.profileName}님의 만세력
             </h1>
-            <p className="mt-3 text-[15px] font-medium text-[#69768e] sm:text-base">
+            <p className="mt-4 text-[17px] font-semibold text-[#53637e] sm:text-[21px]">
               {formatBirthSummary(entry)}
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#7d8799]">
-              저장된 출생정보와 계산 결과를 그대로 표시합니다. 이 화면에서는 다시 계산하거나 AI 풀이를 생성하지 않습니다.
+            <p className="mt-6 max-w-3xl text-[16px] font-semibold leading-7 text-[#c96a2b] sm:text-[25px] sm:leading-8">
+              정확한 사주는 정확한 만세력에서 시작됩니다.
+            </p>
+            <p className="mt-2 max-w-3xl text-[14px] leading-6 text-[#66758d] sm:text-[20px] sm:leading-8">
+              운세인사이트는 한국천문연구원 천문 데이터를 기준으로 24절기 절입 시각까지 반영해 명식을 계산합니다. 출생 지역의 시차와 서머타임 시기까지 보정해, 한 시간 차이로 달라지는 사주도 놓치지 않습니다.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2.5">
+          <div className="flex flex-none flex-wrap gap-3">
             <Link
               href={`/saju/input?next=${encodeURIComponent("/fortune/manseryeok")}`}
-              className="rounded-xl border border-[#cdd9ee] bg-white px-4 py-3 text-sm font-bold text-[#3b4b68] transition hover:border-[#9eb7eb] hover:text-[#2459c6]"
+              className="rounded-full border border-[#ccd7eb] bg-white px-5 py-3 text-[15px] font-bold text-[#40506d] transition hover:border-[#90aae0] hover:text-[#2459c6] sm:text-[16px]"
             >
               다른 사주 보기
             </Link>
             <Link
               href="/fortune/saju"
-              className="rounded-xl bg-[#2e63df] px-4 py-3 text-sm font-bold text-white shadow-[0_8px_18px_rgba(46,99,223,.22)] transition hover:bg-[#2458cc]"
+              className="rounded-full bg-[#2e63df] px-5 py-3 text-[15px] font-bold text-white shadow-[0_8px_18px_rgba(46,99,223,.18)] transition hover:bg-[#2458cc] sm:text-[16px]"
             >
               사주총평 보기
             </Link>
           </div>
         </div>
+
+        <div className="relative mt-8 h-px w-full bg-[#b9c1cc] sm:mt-10" aria-hidden="true">
+          <span className="absolute left-0 top-1/2 h-[3px] w-12 -translate-y-1/2 rounded-full bg-[#4777df]" />
+        </div>
       </section>
 
-      <section className="mx-auto mt-8 w-full max-w-3xl pb-4" aria-label="사주 원국">
+      <section className="mx-auto mt-10 w-full max-w-[1040px] pb-5" aria-label="사주 원국">
         <SajuTable saju={saju} form={form} />
       </section>
 
-      <div className="mt-3 flex w-full flex-col items-center gap-2">
-        <section className="w-full max-w-3xl overflow-hidden pb-2" aria-label="대운">
+      <div className="mx-auto mt-5 flex w-full max-w-[1040px] flex-col gap-5">
+        <section className="w-full overflow-hidden" aria-label="대운">
           <Daeun
             daeun={saju.daeun}
             dayGan={saju.day.gan}
@@ -208,27 +209,29 @@ export default function ManseryeokPage() {
 
        
 
-        <section className="w-full max-w-3xl overflow-hidden pb-2" aria-label="세운">
+        <section className="w-full overflow-hidden" aria-label="세운">
           <SeunSinsalView saju={saju} birthYear={Number(form.year)} />
         </section>
-        <section className="w-full max-w-3xl overflow-hidden pb-2" aria-label="월운">
+        <section className="w-full overflow-hidden" aria-label="월운">
           <WolunSinsalView saju={saju}  />
  
         </section>
 
       </div>
 
-      <div className="mx-auto mt-7 flex w-full max-w-3xl flex-col gap-3 rounded-2xl border border-[#dbe5f7] bg-white p-5 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm font-semibold leading-6 text-[#61708b]">
-          만세력을 바탕으로 풀어낸 12가지 사주 이야기도 확인해 보세요.
+      <div className="mx-auto mt-12 flex w-full max-w-[1040px] flex-col gap-6 border-t border-[#b9c1cc] py-8 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+        <p className="w-full text-center text-[18px] font-bold leading-8 tracking-[-.02em] text-[#102650] sm:text-[30px]">
+          "만세력의 흐름을 사주 이야기로 이어서 살펴보세요"
         </p>
         <Link
           href="/fortune/saju"
-          className="shrink-0 rounded-xl bg-[#edf3ff] px-4 py-3 text-center text-sm font-extrabold text-[#2459c6] transition hover:bg-[#dfeaff]"
+          className="inline-flex shrink-0 items-center justify-center gap-3 self-start rounded-full border-2 border-[#173b7a] bg-white px-6 py-3 text-center text-[16px] font-extrabold text-[#173b7a] transition hover:bg-[#f5f8ff] sm:self-auto sm:px-7 sm:py-3.5 sm:text-[18px]"
         >
-          사주총평으로 이동
+          <span>사주총평 보기</span>
+          <span aria-hidden="true">→</span>
         </Link>
       </div>
+    </main>
     </div>
   );
 }

@@ -30,22 +30,22 @@ export function getSipseongLabel(ilgan, target, isJiji = false) {
   return SIPSEONG_LIST[relation * 2 + isDifferentPolarity];
 }
 
-export const CELL = { textAlign: 'center', padding: '6px 2px', fontSize: 16 };
+export const CELL = { textAlign: 'center', padding: '10px 6px', fontSize: 18, lineHeight: 1.45 };
 
 export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, allPillars }) {
   if (type === 'label') return (
-    <div style={{ ...CELL, fontWeight: 700, color: '#555' }}>{pillar.label}</div>
+    <div style={{ ...CELL, fontWeight: 800, color: '#263a5b' }}>{pillar.label}</div>
   );
 
   if (type === 'name') return (
-    <div style={{ ...CELL, color: '#777' }}>
+    <div style={{ ...CELL, color: '#000000' }}>
       {isUnknown ? '(?)' : `(${pillar.gan}${pillar.ji})`}
     </div>
   );
 
   
   if (type === 'chung') {
-    if (isUnknown) return <div style={{ ...CELL, color: '#555', fontWeight: 400, minHeight: 30 }}>-</div>;
+    if (isUnknown) return <div style={{ ...CELL, color: '#596981', fontWeight: 400, minHeight: 38 }}>-</div>;
 
     const hapPairs = [['갑','기'], ['을','경'], ['병','신'], ['정','임'], ['무','계']];
     const chungPairs = [['갑','경'], ['을','신'], ['병','임'], ['정','계'], ['갑','무'], ['을','기'], ['무','임'], ['기','계'], ['병','경'], ['정','신']];
@@ -81,7 +81,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
     const result = results.length > 0 ? results.join('') : '-';
 
     return (
-      <div style={{ ...CELL, color: result !== '-' ? '#e74c3c' : '#555', fontWeight: result !== '-' ? 700 : 400, minHeight: 30 }}>
+      <div style={{ ...CELL, color: result !== '-' ? '#e05252' : '#596981', fontWeight: result !== '-' ? 700 : 400, minHeight: 38 }}>
         {result}
       </div>
     );
@@ -91,7 +91,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
   if (type === 'sipseong') return (
     <div style={{
       ...CELL,
-      color: pillar.sipseong === '일간(나)' ? '#3a5bbf' : '#333',
+      color: pillar.sipseong === '일간(나)' ? '#2e63df' : '#33445f',
       fontWeight: pillar.sipseong === '일간(나)' ? 700 : 400,
     }}>
       {pillar.sipseong}
@@ -113,7 +113,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
   if (type === 'jiSipseong') {
     const sipseong = pillar.jiSipseong || getSipseongLabel(dayGan, pillar.ji, true);
     return (
-      <div style={{ ...CELL, color: '#555' }}>
+      <div style={{ ...CELL, color: '#000000' }}>
         {isUnknown ? '' : sipseong}
       </div>
     );
@@ -122,7 +122,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
   if (type === 'jijanggan') {
     const g = isUnknown ? null : (pillar.jijanggan || [])[rowIndex];
     return (
-      <div style={{ ...CELL, background: '#fffbe6', color: '#555', minHeight: 30 }}>
+      <div style={{ ...CELL, background: '#fffaf0', color: '#000000', minHeight: 38 }}>
         {g ? `${GAN_HAN[g] || g} ${getSipseongLabel(dayGan, g, false)}` : ''}
       </div>
     );
@@ -132,7 +132,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
     <div style={{ ...CELL, color: '#7c3aed', fontWeight: 700 }}>
       {isUnknown ? '' : pillar.un12}
       {!isUnknown && pillar.un12Self ? (
-        <div style={{ fontSize: 16, color: '#9f7aea', fontWeight: 400 }}>
+        <div style={{ fontSize: 17, color: '#9271cf', fontWeight: 400 }}>
           ({pillar.un12Self})
         </div>
       ) : null}
@@ -140,7 +140,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
   );
 
   if (type === 'naeum') return (
-    <div style={{ ...CELL, color: '#888' }}>
+    <div style={{ ...CELL, color: '#000000' }}>
       {isUnknown ? '' : pillar.naeum}
     </div>
   );
@@ -162,7 +162,7 @@ export default function PillarCell({ type, pillar, dayGan, isUnknown, rowIndex, 
     const s = all[rowIndex];
     const isGil = s && GILSIN.includes(s);
     return (
-      <div style={{ ...CELL, color: isGil ? '#2563eb' : '#dc2626', fontWeight: 700, minHeight: 30 }}>
+      <div style={{ ...CELL, color: isGil ? '#2563eb' : '#dc4b4b', fontWeight: 700, minHeight: 38 }}>
         {s || ''}
       </div>
     );

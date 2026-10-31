@@ -4,7 +4,7 @@ import OhaengInfo from './OhaengInfo.jsx';
 import React, { useState } from 'react'; // 💡 useState가 꼭 있어야 버튼이 작동합니다!
 
 
-const ROW_BORDER = { borderTop: '1px solid #e0e0e0' };
+const ROW_BORDER = { borderTop: '1px solid #e5ebf4' };
 const GRID = { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)' };
 
 function Row({ children, style }) {
@@ -186,42 +186,44 @@ export default function SajuTable({ saju, form }) {
   return (
     <div style={{ 
       background: '#fff',
-      borderRadius: 12, 
-      padding: '20px 2px 0px 2px', // 👈 1. 좌우 패딩을 10px에서 2px로 대폭 줄여서 공간 확보!
+      borderRadius: 20, 
+      padding: '0',
       marginBottom: 0, 
-      boxShadow: '0 1px 4px rgba(0,0,0,0.1)', 
+      border: '1px solid #dfe7f3',
+      boxShadow: '0 12px 32px rgba(35, 61, 112, 0.06)', 
       width: '100%',      
-      overflowX: 'hidden'   // 👈 2. auto를 hidden으로 바꿔서 스크롤이 아예 생기지 않게 방어!
+      overflowX: 'auto'
       }}>
       {/* ... (상단 정보창 영역) ... */}
       <div style={{ 
-        border: '1px solid #e0e0e0', 
-        borderRadius: 8, 
+        border: '0', 
+        borderRadius: 20, 
         overflow: 'hidden', 
-        width: '100%'  // 👈 3. minWidth: '300px'를 지우고 width: '100%'로 변경하여 핸드폰 화면에 강제로 쏙 맞춤!
+        width: '100%',
+        minWidth: '720px'
         }}>
 
 
 
 
-        <Row style={{ background: '#f5f7ff' }}>{cell('label')}</Row>
+        <Row style={{ background: '#f4f7fc' }}>{cell('label')}</Row>
         <Row>{cell('name')}</Row>
         <Row>{cell('chung')}</Row>
         <Row>{cell('sipseong')}</Row>
         <Row>{cell('ganTile')}</Row>
         <Row>{cell('jiTile')}</Row>
         <Row>{cell('jiSipseong')}</Row>
-        {Array.from({ length: maxJJG }).map((_, i) => <Row key={'jjg'+i} style={{ background: '#fffbe6' }}>{cell('jijanggan', i)}</Row>)}
+        {Array.from({ length: maxJJG }).map((_, i) => <Row key={'jjg'+i} style={{ background: '#fffaf0' }}>{cell('jijanggan', i)}</Row>)}
         <Row>{cell('un12')}</Row>
         <Row>{cell('naeum')}</Row>
         {Array.from({ length: 4 }).map((_, lineIdx) => (
-          <div key={'rel'+lineIdx} style={{ ...GRID, ...ROW_BORDER, background: '#fffbe6' }}>
+          <div key={'rel'+lineIdx} style={{ ...GRID, ...ROW_BORDER, background: '#fffaf0' }}>
             {pillarOrder.map(pk => {
               const slot = grid[pk][lineIdx];
               // [수정 후: clamp 수치를 높이고, 일반 글씨도 14에서 16으로 키웠습니다]
-                if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 'clamp(14px, 4vw, 18px)', color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
+                if (slot.startsWith('HAN:')) return <div key={pk} style={{ textAlign: 'center', padding: '9px 4px', fontSize: 18, color: '#1a56db', fontWeight: 700 }}>{slot.replace('HAN:', '')}</div>;
                 return (
-                  <div key={pk} style={{ textAlign: 'center', padding: '5px 2px', fontSize: 16, color: slot.split(',').some(r => CHUNG_TYPES.includes(r)) ? '#e74c3c' : '#2563eb', fontWeight: 600 }}>
+                  <div key={pk} style={{ textAlign: 'center', padding: '9px 4px', fontSize: 18, color: slot.split(',').some(r => CHUNG_TYPES.includes(r)) ? '#e74c3c' : '#2563eb', fontWeight: 600 }}>
 
 
 
@@ -236,12 +238,12 @@ export default function SajuTable({ saju, form }) {
 {/* ======================================================= */}
       
       {/* 1. 오행 개수 출력 */}
-      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '17px', background: '#fff' }}>
+      <div style={{ borderTop: '1px solid #e5ebf4', padding: '12px', textAlign: 'center', fontSize: 18, background: '#fff' }}>
         木 {saju?.ohaengCount?.['목'] || 0}, 火 {saju?.ohaengCount?.['화'] || 0}, 土 {saju?.ohaengCount?.['토'] || 0}, 金 {saju?.ohaengCount?.['금'] || 0}, 水 {saju?.ohaengCount?.['수'] || 0}
       </div>
 
       {/* 2. 공망 및 천을귀인/월령 출력 (안전한 한자 변환 필터 적용) */}
-      <div style={{ borderTop: '1px solid #ddd', padding: '6px', textAlign: 'center', fontSize: '17px', background: '#fff', lineHeight: '1.7' }}>
+      <div style={{ borderTop: '1px solid #e5ebf4', padding: '12px', textAlign: 'center', fontSize: 18, background: '#fff', lineHeight: '1.8' }}>
         <div>
           空亡: [年]{toHanja(saju?.yearGongmang)} [日]{toHanja(saju?.dayGongmang)}
         </div>
@@ -252,15 +254,15 @@ export default function SajuTable({ saju, form }) {
 
 
       {/* 3. 신살 제목 및 [전체보기] 토글 버튼 UI (범례 추가) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 12px', background: '#eef2ff', borderTop: '2px solid #ddd' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '15px 18px', background: '#f1f5fd', borderTop: '1px solid #dfe7f3' }}>
         <div>
-          <span style={{ fontWeight: 'bold', color: '#333', fontSize: '20px' }}>신살(神殺)</span>
-          <span style={{ fontSize: '14px', color: '#666', marginLeft: '8px' }}>(파랑: 길신, 빨강: 흉살)</span>
+          <span style={{ fontWeight: 800, color: '#243957', fontSize: 21 }}>신살(神殺)</span>
+          <span style={{ fontSize: 15, color: '#7a879c', marginLeft: 10 }}>(파랑: 길신, 빨강: 흉살)</span>
         </div>
         <button 
           onClick={() => setShowAllSinsal(!showAllSinsal)}
           style={{ 
-            padding: '4px 10px', fontSize: '16px', borderRadius: '20px', cursor: 'pointer', fontWeight: 'bold', transition: '0.2s',
+            padding: '7px 13px', fontSize: 16, borderRadius: 20, cursor: 'pointer', fontWeight: 'bold', transition: '0.2s',
             border: showAllSinsal ? '1px solid #3a5bbf' : '1px solid #aaa', 
             background: showAllSinsal ? '#3a5bbf' : '#fff', 
             color: showAllSinsal ? '#fff' : '#555' 
@@ -271,7 +273,7 @@ export default function SajuTable({ saju, form }) {
       </div>
 
       {/* 4. 신살 출력 영역 (기둥별 공망 표시 추가) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#f9f9f9', paddingBottom: '0px' }}> {/* 👈 패딩 0으로 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', background: '#fbfcfe', paddingBottom: 0 }}>
 
         {/* 💡 [새로 추가] 기둥별 공망 표시 (천을귀인 앱의 - - - [일]공망 역할) */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridColumn: '1 / -1', borderBottom: '1px dashed #ccc', marginBottom: '4px' }}>
@@ -285,7 +287,7 @@ export default function SajuTable({ saju, form }) {
               else if (isDayGm) gmText = '[日]공망';
             }
             return (
-              <div key={idx} style={{ textAlign: 'center', padding: '6px 0', fontSize: '14px', color: gmText !== '-' ? '#333' : '#aaa', fontWeight: gmText !== '-' ? 'bold' : 'normal' }}>
+              <div key={idx} style={{ textAlign: 'center', padding: '10px 4px', fontSize: 16, color: gmText !== '-' ? '#33445f' : '#a3adbd', fontWeight: gmText !== '-' ? 'bold' : 'normal' }}>
                 {gmText}
               </div>
             );

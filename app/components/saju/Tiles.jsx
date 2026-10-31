@@ -19,9 +19,9 @@ export function GanTile({ gan }) {
   return (
     <div style={{
       background: bg, color: isLight ? '#000' : '#fff',
-      fontSize: 36, fontWeight: 700, width: 72, height: 72,
+      fontSize: 42, fontWeight: 700, width: 84, height: 84,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      borderRadius: 6, border: '2px solid #333', margin: '0 auto',
+      borderRadius: 10, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{GAN_HAN[gan] || gan}</div>
   );
 }
@@ -32,9 +32,9 @@ export function JiTile({ ji }) {
   return (
     <div style={{
       background: bg, color: isLight ? '#000' : '#fff',
-      fontSize: 36, fontWeight: 700, width: 72, height: 72,
+      fontSize: 42, fontWeight: 700, width: 84, height: 84,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
-      borderRadius: 6, border: '2px solid #333', margin: '0 auto',
+      borderRadius: 10, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{JI_HAN[ji] || ji}</div>
   );
 }
@@ -42,9 +42,9 @@ export function JiTile({ ji }) {
 export function EmptyTile() {
   return (
     <div style={{
-      width: 72, height: 72, background: '#eee', border: '2px dashed #aaa',
-      borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      margin: '0 auto', fontSize: 12, color: '#999',
+      width: 84, height: 84, background: '#f2f4f8', border: '1.5px dashed #aab4c5',
+      borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center',
+      margin: '0 auto', fontSize: 14, color: '#8995a8',
     }}>모름</div>
   );
 }

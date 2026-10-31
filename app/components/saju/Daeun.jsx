@@ -2,7 +2,7 @@ import { GanTile, JiTile } from './Tiles.jsx';
 import { getSipseong } from '../../lib/saju/sipseong.js';
 import { get12un } from '../../lib/saju/un12.js';
 
-const ROW_BORDER = { borderTop: '1px solid #e0e0e0' };
+const ROW_BORDER = { borderTop: '1px solid #e5ebf4' };
 
 // 💡 흉살 목록 (여기에 포함되면 빨간색, 아니면 파란색으로 표시)
 const HYUNGSIN = ['겁살','재살','천살','망신살','양인살','백호살','원진살','귀문관살','현침살','고란살','비인살','육해살','낙정관살','급각살','탕화살'];
@@ -21,8 +21,8 @@ function Cell({ children, style, isCurrent }) {
   return (
     <div style={{
       // 💡 flex: 1로 공평하게 늘어나게 하고, 모바일을 위해 최소 너비 48px을 남겨둡니다.
-      flex: 1, minWidth: '48px', 
-      textAlign: 'center', padding: '4px 2px', fontSize: 16,
+      flex: 1, minWidth: '72px', 
+      textAlign: 'center', padding: '10px 5px', fontSize: 17,
       background: isCurrent ? '#eef2ff' : 'transparent',
       ...style
     }}>
@@ -40,8 +40,8 @@ function SmallGanTile({ gan }) {
   const isLight = bg === '#FFFFFF' || bg === '#FFD700';
   return (
     <div style={{
-      background: bg, color: isLight ? '#000' : '#fff', fontSize: 20, fontWeight: 700, width: 44, height: 44,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, border: '2px solid #333', margin: '0 auto',
+      background: bg, color: isLight ? '#000' : '#fff', fontSize: 26, fontWeight: 700, width: 54, height: 54,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{GAN_HAN[gan] || gan}</div>
   );
 }
@@ -53,8 +53,8 @@ function SmallJiTile({ ji }) {
   const isLight = bg === '#FFFFFF' || bg === '#FFD700';
   return (
     <div style={{
-      background: bg, color: isLight ? '#000' : '#fff', fontSize: 20, fontWeight: 700, width: 44, height: 44,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, border: '2px solid #333', margin: '0 auto',
+      background: bg, color: isLight ? '#000' : '#fff', fontSize: 26, fontWeight: 700, width: 54, height: 54,
+      display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 8, border: '1.5px solid #263a5b', margin: '0 auto',
     }}>{JI_HAN[ji] || ji}</div>
   );
 }
@@ -89,15 +89,15 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
   });
 
   return (
-    <div style={{ background: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, boxShadow: '0 1px 4px rgba(0,0,0,0.1)' }}>
-      <h2 style={{ fontSize: 20, fontWeight: 700, margin: '0 0 10px', color: '#333', textAlign: 'center' }}>
+    <div style={{ background: '#fff', borderRadius: 20, padding: 22, marginBottom: 0, border: '1px solid #dfe7f3', boxShadow: '0 10px 28px rgba(35, 61, 112, 0.05)' }}>
+      <h2 style={{ fontSize: 23, fontWeight: 800, margin: '0 0 16px', color: '#263a5b', textAlign: 'left' }}>
   전통나이(대운수: {daeun.daeunSu}, {daeun.isForward ? '순행' : '역행'})
       </h2>
 
       <div style={{ overflowX: 'auto' }}>
-        <div style={{ border: '1px solid #e0e0e0', borderRadius: 8, overflow: 'hidden', minWidth: 'max-content' }}>
+        <div style={{ border: '1px solid #e1e8f2', borderRadius: 12, overflow: 'hidden', minWidth: 'max-content', width: '100%' }}>
 
-          <Row style={{ background: '#f5f7ff' }}>
+          <Row style={{ background: '#f4f7fc' }}>
             {daeuns.map((d, i) => (
               <Cell key={i} isCurrent={i === currentIdx} style={{
                 fontWeight: 700, color: i === currentIdx ? '#fff' : '#3a5bbf', background: i === currentIdx ? '#3a5bbf' : 'transparent',
@@ -109,7 +109,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
 
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 16 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 17 }}>
                 {getSipseong(dayGan, d.gan)}
               </Cell>
             ))}
@@ -137,7 +137,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
           {/* 💡 3. 아래쪽 한자(지지)의 십성 */}
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 16 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#555', fontSize: 17 }}>
                 {getJiSipseong(dayGan, d.ji)} {/* 👈 여기가 바뀌었습니다! */}
               </Cell>
             ))}
@@ -147,7 +147,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
           {/* 💡 4. 12운성 - 중복으로 들어갔던 것을 하나로 정리했습니다 */}
           <Row>
             {daeuns.map((d, i) => (
-              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 16 }}>
+              <Cell key={i} isCurrent={i === currentIdx} style={{ color: '#7c3aed', fontWeight: 700, fontSize: 17 }}>
                 {get12un(dayGan, d.ji)}
               </Cell>
             ))}
@@ -164,7 +164,7 @@ export default function Daeun({ daeun, dayGan, birthYear }) {
                 return (
                   <Cell key={i} isCurrent={i === currentIdx} style={{ 
                     color: isHyung ? '#e74c3c' : '#2563eb', 
-                    fontSize: 16, fontWeight: 600, letterSpacing: '-0.5px' 
+                    fontSize: 17, fontWeight: 600, letterSpacing: '-0.5px' 
                   }}>
                     {salName || ''}
                   </Cell>
