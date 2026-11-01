@@ -1,13 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import FortunePageIntro from "@/app/components/fortune/page-intro/FortunePageIntro";
-import {
-  useCallback,
-  useEffect,
-  useState,
-  type ReactNode,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 type FortuneSection = {
   score?: number;
@@ -85,7 +79,29 @@ type IntroProfile = {
   isLeapMonth: boolean;
 };
 
-const LOADING_MESSAGE = "오늘의 흐름을 꼼꼼히 살펴 오늘의 운세를 풀이하고 있습니다.";
+type PlanAnalysisItem = {
+  task: string;
+  reason: string;
+};
+
+type PlanAnalysis = {
+  summary: string;
+  favorable: PlanAnalysisItem[];
+  caution: PlanAnalysisItem[];
+  postpone: PlanAnalysisItem[];
+  recommendedOrder: string[];
+};
+
+type MatchedPlanAnalysis = {
+  item: PlanAnalysisItem;
+  label: string;
+  tone: "good" | "care" | "later";
+};
+
+type TodayContentView = "today-fortune" | "today-plan" | "today-review" | "today-report";
+
+const LOADING_MESSAGE =
+  "오늘의 흐름을 꼼꼼히 살펴 오늘의 운세를 풀이하고 있습니다.";
 
 type IconProps = { className?: string };
 
@@ -136,6 +152,17 @@ const HELPFUL_OPTIONS = [
   ["actionable", "조언을 실천하기 좋아요"],
 ] as const;
 
+const TODAY_CONTENT_TABS: Array<{
+  id: TodayContentView;
+  label: string;
+  disabled?: boolean;
+}> = [
+  { id: "today-fortune", label: "오늘의 운세" },
+  { id: "today-plan", label: "오늘 일정 점보기" },
+  { id: "today-review", label: "운세일기", disabled: true },
+  { id: "today-report", label: "운세 리포트", disabled: true },
+];
+
 function seoulToday() {
   const parts = new Intl.DateTimeFormat("en-CA", {
     timeZone: "Asia/Seoul",
@@ -153,36 +180,99 @@ function seoulToday() {
   return `${values.year}-${values.month}-${values.day}`;
 }
 
-function shiftDate(dateText: string, days: number) {
+function monthParts(dateText: string) {
   const [year, month, day] = dateText.split("-").map(Number);
-  const date = new Date(Date.UTC(year, month - 1, day + days, 3));
-
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(date);
+  return { year, month, day };
 }
 
-function koreanDate(dateText: string) {
-  if (!dateText) {
-    return "오늘 날짜를 확인하고 있습니다.";
+function dateText(year: number, month: number, day: number) {
+  return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+}
+
+function daysInMonth(dateValue: string) {
+  const { year, month } = monthParts(dateValue);
+  return new Date(year, month, 0).getDate();
+}
+
+function shiftMonth(dateValue: string, amount: number) {
+  const { year, month, day } = monthParts(dateValue);
+  const target = new Date(year, month - 1 + amount, 1);
+  const targetYear = target.getFullYear();
+  const targetMonth = target.getMonth() + 1;
+  const targetDay = Math.min(
+    day,
+    new Date(targetYear, targetMonth, 0).getDate(),
+  );
+  return dateText(targetYear, targetMonth, targetDay);
+}
+
+function monthTitle(dateValue: string) {
+  const { year, month } = monthParts(dateValue);
+  return `${year}년 ${month}월`;
+}
+
+function selectedDayTitle(dateValue: string, today: string) {
+  const { month, day } = monthParts(dateValue);
+  return `${month}월 ${day}일${dateValue === today ? " · 오늘" : ""}`;
+}
+
+function conciseText(value: unknown, maxLength = 190) {
+  const text = String(value || "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!text) return "오늘의 흐름을 차분하게 살펴보세요.";
+
+  const sentences = text.match(/[^.!?。]+[.!?。]?/g) || [text];
+  const twoSentences = sentences.slice(0, 2).join(" ").trim();
+  if (twoSentences.length <= maxLength) return twoSentences;
+
+  const shortened = twoSentences.slice(0, maxLength);
+  const lastSpace = shortened.lastIndexOf(" ");
+  return `${shortened.slice(0, lastSpace > 90 ? lastSpace : maxLength).trim()}…`;
+}
+
+function matchPlanAnalysis(
+  analysis: PlanAnalysis | null,
+  task: string,
+): MatchedPlanAnalysis | null {
+  if (!analysis || !task.trim()) return null;
+
+  const normalizedTask = task.replace(/\s+/g, " ").trim();
+  const groups: Array<{
+    items: PlanAnalysisItem[];
+    label: string;
+    tone: MatchedPlanAnalysis["tone"];
+  }> = [
+    {
+      items: analysis.favorable,
+      label: "오늘 진행하기 좋음",
+      tone: "good",
+    },
+    {
+      items: analysis.caution,
+      label: "신중하게 진행",
+      tone: "care",
+    },
+    {
+      items: analysis.postpone,
+      label: "가능하면 다른 날로 조정",
+      tone: "later",
+    },
+  ];
+
+  for (const group of groups) {
+    const item = group.items.find((candidate) => {
+      const normalizedCandidate = candidate.task.replace(/\s+/g, " ").trim();
+      return (
+        normalizedCandidate === normalizedTask ||
+        normalizedCandidate.includes(normalizedTask) ||
+        normalizedTask.includes(normalizedCandidate)
+      );
+    });
+    if (item) return { item, label: group.label, tone: group.tone };
   }
 
-  const date = new Date(`${dateText}T12:00:00+09:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return "오늘 날짜를 확인하고 있습니다.";
-  }
-
-  return new Intl.DateTimeFormat("ko-KR", {
-    timeZone: "Asia/Seoul",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    weekday: "long",
-  }).format(date);
+  return null;
 }
 
 function koreanBirthTime(value: unknown) {
@@ -209,123 +299,104 @@ function ArrowIcon({ className = "h-5 w-5" }: IconProps) {
   );
 }
 
-function LuckyItem({
-  icon,
-  label,
-  children,
-}: {
-  icon: ReactNode;
-  label: string;
-  children: ReactNode;
-}) {
-  return (
-    <div className="grid min-h-[120px] min-w-0 grid-rows-[auto_auto] content-center gap-y-2 rounded-[28px] border border-[#dce4f1] bg-white px-5 py-5">
-      <div className="flex min-w-0 items-center justify-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center">
-          {icon}
-        </div>
-        <p className="today-fortune-lucky-label whitespace-nowrap font-bold text-[#111111]">
-          {label}
-        </p>
-      </div>
-
-      <strong className="today-fortune-lucky-value block break-keep text-center font-extrabold tracking-[-0.02em] text-[#111111]">
-        {children}
-      </strong>
-    </div>
-  );
-}
-
-function FortuneDetailCard({
+function FortuneAccordionRow({
   section,
   label,
-  eyebrow,
   color,
-  featured = false,
+  open,
+  onToggle,
 }: {
   section: FortuneSection;
   label: string;
-  eyebrow: string;
   color: string;
-  featured?: boolean;
+  open: boolean;
+  onToggle: () => void;
 }) {
-  const goodAction = section.detail?.goodActions?.[0];
-  const avoidAction = section.detail?.avoidActions?.[0];
+  const goodActions = section.detail?.goodActions || [];
+  const avoidActions = section.detail?.avoidActions || [];
 
   return (
-    <article
-      className={`overflow-hidden rounded-[20px] border border-[#e4e9f1] bg-white shadow-[0_8px_24px_rgba(30,45,72,.045)] ${
-        featured ? "lg:col-span-2" : ""
-      }`}
-    >
-      <div className="h-1.5" style={{ backgroundColor: color }} />
-      <div className="px-6 py-6 sm:px-8 sm:py-8">
-        <div>
-          <p
-            className="today-detail-eyebrow font-extrabold tracking-[.13em]"
-            style={{ color }}
-          >
-            {eyebrow}
-          </p>
-          <h3 className="today-detail-name mt-1.5 font-bold tracking-[-.025em] text-[#303a4f]">
-            {label}
-          </h3>
-        </div>
-
-        <h4
-          className={`today-detail-title mt-4 font-extrabold tracking-[-.035em] text-[#172033] ${
-            featured ? "today-detail-title-featured" : ""
-          }`}
-        >
+    <article className="border-t border-[#dfe6f0] last:border-b">
+      <button
+        type="button"
+        onClick={onToggle}
+        aria-expanded={open}
+        className="grid w-full grid-cols-[118px_minmax(0,1fr)_28px] items-center gap-4 bg-white px-1 py-5 text-left sm:grid-cols-[180px_minmax(0,1fr)_32px] sm:gap-7 sm:py-6"
+      >
+        <span className="text-[17px] font-black tracking-[-.025em] text-[#243754] sm:text-[25px]">
+          {label}
+        </span>
+        <span className="min-w-0 truncate text-[15px] font-semibold text-[#66758d] sm:text-[25px]">
           {section.title || label}
-        </h4>
-
-        {/* Gemini가 작성한 사주풀이 원문 전체 그대로 출력 */}
-        <p
-          className={`today-fortune-body mt-4 whitespace-pre-wrap font-normal tracking-[-.012em] text-[#384252] ${
-            featured ? "max-w-[1120px]" : ""
-          }`}
+        </span>
+        <span
+          className={`text-center text-[22px] font-bold text-[#2f66df] transition-transform ${open ? "rotate-180" : ""}`}
+          aria-hidden="true"
         >
-          {section.description}
-        </p>
+          ⌄
+        </span>
+      </button>
 
-        {/* Gemini의 명리적 분석 근거 및 흐름 원문 */}
-        {section.detail?.reason && (
-          <div className="mt-5 rounded-2xl bg-[#f4f7fc] p-5">
-            <p className="today-fortune-label font-extrabold text-[#3a5bbf]">
-              명리적 원인 및 분석 근거
-            </p>
-            <p className="today-fortune-body mt-2 whitespace-pre-wrap text-[#414d61]">
-              {section.detail.reason}
-            </p>
-          </div>
-        )}
+      {open && (
+        <div className="pb-7 pl-1 pr-1 sm:pb-8 sm:pl-[208px] sm:pr-10">
+          <p className="break-keep text-[17px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+            {section.description ||
+              section.advice ||
+              "오늘의 흐름을 차분히 살펴보세요."}
+          </p>
 
-        {(goodAction || avoidAction) && (
-          <div className={`mt-6 grid gap-4 ${featured ? "sm:grid-cols-2" : ""}`}>
-            {goodAction && (
-              <div className="rounded-2xl bg-[#eff6ff] px-5 py-4 border border-[#dbeafe]">
-                <p className="today-fortune-label font-extrabold text-[#1d4ed8]">
-                  오늘의 추천 실천
-                </p>
-                <p className="today-fortune-body mt-2 font-medium text-[#1e3a8a]">
-                  {goodAction}
+          {section.detail?.reason && (
+            <div className="mt-5 border-l-[3px] border-[#b7c9ee] pl-4">
+              <strong className="block text-[16px] font-black text-[#314663] sm:text-[18px]">
+                이렇게 풀이했어요
+              </strong>
+              <p className="mt-2 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
+                {section.detail.reason}
+              </p>
+            </div>
+          )}
+
+          {section.detail?.flow && (
+            <p className="mt-5 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
+              {section.detail.flow}
+            </p>
+          )}
+
+          {(goodActions.length > 0 || avoidActions.length > 0) && (
+            <div className="mt-6 grid gap-5 sm:grid-cols-2 sm:gap-8">
+              <div className="border-t-2 border-[#4d83e8] pt-4">
+                <strong className="block text-[16px] font-black text-[#1f5fc5] sm:text-[18px]">
+                  하면 좋은 행동
+                </strong>
+                <p className="mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+                  {goodActions.length > 0
+                    ? goodActions.join(" · ")
+                    : "오늘 정한 일의 우선순위를 차분히 지켜보세요."}
                 </p>
               </div>
-            )}
-            {avoidAction && (
-              <div className="rounded-2xl bg-[#fffbe2] px-5 py-4 border border-[#fef08a]">
-                <p className="today-fortune-label font-extrabold text-[#a16207]">
-                  오늘의 주의할 점
-                </p>
-                <p className="today-fortune-body mt-2 font-medium text-[#713f12]">
-                  {avoidAction}
+              <div className="border-t-2 border-[#d5a25b] pt-4">
+                <strong className="block text-[16px] font-black text-[#9a6015] sm:text-[18px]">
+                  피하면 좋은 행동
+                </strong>
+                <p className="mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+                  {avoidActions.length > 0
+                    ? avoidActions.join(" · ")
+                    : "확인하지 않은 내용을 서둘러 결론 내리지 마세요."}
                 </p>
               </div>
-            )}
-          </div>
-        )}
-      </div>
+            </div>
+          )}
+
+          {section.advice && section.advice !== section.description && (
+            <p
+              className="mt-6 break-keep border-t border-[#e4e9f1] pt-5 text-[16px] font-semibold leading-8 sm:text-[25px] sm:leading-[1.75]"
+              style={{ color }}
+            >
+              {section.advice}
+            </p>
+          )}
+        </div>
+      )}
     </article>
   );
 }
@@ -353,7 +424,9 @@ function LoadingState({
               key={section.key}
               className="rounded-2xl border border-[#e3e8f0] bg-[#f8f9fc] px-6 py-5 text-left"
             >
-              <h2 className="today-loading-section-title font-extrabold text-[#1d2537]">{section.title}</h2>
+              <h2 className="today-loading-section-title font-extrabold text-[#1d2537]">
+                {section.title}
+              </h2>
               <p className="today-loading-section-body mt-3 whitespace-pre-wrap text-[#4f5b70]">
                 {section.description}
               </p>
@@ -367,13 +440,21 @@ function LoadingState({
 
 export default function TodayFortunePage() {
   const [selectedDate, setSelectedDate] = useState("");
+  const [todayTask, setTodayTask] = useState("");
+  const [planSaved, setPlanSaved] = useState(false);
+  const [activeChartId, setActiveChartId] = useState("");
+  const [planAnalysis, setPlanAnalysis] = useState<PlanAnalysis | null>(null);
+  const [planLoading, setPlanLoading] = useState(false);
+  const [planError, setPlanError] = useState("");
+  const [openFortuneSections, setOpenFortuneSections] = useState<string[]>([
+    "overall",
+  ]);
   const [fortune, setFortune] = useState<TodayFortune | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [interpretationId, setInterpretationId] = useState("");
-  
-  const [introProfile, setIntroProfile] =
-  useState<IntroProfile | null>(null);
+
+  const [, setIntroProfile] = useState<IntroProfile | null>(null);
 
   const [feedbackStatus, setFeedbackStatus] = useState("");
   const [feedbackChoice, setFeedbackChoice] = useState<boolean | null>(null);
@@ -383,6 +464,14 @@ export default function TodayFortunePage() {
   const [pointBalance, setPointBalance] = useState(0);
   const [streamStatus, setStreamStatus] = useState("");
   const [streamSections, setStreamSections] = useState<StreamedSection[]>([]);
+  const [activeTodayView, setActiveTodayView] =
+    useState<TodayContentView>("today-plan");
+  const [editingTaskIndex, setEditingTaskIndex] = useState<number | null>(null);
+  const [taskDraft, setTaskDraft] = useState("");
+  const [analyzedPlanText, setAnalyzedPlanText] = useState("");
+  const [deletedPlan, setDeletedPlan] = useState<{ text: string; saved: boolean } | null>(null);
+  const [savingTaskIndex, setSavingTaskIndex] = useState<number | null>(null);
+
 
   const loadFortune = useCallback(
     async (date: string, signal?: AbortSignal) => {
@@ -412,7 +501,11 @@ export default function TodayFortunePage() {
           });
           const chartData = await chartResponse.json().catch(() => null);
 
-          if (chartResponse.ok && chartData?.success && chartData?.entry?.chartId) {
+          if (
+            chartResponse.ok &&
+            chartData?.success &&
+            chartData?.entry?.chartId
+          ) {
             activeEntry = chartData.entry;
             sessionStorage.setItem(
               "unseinsight:lastSaju",
@@ -429,34 +522,47 @@ export default function TodayFortunePage() {
 
         const localChart = activeEntry?.chart || activeEntry;
         const chartId = activeEntry?.chartId;
+        setActiveChartId(String(chartId || ""));
         const profile = activeEntry?.profile || activeEntry?.birthProfile || {};
-        const name = profile.profileName || profile.profile_name || localChart?.profileName || "";
-        const birthDate = profile.birthDate || profile.birth_date || localChart?.solarDate || "";
-        const birthTime = profile.birthTime || profile.birth_time || localChart?.birthTime || "";
-        
+        const name =
+          profile.profileName ||
+          profile.profile_name ||
+          localChart?.profileName ||
+          "";
+        const birthDate =
+          profile.birthDate ||
+          profile.birth_date ||
+          localChart?.solarDate ||
+          "";
+        const birthTime =
+          profile.birthTime ||
+          profile.birth_time ||
+          localChart?.birthTime ||
+          "";
+
         const unknownTime = Boolean(
           profile.birthTimeUnknown ??
-            profile.birth_time_unknown ??
-            localChart?.birthTimeUnknown ??
-            localChart?.birth_time_unknown ??
-            false,
+          profile.birth_time_unknown ??
+          localChart?.birthTimeUnknown ??
+          localChart?.birth_time_unknown ??
+          false,
         );
-        
+
         const calendarType =
           profile.calendarType ||
           profile.calendar_type ||
           localChart?.calendarType ||
           localChart?.calendar_type ||
           "solar";
-        
+
         const isLeapMonth = Boolean(
           profile.isLeapMonth ??
-            profile.is_leap_month ??
-            localChart?.isLeapMonth ??
-            localChart?.is_leap_month ??
-            false,
+          profile.is_leap_month ??
+          localChart?.isLeapMonth ??
+          localChart?.is_leap_month ??
+          false,
         );
-        
+
         setIntroProfile({
           name: name || "사용자",
           birthDate,
@@ -465,7 +571,6 @@ export default function TodayFortunePage() {
           calendarType,
           isLeapMonth,
         });
-
 
         if (!chartId) {
           throw new Error(
@@ -562,7 +667,10 @@ export default function TodayFortunePage() {
           }
 
           if (event?.type === "error") {
-            throw new Error(event.error || "Gemini 운세 생성에 실패했습니다. 다시 시도해 주세요.");
+            throw new Error(
+              event.error ||
+                "Gemini 운세 생성에 실패했습니다. 다시 시도해 주세요.",
+            );
           }
         };
 
@@ -583,13 +691,15 @@ export default function TodayFortunePage() {
         buffer += decoder.decode();
         if (buffer.trim()) handleEvent(JSON.parse(buffer.trim()));
         if (!completedFortune) {
-          throw new Error("Gemini 운세 생성이 완료되지 않았습니다. 다시 시도해 주세요.");
+          throw new Error(
+            "Gemini 운세 생성이 완료되지 않았습니다. 다시 시도해 주세요.",
+          );
         }
 
         setFortune(completedFortune);
         setInterpretationId(nextInterpretationId);
         setLoading(false);
-        
+
         setStreamSections([]);
         setStreamStatus("");
         setFeedbackStatus("");
@@ -652,24 +762,250 @@ export default function TodayFortunePage() {
   }, []);
 
   useEffect(() => {
+    if (!selectedDate || !activeChartId) return;
+
+    const controller = new AbortController();
+    setTodayTask("");
+    setEditingTaskIndex(null);
+    setTaskDraft("");
+    setDeletedPlan(null);
+    setAnalyzedPlanText("");
+    setPlanSaved(false);
+    setPlanAnalysis(null);
+    setPlanError("");
+
+    void (async () => {
+      try {
+        const response = await fetch(
+          `/api/fortune/today-plan?chartId=${encodeURIComponent(activeChartId)}&date=${encodeURIComponent(selectedDate)}`,
+          { cache: "no-store", signal: controller.signal },
+        );
+        const data = await response.json().catch(() => null);
+        if (!response.ok) {
+          throw new Error(data?.error || "오늘의 계획을 불러오지 못했습니다.");
+        }
+        setTodayTask(String(data?.plan?.planText || ""));
+        setPlanAnalysis((data?.analysis as PlanAnalysis) || null);
+        setAnalyzedPlanText(String(data?.plan?.planText || ""));
+        setPlanSaved(Boolean(data?.plan));
+      } catch (reason) {
+        if (reason instanceof DOMException && reason.name === "AbortError")
+          return;
+        setTodayTask("");
+        setPlanError(
+          reason instanceof Error
+            ? reason.message
+            : "오늘의 계획을 불러오지 못했습니다.",
+        );
+      }
+    })();
+
+    return () => controller.abort();
+  }, [selectedDate, activeChartId]);
+
+  useEffect(() => {
     if (!selectedDate) return;
 
+    setOpenFortuneSections(["overall"]);
     const controller = new AbortController();
     void loadFortune(selectedDate, controller.signal);
 
     return () => controller.abort();
   }, [selectedDate, loadFortune]);
 
-  const today = selectedDate ? seoulToday() : "";
-  const isToday = Boolean(selectedDate && today && selectedDate >= today);
+  useEffect(() => {
+    const syncTodayView = () => {
+      const hash = window.location.hash.replace("#", "");
+      const view = hash;
+      if (view === "today-review" || view === "today-report") {
+        setActiveTodayView("today-plan");
+        window.history.replaceState(null, "", "/fortune/today#today-plan");
+        return;
+      }
+      if (TODAY_CONTENT_TABS.some((item) => item.id === view && !item.disabled)) {
+        setActiveTodayView(view as TodayContentView);
+      }
+    };
 
-  const showPreviousDay = () => setSelectedDate((date) => shiftDate(date, -1));
-  const showNextDay = () => {
-    if (isToday) return;
+    syncTodayView();
+    window.addEventListener("hashchange", syncTodayView);
+    window.addEventListener("popstate", syncTodayView);
+    return () => {
+      window.removeEventListener("hashchange", syncTodayView);
+      window.removeEventListener("popstate", syncTodayView);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (loading || !fortune) return;
+    const hash = window.location.hash.replace("#", "");
+    if (!hash) return;
+    const isContentView =
+      hash === "today-fortune" ||
+      TODAY_CONTENT_TABS.some((item) => item.id === hash);
+    const timer = window.setTimeout(() => {
+      document
+        .getElementById(isContentView ? "today-content-tabs" : hash)
+        ?.scrollIntoView({ block: "start" });
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [loading, fortune]);
+
+  const today = selectedDate ? seoulToday() : "";
+  const todayTaskLines = todayTask.split("\n");
+
+  const normalizedPlan = (text: string) => text.split("\n").map((line) => line.trim()).filter(Boolean).join("\n");
+  const planChanged = Boolean(planAnalysis) && normalizedPlan(todayTask) !== normalizedPlan(analyzedPlanText);
+  const previouslyAnalyzedTasks = new Set(analyzedPlanText.split("\n").map((line) => line.trim()));
+
+  const beginTaskEdit = (index: number) => {
+    setEditingTaskIndex(index);
+    setTaskDraft(todayTaskLines[index]);
+    setPlanError("");
+  };
+
+  const cancelTaskEdit = () => {
+    if (planLoading) return;
+    if (editingTaskIndex !== null && !todayTaskLines[editingTaskIndex]?.trim()) {
+      setTodayTask(todayTaskLines.filter((_, i) => i !== editingTaskIndex).join("\n"));
+    }
+    setEditingTaskIndex(null);
+    setTaskDraft("");
+    setPlanError("");
+  };
+
+  const saveTaskEdit = async (index: number) => {
+    if (planLoading) return;
+    if (!taskDraft.trim()) {
+      setPlanError("저장할 일정을 입력해 주세요.");
+      return;
+    }
+    const lines = [...todayTaskLines];
+    lines[index] = taskDraft.trim();
+    const nextValue = lines.filter((line) => line.trim()).join("\n");
+    if (nextValue.length > 2000) {
+      setPlanError("일정은 전체 2,000자 이내로 작성해 주세요.");
+      return;
+    }
+    setSavingTaskIndex(index);
+    const saved = await analyzeTodayPlan(nextValue);
+    setSavingTaskIndex(null);
+    if (saved) {
+      setTodayTask(nextValue);
+      setEditingTaskIndex(null);
+      setTaskDraft("");
+      setDeletedPlan(null);
+    }
+  };
+
+  const deleteTask = async (index: number) => {
+    if (planLoading) return;
+    const previous = { text: todayTask, saved: planSaved };
+    const nextValue = todayTaskLines.filter((_, i) => i !== index).join("\n");
+    if (await analyzeTodayPlan(nextValue)) {
+      setTodayTask(nextValue);
+      setDeletedPlan(previous);
+    }
+  };
+
+  const undoDelete = async () => {
+    if (!deletedPlan || planLoading) return;
+    const text = deletedPlan.text;
+    if (await analyzeTodayPlan(text)) {
+      setTodayTask(text);
+      setDeletedPlan(null);
+    }
+  };
+
+  const addTodayTaskLine = () => {
+    if (todayTaskLines.length >= 10) {
+      setPlanError("오늘 할 일은 최대 10개까지 작성할 수 있습니다.");
+      return;
+    }
+    const index = todayTaskLines.findIndex((task) => !task.trim());
+    if (index >= 0) { beginTaskEdit(index); return; }
+    setTodayTask((current) => `${current}\n`);
+    setEditingTaskIndex(todayTaskLines.length);
+    setTaskDraft("");
+    setPlanError("");
+  };
+
+  const moveToTodayView = (id: TodayContentView) => {
+    if (TODAY_CONTENT_TABS.find((item) => item.id === id)?.disabled) return;
+    setActiveTodayView(id);
+    window.history.replaceState(null, "", `/fortune/today#${id}`);
+    window.dispatchEvent(new Event("hashchange"));
+  };
+
+  const showPreviousMonth = () =>
+    setSelectedDate((date) => shiftMonth(date, -1));
+  const showNextMonth = () => {
     setSelectedDate((date) => {
-      const nextDate = shiftDate(date, 1);
-      return nextDate > today ? today : nextDate;
+      const next = shiftMonth(date, 1);
+      return next > today ? today : next;
     });
+  };
+
+  const analyzeTodayPlan = async (nextText: string): Promise<boolean> => {
+    const planText = nextText.trim();
+    if (!selectedDate || !activeChartId || !fortune) {
+      setPlanError("운세 정보를 불러온 뒤 다시 저장해 주세요.");
+      return false;
+    }
+
+    setPlanLoading(true);
+    setPlanError("");
+    setPlanSaved(false);
+
+    try {
+      if (!planText) {
+        const response = await fetch(`/api/fortune/today-plan?chartId=${encodeURIComponent(activeChartId)}&date=${selectedDate}`, { method: "DELETE" });
+        const data = await response.json().catch(() => null);
+        if (!response.ok) throw new Error(data?.error || "일정 삭제를 저장하지 못했습니다.");
+        setPlanAnalysis(null);
+        setAnalyzedPlanText("");
+        setDeletedPlan(null);
+        setPlanSaved(true);
+        return true;
+      }
+      const response = await fetch("/api/fortune/today-plan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chartId: activeChartId,
+          date: selectedDate,
+          planText,
+          fortuneContext: {
+            dayPillar: fortune.dayPillar,
+            headline: fortune.dailyInsight?.headline || fortune.overall?.title,
+            reason:
+              fortune.dailyInsight?.reason || fortune.overall?.description,
+            prescription:
+              fortune.dailyInsight?.prescription || fortune.overall?.advice,
+            cautions: fortune.cautions || [],
+            timeFlow: fortune.timeFlow || [],
+          },
+        }),
+      });
+      const data = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(data?.error || "오늘의 계획을 분석하지 못했습니다.");
+      }
+      setPlanAnalysis(data.analysis as PlanAnalysis);
+      setAnalyzedPlanText(planText);
+      setDeletedPlan(null);
+      setPlanSaved(true);
+      return true;
+    } catch (reason) {
+      setPlanError(
+        reason instanceof Error
+          ? reason.message
+          : "오늘의 계획을 분석하지 못했습니다.",
+      );
+      return false;
+    } finally {
+      setPlanLoading(false);
+    }
   };
 
   const submitFeedback = async ({
@@ -698,81 +1034,176 @@ export default function TodayFortunePage() {
         }),
       });
       const data = await response.json().catch(() => null);
-      if (!response.ok || !data?.success) throw new Error(data?.error || "평가를 저장하지 못했습니다.");
+      if (!response.ok || !data?.success)
+        throw new Error(data?.error || "평가를 저장하지 못했습니다.");
       setFeedbackLocked(true);
       setPointBalance(Number(data.pointBalance || 0));
       setFeedbackStatus(data.alreadyEvaluated ? "already" : "rewarded");
     } catch (reason) {
-      setFeedbackStatus(reason instanceof Error ? reason.message : "평가를 저장하지 못했습니다.");
+      setFeedbackStatus(
+        reason instanceof Error
+          ? reason.message
+          : "평가를 저장하지 못했습니다.",
+      );
     }
   };
 
+  const selectedMonth = selectedDate ? monthParts(selectedDate) : null;
+  const calendarDates = selectedDate
+    ? Array.from({ length: daysInMonth(selectedDate) }, (_, index) =>
+        dateText(selectedMonth!.year, selectedMonth!.month, index + 1),
+      )
+    : [];
+  const currentMonthKey = today ? today.slice(0, 7) : "";
+  const selectedMonthKey = selectedDate ? selectedDate.slice(0, 7) : "";
+  const nextMonthDisabled = Boolean(
+    currentMonthKey && selectedMonthKey >= currentMonthKey,
+  );
+
   return (
-    <main className="today-fortune-page min-h-full bg-[#f7f9fd]">
-      <FortunePageIntro
-        serviceTitle="오늘의 운세"
-        sentence=""
-        description={
-          selectedDate
-            ? `${koreanDate(selectedDate)}${
-                fortune?.dayPillar
-                  ? ` · ${fortune.dayPillar}일`
-                  : ""
-              }`
-            : "오늘 날짜를 확인하고 있습니다."
-        }
-        profile={introProfile as any}
-      />
-  
-      <div className="mx-auto w-full max-w-[1640px] px-5 pb-6 sm:px-8 lg:px-10">
-        <div className="mb-6 flex justify-end">
-          <div className="flex items-center gap-2 pb-0.5">
+    <main className="today-fortune-page min-h-full bg-white">
+      <div className="mx-auto w-full max-w-[1640px] px-5 pb-10 pt-10 sm:px-8 lg:px-10 lg:pt-14">
+        <header id="today-compass-top" className="mb-10">
+          <h1 className="break-keep text-[36px] font-black tracking-[-0.045em] text-[#0d2857] sm:text-[46px] lg:text-[58px]">
+            오늘의 나침반
+          </h1>
+          <p className="mt-3 break-keep text-[18px] leading-8 text-[#596b87] sm:text-[22px] lg:text-[25px]">
+            하루의 흐름을 읽고, 계획하고, 기록해 보세요.
+          </p>
+        </header>
+
+        <section
+          id="today-map"
+          className="scroll-mt-24 border-b border-[#dce3ee] pb-9"
+        >
+          <div className="flex flex-wrap items-center gap-3 sm:gap-4">
             <button
               type="button"
-              onClick={showPreviousDay}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-[#dce2ed] bg-white text-[#697386] transition hover:border-[#aebde9] hover:text-[#3a5bbf]"
-              aria-label="이전 날짜"
+              onClick={showPreviousMonth}
+              disabled={planLoading}
+              className="grid h-11 w-11 place-items-center rounded-full border border-[#d9e1ed] text-[#30415f] transition hover:border-[#7ca2ee] hover:text-[#1760ee]"
+              aria-label="이전 달"
             >
-              <ArrowIcon className="h-4 w-4 rotate-180" />
+              <ArrowIcon className="h-5 w-5 rotate-180" />
             </button>
-  
+            <h2 className="min-w-[170px] text-[25px] font-extrabold tracking-[-0.035em] text-[#102c5c] sm:text-[30px]">
+              {selectedDate ? monthTitle(selectedDate) : "날짜 확인 중"}
+            </h2>
+            <button
+              type="button"
+              onClick={showNextMonth}
+              disabled={nextMonthDisabled || planLoading}
+              className="grid h-11 w-11 place-items-center rounded-full border border-[#d9e1ed] text-[#30415f] transition hover:border-[#7ca2ee] hover:text-[#1760ee] disabled:cursor-not-allowed disabled:opacity-35"
+              aria-label="다음 달"
+            >
+              <ArrowIcon className="h-5 w-5" />
+            </button>
             <button
               type="button"
               onClick={() => setSelectedDate(seoulToday())}
-              className="today-date-button h-10 rounded-xl border border-[#dce2ed] bg-white px-5 font-bold text-[#5f697d] transition hover:border-[#aebde9] hover:text-[#3a5bbf]"
+              disabled={planLoading}
+              className="ml-1 h-11 rounded-full border border-[#7da1ef] px-6 text-[16px] font-bold text-[#1760ee] transition hover:bg-[#f2f6ff]"
             >
-              오늘
-            </button>
-  
-            <button
-              type="button"
-              onClick={showNextDay}
-              disabled={isToday}
-              className="grid h-10 w-10 place-items-center rounded-xl border border-[#dce2ed] bg-white text-[#697386] transition hover:border-[#aebde9] hover:text-[#3a5bbf] disabled:cursor-not-allowed disabled:bg-[#f3f5f8] disabled:text-[#b8bfcb]"
-              aria-label={
-                isToday
-                  ? "내일의 운세는 자정부터 확인할 수 있습니다"
-                  : "다음 날짜"
-              }
-              title={
-                isToday
-                  ? "내일의 운세는 자정부터 확인할 수 있어요"
-                  : undefined
-              }
-            >
-              <ArrowIcon className="h-4 w-4" />
+              오늘로 이동
             </button>
           </div>
-        </div>
 
+          <div className="mt-8 overflow-x-auto pb-2 [scrollbar-width:thin]">
+            <div className="relative grid min-w-[1060px] grid-flow-col auto-cols-fr items-start px-1 pt-6">
+              <div className="pointer-events-none absolute left-4 right-4 top-[68px] h-px bg-[#b9cdf1]" />
+              {calendarDates.map((dateValue) => {
+                const day = monthParts(dateValue).day;
+                const active = dateValue === selectedDate;
+                const isRealToday = dateValue === today;
+                const disabled = Boolean(today && dateValue > today);
 
+                return (
+                  <button
+                    key={dateValue}
+                    type="button"
+                    disabled={disabled || planLoading}
+                    onClick={() => setSelectedDate(dateValue)}
+                    className="group relative z-10 flex min-w-[34px] flex-col items-center disabled:cursor-not-allowed disabled:opacity-35"
+                    aria-label={`${dateValue}${isRealToday ? " 오늘" : ""}`}
+                    aria-current={active ? "date" : undefined}
+                  >
+                    <span
+                      className={`absolute -top-6 rounded-full px-2.5 py-1 text-[12px] font-extrabold text-white ${isRealToday ? "bg-[#ff914d]" : "invisible"}`}
+                    >
+                      오늘
+                    </span>
+                    <span
+                      className={`grid h-12 w-12 place-items-center rounded-full text-[15px] font-extrabold transition ${active ? "bg-[#2f66df] text-white shadow-[0_7px_18px_rgba(47,102,223,.25)]" : "bg-white text-[#213655] group-hover:bg-[#eef4ff] group-hover:text-[#1760ee]"}`}
+                    >
+                      {day}
+                    </span>
+                    <span
+                      className={`mt-2 h-2 w-2 rounded-full border-2 border-white ${active ? "bg-[#2f66df]" : "bg-[#b7c7df]"}`}
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          </div>
 
+          {!loading && fortune && (
+              <section className="mt-6 border-y border-[#dce3ee] py-5 sm:py-6">
+                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-5">
+                  <h2 className="border-l-[4px] border-[#3978ed] pl-4 text-[21px] font-black tracking-[-.03em] text-[#17345f] sm:text-[25px]">
+                    오늘의 행운 포인트
+                  </h2>
+                  <p className="text-[13px] text-[#8794a8] sm:text-[25px]">
+                    오늘의 흐름을 돕는 가벼운 참고 정보입니다.
+                  </p>
+                </div>
+
+                <div className="mt-4">
+                  <div className="grid min-w-0 grid-cols-[36px_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[36px_auto_minmax(0,1fr)]">
+                    <span
+                      className="grid h-9 w-9 place-items-center rounded-[10px] bg-[#fff4ec] text-[17px] font-black text-[#ef8a4c]"
+                      aria-hidden="true"
+                    >
+                      ✦
+                    </span>
+                    <span className="whitespace-nowrap text-[14px] font-bold text-[#7f8ca0] sm:text-[25px]">
+                      오늘의 작은 제안
+                    </span>
+                    <strong className="col-start-2 break-keep text-[17px] leading-[1.5] tracking-[-.025em] text-[#17345f] sm:col-start-auto sm:text-[25px]">
+                      {fortune.recommendedActivity || "-"}
+                    </strong>
+                  </div>
+
+                  <div className="mt-2.5 flex flex-wrap items-center gap-y-2 border-t border-[#e1e7f0] pt-2.5 text-[#17345f] sm:ml-12">
+                    <div className="flex items-center gap-2 pr-5 sm:pr-7">
+                      <span className="text-[13px] font-semibold text-[#8794a8] sm:text-[25px]">
+                        행운의 색
+                      </span>
+                      <span
+                        className="h-4 w-4 rounded-full bg-[#d7bd91]"
+                        aria-hidden="true"
+                      />
+                      <strong className="text-[16px] sm:text-[25px]">
+                        {fortune.luckyColor || "-"}
+                      </strong>
+                    </div>
+
+                    <div className="flex items-center gap-2 border-l border-[#dce3ee] pl-5 sm:pl-7">
+                      <span className="text-[13px] font-semibold text-[#8794a8] sm:text-[25px]">
+                        행운의 숫자
+                      </span>
+                      <strong className="text-[19px] text-[#2f66df] sm:text-[25px]">
+                        {fortune.luckyNumbers?.[0] ?? "-"}
+                      </strong>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+          )}
+        </section>
 
         {loading && (
-          <LoadingState
-            status={streamStatus}
-            sections={streamSections}
-          />
+          <LoadingState status={streamStatus} sections={streamSections} />
         )}
 
         {!loading && error && (
@@ -780,7 +1211,9 @@ export default function TodayFortunePage() {
             <h2 className="today-error-title font-extrabold text-red-600">
               오늘의 운세를 불러오지 못했습니다
             </h2>
-            <p className="today-error-body mt-3 break-words text-[#5c6678]">{error}</p>
+            <p className="today-error-body mt-3 break-words text-[#5c6678]">
+              {error}
+            </p>
             <div className="mt-6 flex flex-wrap gap-3">
               <button
                 type="button"
@@ -801,119 +1234,279 @@ export default function TodayFortunePage() {
 
         {!loading && fortune && (
           <>
-            {/* 상단 핵심 운세 카드 */}
-            <section className="grid min-h-[220px] items-center gap-7 rounded-[24px] border border-[#e4e8f1] bg-white px-7 py-8 shadow-[0_10px_35px_rgba(35,47,73,.04)] sm:px-10 lg:grid-cols-[180px_1fr] lg:gap-10">
-              
-              {/* 상단 종합 점수 원 : 숫자가 정중앙에 48px 크기로 크게 노출, 원 안 부가설명 문구 제거 */}
-              <div className="flex justify-center">
-                <div
-                  className="grid h-[150px] w-[150px] shrink-0 place-items-center rounded-full p-[14px]"
-                  style={{
-                    background: `conic-gradient(#3a5bbf 0deg ${(Math.max(0, Math.min(100, Number(fortune.overall?.score) || 0)) / 100) * 360}deg, #e9edf6 0deg 360deg)`,
-                  }}
+            <section
+              className="scroll-mt-24 py-8 sm:py-10"
+              aria-labelledby="today-flow-title"
+            >
+              <h2 className="text-[28px] font-black tracking-[-0.04em] text-[#102c5c] sm:text-[34px]">
+                {selectedDayTitle(selectedDate, today)}
+              </h2>
+
+              <div className="mt-7 border-b border-[#dce3ee] pb-7">
+                <p className="border-l-[4px] border-[#3d7af0] pl-4 text-[18px] font-extrabold text-[#17345f] sm:text-[21px]">
+                  오늘의 핵심 흐름
+                </p>
+                <h3
+                  id="today-flow-title"
+                  className="mt-4 max-w-[1280px] break-keep text-[28px] font-black leading-[1.35] tracking-[-0.045em] text-[#0d2b5c] sm:text-[38px] lg:text-[46px]"
                 >
-                  <div className="grid h-full w-full place-items-center rounded-full bg-white text-center">
-                    <strong className="today-score font-black tracking-[-.05em] text-[#1d2537]">
-                      {Number(fortune.overall?.score) || 0}
-                    </strong>
-                  </div>
+                  {fortune.dailyInsight?.headline || fortune.overall?.title}
+                </h3>
+                <div className="mt-6 grid gap-4 text-[17px] font-semibold text-[#314663] sm:grid-cols-3 sm:text-[19px]">
+                  <p className="flex items-center gap-3">
+                    <span className="h-4 w-4 rounded-full bg-[#9ed9ff]" />
+                    {Number(fortune.workStudy?.score || 0) >= 70
+                      ? "집중력 높음"
+                      : "집중은 천천히"}
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <span className="h-4 w-4 rounded-full bg-[#ffc777]" />
+                    {Number(fortune.love?.score || 0) >= 70
+                      ? "대화 흐름 좋음"
+                      : "대화는 천천히"}
+                  </p>
+                  <p className="flex items-center gap-3">
+                    <span className="h-4 w-4 rounded-full bg-[#aeb8ff]" />
+                    {Number(fortune.wealth?.score || 0) >= 70
+                      ? "결정에 힘이 실려요"
+                      : "결정은 신중하게"}
+                  </p>
                 </div>
               </div>
+            </section>
 
-              <div className="min-w-0">
-                <p className="today-fortune-label font-extrabold text-[#3a5bbf]">
-                  오늘 가장 먼저 읽을 명리학 사주풀이
-                </p>
-                
-                {/* 데스크톱 화면에서 한 줄로 시원하게 표시되는 메인 제목 */}
-                <h2 
-                   
-                   className="today-main-headline mt-3 whitespace-nowrap overflow-hidden text-ellipsis font-black tracking-[-.04em] text-[#1d2537]">
-                  {fortune.dailyInsight?.headline || fortune.overall?.title}
+            <nav
+              id="today-content-tabs"
+              className="scroll-mt-24 mb-8 overflow-x-auto border-y border-[#dce3ee] bg-white"
+              aria-label="오늘의 나침반 세부 메뉴"
+            >
+              <div role="tablist" aria-label="오늘의 나침반" className="grid min-w-[760px] grid-cols-4">
+                {TODAY_CONTENT_TABS.map((item) => {
+                  const active = activeTodayView === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      disabled={item.disabled}
+                      aria-disabled={item.disabled || undefined}
+                      onClick={() => moveToTodayView(item.id)}
+                      className={`relative min-h-[68px] px-5 py-4 text-center text-[17px] font-extrabold tracking-[-.025em] transition sm:text-[22px] ${
+                        active
+                          ? "text-[#163d7a] after:absolute after:inset-x-5 after:bottom-0 after:h-[3px] after:bg-[#3978ed]"
+                          : item.disabled ? "cursor-not-allowed text-[#9ca8b9]" : "text-[#60708a] hover:bg-[#f8faff] hover:text-[#245fc8]"
+                      }`}
+                      role="tab"
+                      tabIndex={active ? 0 : -1}
+                      onKeyDown={(event) => {
+                        const enabledTabs = TODAY_CONTENT_TABS.filter((tab) => !tab.disabled);
+                        const index = enabledTabs.findIndex((tab) => tab.id === item.id);
+                        const nextIndex = event.key === "ArrowRight"
+                          ? (index + 1) % enabledTabs.length
+                          : event.key === "ArrowLeft"
+                            ? (index - 1 + enabledTabs.length) % enabledTabs.length
+                            : event.key === "Home" ? 0
+                              : event.key === "End" ? enabledTabs.length - 1 : -1;
+                        if (nextIndex < 0) return;
+                        event.preventDefault();
+                        const next = enabledTabs[nextIndex];
+                        moveToTodayView(next.id);
+                        document.getElementById(`${next.id}-tab`)?.focus({ preventScroll: true });
+                      }}
+                      id={`${item.id}-tab`}
+                      aria-controls={item.id}
+                      aria-selected={active}
+                    >
+                      {item.label}
+                      {item.disabled && <span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[12px] font-semibold text-[#8996a9] sm:text-[14px]">준비 중</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </nav>
+
+            <div
+              id="today-plan"
+              role="tabpanel"
+              aria-labelledby="today-plan-tab"
+              hidden={activeTodayView !== "today-plan"}
+            >
+              <section
+                className="scroll-mt-24 border-b border-[#dce3ee] pb-10"
+              >
+                <h2 className="border-l-[4px] border-[#3978ed] pl-4 text-[22px] font-black text-[#17345f] sm:text-[28px]">
+                  오늘 일정 점보기
                 </h2>
-
-                {/* Gemini 사주풀이 상세 내용 그대로 출력 */}
-                <p className="today-fortune-lead mt-4 max-w-[1100px] font-normal text-[#414d61]">
-                  {fortune.dailyInsight?.scene || fortune.overall?.description}
+                <p className="mt-3 break-keep text-[17px] leading-8 text-[#66758d] sm:text-[20px]">
+                  일정을 입력하고 적용을 누르면 오른쪽에 점보기 결과가 나옵니다.
+                  다른 일정의 결과는 그대로 유지됩니다.
                 </p>
-
-                {fortune.dailyInsight?.keyword && (
-                  <div className="mt-5 flex flex-wrap gap-2">
-                    <span className="today-keyword rounded-full bg-[#eef2ff] px-4 py-2 font-bold text-[#3a5bbf]">
-                      #{fortune.dailyInsight.keyword}
-                    </span>
+                {deletedPlan && (
+                  <div role="status" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-[#edf3ff] px-5 py-4 text-[17px] text-[#245fc8]">
+                    <span>일정을 목록에서 삭제했습니다.</span>
+                    <button type="button" disabled={planLoading || editingTaskIndex !== null} onClick={() => void undoDelete()} className="rounded-lg border border-[#aac2ef] bg-white px-4 py-2 font-extrabold disabled:opacity-40">삭제 되돌리기</button>
                   </div>
                 )}
-              </div>
-            </section>
+                {planAnalysis && !planChanged && (
+                  <p className="mt-6 border-y border-[#dce3ee] py-5 break-keep text-[18px] font-semibold leading-8 text-[#40536f] sm:text-[25px] sm:leading-[1.65]">
+                    {planAnalysis.summary}
+                  </p>
+                )}
 
-            {/* 행운 포인트 (색 1개, 숫자 1개, 추천활동 1개) */}
-            <section className="mt-6 grid gap-4">
-              <article className="rounded-[16px] border border-[#e0e5ed] bg-white px-7 py-6 shadow-[0_4px_14px_rgba(26,46,84,.045)]">
-              <h2 className="today-section-title font-black tracking-[-.03em] text-[#0f172a]">
-                오늘의 행운 포인트
-              </h2>
-                <div className="mt-5 grid gap-5 md:grid-cols-3">
-                  <LuckyItem
-                    icon={
-                      <span className="today-lucky-icon grid h-10 w-10 place-items-center rounded-full bg-[#e9f1ff] text-[#2563eb]">
-                        ●
-                      </span>
-                    }
-                    label="행운의 색"
-                  >
-                    {fortune.luckyColor || "-"}
-                  </LuckyItem>
-                  <LuckyItem
-                    icon={
-                      <span className="today-lucky-number-icon grid h-10 w-10 place-items-center rounded-full bg-[#245bca] font-bold text-white">
-                        {fortune.luckyNumbers?.[0] ?? "-"}
-                      </span>
-                    }
-                    label="행운의 숫자"
-                  >
-                    {fortune.luckyNumbers?.[0] ?? "-"}
-                  </LuckyItem>
-                  <LuckyItem
-                    icon={
-                      <span className="today-lucky-check-icon grid h-10 w-10 place-items-center rounded-full bg-[#eaf7f1] font-bold text-[#168456]">
-                        ✓
-                      </span>
-                    }
-                    label="추천 활동"
-                  >
-                    {fortune.recommendedActivity || "-"}
-                  </LuckyItem>
+                <div className="mt-6 overflow-hidden rounded-[18px] border border-[#dbe3ef] bg-white shadow-[0_12px_30px_rgba(28,52,91,.06)]">
+                  <div className="hidden grid-cols-[42%_58%] border-b border-[#dfe6f0] bg-[#f8faff] md:grid">
+                    <div className="px-7 py-4 text-[18px] font-black text-[#17345f]">
+                      오늘 할 일
+                    </div>
+                    <div className="border-l border-[#dfe6f0] px-7 py-4 text-[18px] font-black text-[#17345f]">
+                      오늘의 흐름 분석
+                    </div>
+                  </div>
+
+                  {todayTaskLines.map((task, index) => {
+                    const matched = previouslyAnalyzedTasks.has(task.trim()) ? matchPlanAnalysis(planAnalysis, task) : null;
+                    const editing = editingTaskIndex === index || !task.trim();
+                    const toneClass =
+                      matched?.tone === "good"
+                        ? "bg-[#edf8f3] text-[#177a55]"
+                        : matched?.tone === "later"
+                          ? "bg-[#f7f1fb] text-[#73548f]"
+                          : "bg-[#fff7e9] text-[#a56014]";
+
+                    return (
+                      <div
+                        key={index}
+                        className="grid border-t border-[#e2e7ef] first:border-t-0 md:grid-cols-[42%_58%]"
+                      >
+                        <div className="flex items-start gap-3 px-5 py-6 sm:px-7 sm:py-7">
+                          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#edf3ff] text-[14px] font-black text-[#2864d7]">
+                            {index + 1}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            {editing ? (
+                              <>
+                                <label className="sr-only" htmlFor={`today-task-${index}`}>{index + 1}번째 오늘 일정</label>
+                                <input id={`today-task-${index}`} value={editingTaskIndex === index ? taskDraft : task}
+                                  disabled={planLoading || (editingTaskIndex !== null && editingTaskIndex !== index)}
+                                  onChange={(event) => { setEditingTaskIndex(index); setTaskDraft(event.target.value); setPlanError(""); }}
+                                  onKeyDown={(event) => {
+                                    if (event.nativeEvent.isComposing) return;
+                                    if (event.key === "Enter") { event.preventDefault(); void saveTaskEdit(index); }
+                                    if (event.key === "Escape") { cancelTaskEdit(); }
+                                  }}
+                                  placeholder="오늘 일정을 적어보세요"
+                                  className="w-full rounded-lg border border-[#9dbbeb] bg-[#f9fbff] px-3 py-2 text-[20px] font-bold leading-[1.55] text-[#17345f] outline-none focus:ring-2 focus:ring-[#bcd1f7] sm:text-[25px]" />
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  <button type="button" disabled={planLoading || editingTaskIndex !== index} onClick={() => void saveTaskEdit(index)} className="min-h-10 rounded-lg bg-[#2f66df] px-4 py-2 text-[16px] font-bold text-white disabled:opacity-40">{savingTaskIndex === index ? "적용·점보기 중…" : "적용"}</button>
+                                  {editingTaskIndex === index && <button type="button" disabled={planLoading} onClick={() => {cancelTaskEdit();}} className="min-h-10 rounded-lg border border-[#d5dfed] px-4 py-2 text-[16px] font-bold text-[#53627a]">취소</button>}
+                                </div>
+                              </>
+                            ) : (
+                              <>
+                                <p className="break-words text-[20px] font-extrabold leading-[1.55] tracking-[-.03em] text-[#17345f] sm:text-[25px]">{task}</p>
+                                <div className="mt-4 flex flex-wrap gap-2">
+                                  <button type="button" disabled={planLoading || editingTaskIndex !== null} onClick={() => beginTaskEdit(index)} className="min-h-10 rounded-lg border border-[#c6d7f2] bg-[#f4f8ff] px-4 py-2 text-[16px] font-bold text-[#245fc8] disabled:opacity-40" aria-label={`${task} 수정`}>수정</button>
+                                  <button type="button" disabled={planLoading || editingTaskIndex !== null} onClick={() => deleteTask(index)} className="min-h-10 rounded-lg border border-[#e8d5d2] px-4 py-2 text-[16px] font-bold text-[#b15b50] disabled:opacity-40" aria-label={`${task} 삭제`}>삭제</button>
+                                </div>
+                              </>
+                            )}
+                          </div>
+                        </div>
+
+                        <div
+                          id={index === 0 ? "today-plan-analysis" : undefined}
+                          className="scroll-mt-24 border-t border-dashed border-[#dfe6f0] px-5 py-6 sm:px-7 sm:py-7 md:border-l md:border-t-0 md:border-dashed"
+                        >
+                          {savingTaskIndex === index ? (
+                            <p role="status" aria-live="polite" className="text-[20px] leading-8 text-[#2f66df]">일정을 저장하고 흐름을 살펴보고 있어요…</p>
+                          ) : matched ? (
+                            <>
+                              <span
+                                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[15px] font-black sm:text-[17px] ${toneClass}`}
+                              >
+                                <span className="h-2 w-2 rounded-full bg-current" />
+                                {matched.label}
+                              </span>
+                              {editing && <p className="mt-3 text-[15px] font-semibold text-[#8b601e]">수정 중입니다. 아래 내용은 저장 전 일정의 분석입니다.</p>}
+                              <p className="mt-4 break-keep text-[20px] leading-[1.65] tracking-[-.025em] text-[#53627a] sm:text-[25px]">
+                                {matched.item.reason}
+                              </p>
+                            </>
+                          ) : (
+                            <p className="break-keep text-[18px] leading-8 text-[#8996a9] sm:text-[21px]">
+                              {task.trim()
+                                ? "적용을 누르면 이 일정의 점보기 결과가 여기에 표시됩니다."
+                                : "일정을 입력한 뒤 적용을 눌러주세요."}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              </article>
-            </section>
+
+                <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
+                  <p role="status" className="text-[14px] text-[#7b8799] sm:text-[16px]">
+                    {todayTask.length.toLocaleString()} / 2,000자
+                    {planLoading ? " · 저장 처리 중입니다" : editingTaskIndex !== null ? " · 입력 후 적용을 눌러주세요" : planSaved ? " · 저장되었습니다" : " · 일정을 추가해 주세요"}
+                  </p>
+                  <button type="button" onClick={addTodayTaskLine}
+                    disabled={planLoading || editingTaskIndex !== null}
+                    className="ml-auto inline-flex min-h-14 items-center gap-2 rounded-[10px] bg-[#2f66df] px-8 text-[18px] font-extrabold text-white shadow-[0_8px_18px_rgba(47,102,223,.16)] hover:bg-[#2459ca] disabled:cursor-not-allowed disabled:opacity-40">
+                    <span aria-hidden="true">＋</span> 일정 추가하기
+                  </button>
+                </div>
+
+                {planError && (
+                  <p className="mt-4 rounded-[10px] bg-[#fff4f1] px-4 py-3 text-[15px] font-semibold text-[#b94b35] sm:text-[17px]">
+                    {planError}
+                  </p>
+                )}
+              </section>
+
+
+            </div>
 
             {/* 분야별 상세 운세 섹션 */}
-            <section className="mt-6 rounded-[24px] border border-[#e3e8f0] bg-[#f8f9fc] px-6 py-7 shadow-[0_8px_28px_rgba(31,47,78,.035)] sm:px-8 sm:py-9">
-              <div className="mb-6">
-                <p className="today-section-eyebrow font-extrabold tracking-[.12em] text-[#3a5bbf]">
-                  TODAY'S FORTUNE
-                </p>
-                <h2 className="today-section-heading mt-2 font-black tracking-[-.035em] text-[#172033]">
-                  분야별 명리학 세부 운세
+            <section
+              id="today-fortune"
+              role="tabpanel"
+              aria-labelledby="today-fortune-tab"
+              hidden={activeTodayView !== "today-fortune"}
+              className="scroll-mt-24 border-b border-[#dce3ee] bg-white pb-8 sm:pb-10"
+            >
+              <div className="scroll-mt-24 mb-5">
+                <h2 className="mt-2 break-keep text-[28px] font-black tracking-[-.04em] text-[#172f57] sm:text-[34px]">
+                  오늘의 운세
                 </h2>
+                <p className="mt-3 text-[16px] leading-7 text-[#66758d] sm:text-[18px]">
+                  궁금한 항목을 누르면 기존의 자세한 풀이가 펼쳐집니다.
+                </p>
               </div>
 
-              <div className="grid gap-6 lg:grid-cols-2">
+              <div>
                 {DETAIL_SECTIONS.map((item) => (
-                  <FortuneDetailCard
+                  <FortuneAccordionRow
                     key={item.key}
                     section={fortune[item.key]}
                     label={item.label}
-                    eyebrow={item.eyebrow}
                     color={item.color}
-                    featured={item.key === "overall"}
+                    open={openFortuneSections.includes(item.key)}
+                    onToggle={() =>
+                      setOpenFortuneSections((current) =>
+                        current.includes(item.key)
+                          ? current.filter((key) => key !== item.key)
+                          : [...current, item.key],
+                      )
+                    }
                   />
                 ))}
               </div>
 
               {/* 피드백 영역 */}
-              <div className="mt-8 border-t border-[#dde3ec] pt-8">
+              <div
+                id="today-feedback"
+                className="scroll-mt-24 mt-8 border-t border-[#dde3ec] pt-8"
+              >
                 <p className="today-feedback-title font-extrabold tracking-[-.025em] text-[#172033]">
                   오늘의 운세 해석이 도움이 되었나요?
                 </p>
@@ -1042,8 +1635,9 @@ export default function TodayFortunePage() {
             </section>
 
             <p className="today-disclaimer mx-auto mt-6 max-w-4xl text-center text-[#788296]">
-              이 운세는 만세력 계산에 따른 명리학적 경향을 일상 언어로 풀어낸 참고 정보입니다.
-              건강·투자·법률·시험 등 중요한 결정은 해당 분야의 객관적인 정보와 전문가 판단을 함께 확인해 주세요.
+              이 운세는 만세력 계산에 따른 명리학적 경향을 일상 언어로 풀어낸
+              참고 정보입니다. 건강·투자·법률·시험 등 중요한 결정은 해당 분야의
+              객관적인 정보와 전문가 판단을 함께 확인해 주세요.
             </p>
           </>
         )}

@@ -11,7 +11,7 @@ import {
   type PointerEvent,
   type ReactNode,
 } from "react";
-import { ChevronDown, Menu } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Menu } from "lucide-react";
 
 type MenuItem = {
   label: string;
@@ -88,7 +88,7 @@ function Icon({ name }: { name: string }) {
 }
 
 const MENUS: MenuItem[] = [
-  { label: "오늘의 운세", href: "/fortune/today", icon: <Icon name="sun" /> },
+  { label: "오늘의 나침반", href: "/fortune/today", icon: <Icon name="sun" /> },
   { label: "사주총평", href: "/fortune/saju", icon: <Icon name="profile" /> },
   { label: "재물운", href: "/fortune/wealth", icon: <Icon name="wallet" /> },
   {
@@ -111,6 +111,14 @@ const MENUS: MenuItem[] = [
   },
   { label: "토정비결", href: "/fortune/tojeong", icon: <Icon name="doc" /> },
 ];
+
+const TODAY_SUBMENUS = [
+  { label: "나의 30일 지도", hash: "today-map" },
+  { label: "오늘의 운세", hash: "today-fortune" },
+  { label: "오늘 일정 점보기", hash: "today-plan" },
+  { label: "운세일기", hash: "today-review", disabled: true },
+  { label: "운세 리포트", hash: "today-report", disabled: true },
+] as const;
 
 const SAJU_SUBMENU_GROUPS = [
   {
@@ -218,7 +226,10 @@ function SidebarScrollArea({
 
   return (
     <div className={`relative ${className}`} style={style}>
-      <div ref={scrollRef} className="fortune-sidebar-scroll h-full overflow-y-auto">
+      <div
+        ref={scrollRef}
+        className="fortune-sidebar-scroll h-full overflow-y-auto"
+      >
         {children}
       </div>
       {thumb.visible && (
@@ -257,7 +268,10 @@ function SidebarBody({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const todayActive = pathname === "/fortune/today";
   const sajuActive = pathname === "/fortune/saju";
+  const [todayExpanded, setTodayExpanded] = useState(todayActive);
+  const [activeTodayHash, setActiveTodayHash] = useState("today-map");
   const [sajuExpanded, setSajuExpanded] = useState(sajuActive);
   const [openSajuGroups, setOpenSajuGroups] = useState<Set<number>>(
     () => new Set(),
@@ -276,29 +290,62 @@ function SidebarBody({
     if (sajuActive) setSajuExpanded(true);
   }, [sajuActive]);
 
+  useEffect(() => {
+    if (!todayActive) return;
+    setTodayExpanded(true);
+    const syncTodayHash = () => {
+      const hash = window.location.hash.replace("#", "");
+      const menuHash = hash;
+      setActiveTodayHash(
+        TODAY_SUBMENUS.some((item) => item.hash === menuHash)
+          ? menuHash
+          : "today-map",
+      );
+    };
+    syncTodayHash();
+    window.addEventListener("hashchange", syncTodayHash);
+    window.addEventListener("popstate", syncTodayHash);
+    return () => {
+      window.removeEventListener("hashchange", syncTodayHash);
+      window.removeEventListener("popstate", syncTodayHash);
+    };
+  }, [todayActive]);
+
   return (
     <div
       className={`flex min-h-full flex-col bg-white pb-20 pt-4 ${open ? "px-5" : "px-2"}`}
     >
-      <div className={`mb-3 flex h-12 items-center ${open ? "px-1" : "justify-center"}`}>
-        <button
-          type="button"
-          onClick={onToggle}
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-[#263149] transition hover:bg-[#f1f5fb]"
-          aria-label={open ? "운세 메뉴 접기" : "운세 메뉴 펼치기"}
-          aria-expanded={open}
-          aria-controls="fortune-sidebar"
+      <div
+        className={`mb-3 flex h-12 items-center ${open ? "px-1" : "justify-center"}`}
+      >
+        <div
+          className={`flex min-w-0 items-center ${open ? "flex-1" : "hidden"}`}
         >
-          <Menu className="h-7 w-7" aria-hidden="true" />
-        </button>
-        {open && (
+          <span className="grid h-11 w-11 shrink-0 place-items-center text-[#263149]">
+            <Menu className="h-7 w-7" aria-hidden="true" />
+          </span>
           <span
             className="ml-3 font-bold text-[#15213b]"
             style={{ fontSize: "25px", lineHeight: 1.4 }}
           >
             메뉴
           </span>
-        )}
+        </div>
+
+        <button
+          type="button"
+          onClick={onToggle}
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-[#dce4ef] bg-white text-[#40516d] shadow-[0_3px_10px_rgba(28,52,91,.06)] transition hover:border-[#b9cbee] hover:bg-[#f3f7ff] hover:text-[#1760ee]"
+          aria-label={open ? "운세 메뉴 접기" : "운세 메뉴 펼치기"}
+          aria-expanded={open}
+          aria-controls="fortune-sidebar"
+        >
+          {open ? (
+            <ChevronLeft className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <ChevronRight className="h-6 w-6" aria-hidden="true" />
+          )}
+        </button>
       </div>
 
       <nav className="space-y-1.5" aria-label="운세 서비스 메뉴">
@@ -340,6 +387,106 @@ function SidebarBody({
             </>
           );
 
+          if (menu.href === "/fortune/today") {
+            return (
+              <div key={menu.href}>
+                <div className="relative">
+                  <Link
+                    href={menu.href}
+                    onClick={(event) => {
+                      setTodayExpanded(true);
+                      setActiveTodayHash("today-map");
+                      if (todayActive) {
+                        event.preventDefault();
+                        window.history.replaceState(null, "", "/fortune/today");
+                        window.scrollTo({ top: 0, behavior: "smooth" });
+                      }
+                      onNavigate?.();
+                    }}
+                    aria-current={active ? "page" : undefined}
+                    title={!open ? menu.label : undefined}
+                    className={`${menuClassName} ${open ? "pr-12" : ""}`}
+                  >
+                    {menuContent}
+                  </Link>
+
+                  {open && (
+                    <button
+                      type="button"
+                      onClick={() => setTodayExpanded((value) => !value)}
+                      className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[#66738a] transition hover:bg-white/70 hover:text-[#1760ee]"
+                      aria-label={
+                        todayExpanded
+                          ? "오늘의 나침반 하위 메뉴 접기"
+                          : "오늘의 나침반 하위 메뉴 펼치기"
+                      }
+                      aria-expanded={todayExpanded}
+                    >
+                      <ChevronDown
+                        className={`h-5 w-5 transition-transform ${todayExpanded ? "rotate-180" : ""}`}
+                        aria-hidden="true"
+                      />
+                    </button>
+                  )}
+                </div>
+
+                {open && todayExpanded && (
+                  <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
+                    {TODAY_SUBMENUS.map((item) => {
+                      if ("disabled" in item && item.disabled) {
+                        return (
+                          <button key={item.hash} type="button" disabled aria-disabled="true"
+                            className="block min-h-12 w-full cursor-not-allowed rounded-[10px] px-4 py-3 text-left font-semibold text-[#9ca8b9]"
+                            style={{ fontSize: "21px", lineHeight: 1.5 }}>
+                            {item.label}<span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[13px]">준비 중</span>
+                          </button>
+                        );
+                      }
+
+                      const selected =
+                        todayActive && activeTodayHash === item.hash;
+                      return (
+                        <Link
+                          key={item.hash}
+                          href={`/fortune/today#${item.hash}`}
+                          onClick={(event) => {
+                            setActiveTodayHash(item.hash);
+                            if (todayActive) {
+                              event.preventDefault();
+                              window.history.replaceState(
+                                null,
+                                "",
+                                `/fortune/today#${item.hash}`,
+                              );
+                              window.dispatchEvent(new Event("hashchange"));
+                              const isContentView = [
+                                "today-plan",
+                                "today-review",
+                                "today-report",
+                                "today-fortune",
+                              ].includes(item.hash);
+                              document
+                                .getElementById(isContentView ? "today-content-tabs" : item.hash)
+                                ?.scrollIntoView({
+                                  behavior: "smooth",
+                                  block: "start",
+                                });
+                            }
+                            onNavigate?.();
+                          }}
+                          className={`relative block min-h-12 rounded-[10px] px-4 py-3 font-semibold transition before:absolute before:-left-[25px] before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full ${selected ? "bg-[#f0f5ff] text-[#1760ee] before:bg-[#1760ee]" : "text-[#53627a] before:bg-[#cad8ed] hover:bg-[#f5f8ff] hover:text-[#1760ee] hover:before:bg-[#6c94df]"}`}
+                          style={{ fontSize: "21px", lineHeight: 1.5 }}
+                        >
+                          {item.label}
+                        </Link>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            );
+          }
+
           if (menu.href === "/fortune/saju") {
             return (
               <div key={menu.href}>
@@ -362,7 +509,11 @@ function SidebarBody({
                       type="button"
                       onClick={() => setSajuExpanded((value) => !value)}
                       className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[#66738a] transition hover:bg-white/70 hover:text-[#1760ee]"
-                      aria-label={sajuExpanded ? "사주총평 하위 메뉴 접기" : "사주총평 하위 메뉴 펼치기"}
+                      aria-label={
+                        sajuExpanded
+                          ? "사주총평 하위 메뉴 접기"
+                          : "사주총평 하위 메뉴 펼치기"
+                      }
                       aria-expanded={sajuExpanded}
                     >
                       <ChevronDown
