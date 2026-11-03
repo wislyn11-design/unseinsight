@@ -151,24 +151,103 @@ export default function ManseryeokPage() {
   const saju = enrichDaeunSinsal(entry.chart, entry.birthProfile.gender);
 
   return (
-    <div className="min-h-[calc(100vh-74px)] w-full bg-white">
-    <main className="mx-auto w-full max-w-[1180px] bg-white px-5 pb-24 pt-10 sm:px-8 lg:px-10 lg:pt-14">
-      <section className="pb-8 sm:pb-10">
-        <div className="flex flex-col gap-7 lg:flex-row lg:items-end lg:justify-between">
+    <div className="manseryeok-mobile-root min-h-[calc(100vh-74px)] w-full min-w-0 max-w-full bg-white">
+    <style jsx global>{`
+      /* Keep shared chart components unchanged; compact only this page on phones. */
+      @media (max-width: 639px) {
+        .manseryeok-mobile-root .saju-mobile-original,
+        .manseryeok-mobile-root .saju-mobile-transit {
+          min-width: 0;
+          max-width: 100%;
+        }
+        .manseryeok-mobile-root .saju-mobile-original > div,
+        .manseryeok-mobile-root .saju-mobile-original > div > div:first-child {
+          min-width: 0 !important;
+          width: 100% !important;
+          max-width: 100%;
+        }
+        .manseryeok-mobile-root .saju-mobile-original [style*="grid-template-columns"] {
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original [style*="grid-template-columns"] > div {
+          min-width: 0;
+          overflow-wrap: anywhere;
+        }
+        .manseryeok-mobile-root .saju-mobile-original [style*="font-size"] {
+          font-size: 13px !important;
+          line-height: 1.5 !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original > div > div:first-child > div > div {
+          padding: 7px 2px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original [style*="width: 84"],
+        .manseryeok-mobile-root .saju-mobile-original [style*="width:84"] {
+          width: 48px !important;
+          max-width: 100% !important;
+          height: 48px !important;
+          font-size: 28px !important;
+          border-radius: 8px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original [style*="dashed"][style*="height"] {
+          font-size: 12px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original > div > div[style*="justify-content"] {
+          flex-wrap: wrap;
+          gap: 8px !important;
+          padding: 12px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-original button {
+          min-height: 44px;
+          flex-shrink: 0;
+          font-size: 12px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-transit > div {
+          min-width: 0;
+          max-width: 100%;
+          padding: 12px !important;
+          border-radius: 14px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-transit h2 {
+          font-size: 17px !important;
+          margin-bottom: 12px !important;
+          overflow-wrap: anywhere;
+        }
+        .manseryeok-mobile-root .saju-mobile-transit [style*="overflow-x"] {
+          max-width: 100%;
+          overflow-x: auto !important;
+          overscroll-behavior-x: contain;
+        }
+        .manseryeok-mobile-root .saju-mobile-transit [style*="min-width: 72"],
+        .manseryeok-mobile-root .saju-mobile-transit [style*="min-width:72"] {
+          min-width: 64px !important;
+          padding: 8px 4px !important;
+          font-size: 13px !important;
+        }
+        .manseryeok-mobile-root .saju-mobile-transit [style*="width: 54"],
+        .manseryeok-mobile-root .saju-mobile-transit [style*="width:54"] {
+          width: 40px !important;
+          height: 40px !important;
+          font-size: 24px !important;
+        }
+      }
+    `}</style>
+    <main className="mx-auto w-full min-w-0 max-w-[1180px] bg-white px-3 pb-16 pt-6 sm:px-8 sm:pb-24 sm:pt-10 lg:px-10 lg:pt-14">
+      <section className="pb-5 sm:pb-10">
+        <div className="flex flex-col gap-4 sm:gap-7 lg:flex-row lg:items-end lg:justify-between">
           <div className="min-w-0 lg:flex-1">
             <span className="text-[15px] font-extrabold tracking-[-.02em] text-[#2e63df] sm:text-[18px]">
               저장된 만세력
             </span>
-            <h1 className="mt-3 text-[34px] font-black tracking-[-.05em] text-[#102650] sm:text-[48px]">
+            <h1 className="mt-2 break-words text-[26px] font-black leading-tight tracking-[-.05em] text-[#102650] sm:mt-3 sm:text-[48px]">
               {entry.birthProfile.profileName}님의 만세력
             </h1>
-            <p className="mt-4 text-[17px] font-semibold text-[#53637e] sm:text-[21px]">
+            <p className="mt-3 break-words text-[14px] font-semibold text-[#53637e] sm:mt-4 sm:text-[21px]">
               {formatBirthSummary(entry)}
             </p>
-            <p className="mt-6 max-w-3xl text-[16px] font-semibold leading-7 text-[#c96a2b] sm:text-[25px] sm:leading-8">
+            <p className="mt-4 max-w-3xl text-[14px] font-semibold leading-6 text-[#c96a2b] sm:mt-6 sm:text-[25px] sm:leading-8">
               정확한 사주는 정확한 만세력에서 시작됩니다.
             </p>
-            <p className="mt-2 max-w-3xl text-[14px] leading-6 text-[#66758d] sm:text-[20px] sm:leading-8">
+            <p className="mt-2 max-w-3xl text-[13px] leading-6 text-[#66758d] sm:text-[20px] sm:leading-8">
               운세인사이트는 한국천문연구원 천문 데이터를 기준으로 24절기 절입 시각까지 반영해 명식을 계산합니다. 출생 지역의 시차와 서머타임 시기까지 보정해, 한 시간 차이로 달라지는 사주도 놓치지 않습니다.
             </p>
           </div>
@@ -194,12 +273,13 @@ export default function ManseryeokPage() {
         </div>
       </section>
 
-      <section className="mx-auto mt-10 w-full max-w-[1040px] pb-5" aria-label="사주 원국">
+      <section className="saju-mobile-original mx-auto mt-4 w-full min-w-0 max-w-[1040px] pb-5 sm:mt-10" aria-label="사주 원국">
         <SajuTable saju={saju} form={form} />
       </section>
 
       <div className="mx-auto mt-5 flex w-full max-w-[1040px] flex-col gap-5">
-        <section className="w-full overflow-hidden" aria-label="대운">
+        <p className="text-[12px] leading-5 text-[#66758d] sm:hidden">대운·세운·월운 표는 좌우로 밀어서 확인하세요.</p>
+        <section className="saju-mobile-transit w-full min-w-0" aria-label="대운">
           <Daeun
             daeun={saju.daeun}
             dayGan={saju.day.gan}
@@ -209,10 +289,10 @@ export default function ManseryeokPage() {
 
        
 
-        <section className="w-full overflow-hidden" aria-label="세운">
+        <section className="saju-mobile-transit w-full min-w-0" aria-label="세운">
           <SeunSinsalView saju={saju} birthYear={Number(form.year)} />
         </section>
-        <section className="w-full overflow-hidden" aria-label="월운">
+        <section className="saju-mobile-transit w-full min-w-0" aria-label="월운">
           <WolunSinsalView saju={saju}  />
  
         </section>
