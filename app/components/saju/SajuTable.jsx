@@ -184,7 +184,7 @@ export default function SajuTable({ saju, form }) {
   });
 
   return (
-    <div style={{ 
+    <div className="saju-original-table" style={{ 
       background: '#fff',
       borderRadius: 20, 
       padding: '0',
@@ -195,7 +195,7 @@ export default function SajuTable({ saju, form }) {
       overflowX: 'auto'
       }}>
       {/* ... (상단 정보창 영역) ... */}
-      <div style={{ 
+      <div className="saju-original-table__pillars" style={{ 
         border: '0', 
         borderRadius: 20, 
         overflow: 'hidden', 
@@ -254,7 +254,7 @@ export default function SajuTable({ saju, form }) {
 
 
       {/* 3. 신살 제목 및 [전체보기] 토글 버튼 UI (범례 추가) */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '15px 18px', background: '#f1f5fd', borderTop: '1px solid #dfe7f3' }}>
+      <div className="saju-original-table__sinsal-heading" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, padding: '15px 18px', background: '#f1f5fd', borderTop: '1px solid #dfe7f3' }}>
         <div>
           <span style={{ fontWeight: 800, color: '#243957', fontSize: 21 }}>신살(神殺)</span>
           <span style={{ fontSize: 15, color: '#7a879c', marginLeft: 10 }}>(파랑: 길신, 빨강: 흉살)</span>
@@ -311,6 +311,65 @@ export default function SajuTable({ saju, form }) {
       {/* ======================================================= */}
 
 
+      <style>{`
+        @media (max-width: 639px) {
+          .saju-original-table {
+            min-width: 0;
+            max-width: 100%;
+            border-radius: 14px !important;
+          }
+          .saju-original-table .saju-original-table__pillars {
+            min-width: 0 !important;
+            width: 100% !important;
+            border-radius: 14px !important;
+          }
+          .saju-original-table [style*="grid-template-columns"] {
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+          }
+          .saju-original-table [style*="grid-template-columns"] > div {
+            min-width: 0;
+            overflow-wrap: anywhere;
+          }
+          .saju-original-table [style*="font-size"] {
+            font-size: 13px !important;
+            line-height: 1.5 !important;
+          }
+          .saju-original-table__pillars > div > div {
+            padding: 7px 2px !important;
+          }
+          .saju-original-table [style*="width: 84"],
+          .saju-original-table [style*="width:84"] {
+            box-sizing: border-box;
+            width: 46px !important;
+            max-width: 100% !important;
+            height: 46px !important;
+            font-size: 28px !important;
+            border-radius: 8px !important;
+          }
+          .saju-original-table [style*="dashed"][style*="height"] {
+            font-size: 12px !important;
+          }
+          .saju-original-table .saju-original-table__sinsal-heading {
+            flex-wrap: wrap;
+            gap: 8px !important;
+            padding: 12px !important;
+          }
+          .saju-original-table__sinsal-heading > div {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 4px 8px;
+          }
+          .saju-original-table__sinsal-heading span {
+            margin-left: 0 !important;
+          }
+          .saju-original-table button {
+            min-height: 44px;
+            flex-shrink: 0;
+            font-size: 12px !important;
+          }
+        }
+      `}</style>
     </div>
   );
 }

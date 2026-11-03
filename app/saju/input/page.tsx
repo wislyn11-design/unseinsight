@@ -103,7 +103,7 @@ export default function Page() {
   }, [])
 
   return (
-    <main className="min-h-screen bg-background text-foreground">
+    <main className="min-h-screen w-full min-w-0 max-w-full bg-background text-foreground">
       <SiteHeader
         onUserChange={handleUserChange}
       />

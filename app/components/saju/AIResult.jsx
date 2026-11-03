@@ -3,14 +3,24 @@ import React, { useState, useEffect, useRef } from 'react';
 
 
 // 💡 마지막 괄호 닫기 전에 onRequireLogin을 꼭 추가해 주세요!
-  export default function AIResult({ saju, interpretation, loading, error, onRequest, onRequireLogin }) {
-  const [isOpen, setIsOpen] = useState(false); 
+  export default function AIResult({ saju, interpretation, loading, error, onRequest, onRequireLogin, autoStart = false, isActive = true }) {
+  const [isOpen, setIsOpen] = useState(autoStart); 
+  const autoStartedRef = useRef(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [chatCount, setChatCount] = useState(0);
   const MAX_FREE_CHAT = 3; 
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    if (!autoStart) return;
+    setIsOpen(true);
+    if (!autoStartedRef.current && !interpretation && !loading && !error) {
+      autoStartedRef.current = true;
+      onRequest();
+    }
+  }, [autoStart, interpretation, loading, error, onRequest]);
 
   // 💡 [선생님 아이디어 반영] 현재 사용자가 어디까지 보았는지 단계를 관리하는 상태 (1~4단계)
   const [activeStep, setActiveStep] = useState(1);
@@ -59,8 +69,9 @@ useEffect(() => {
   }, [interpretation]);
 
   useEffect(() => {
+    if (!isActive || (autoStart && messages.length <= 1)) return;
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, activeStep]); // 💡 해결: 메시지 '개수(length)'가 늘어날 때나 '다음 단계'를 누를 때만 스크롤 실행!
+  }, [messages.length, activeStep, autoStart, isActive]); // 💡 해결: 메시지 '개수(length)'가 늘어날 때나 '다음 단계'를 누를 때만 스크롤 실행!
 
 
   const handleStart = () => {
@@ -189,35 +200,82 @@ const formatText = (text) => {
            onClick={handleStart}
            style={{ width: '100%', padding: '16px', background: '#3a5bbf', color: '#fff', borderRadius: 12, border: 'none', fontSize: 16, fontWeight: 'bold', cursor: 'pointer', boxShadow: '0 4px 6px rgba(58, 91, 191, 0.3)' }}
          >
-           ✨운세 풀이 상담 (무료)
+           ✨운세 풀이 상담 
          </button>
        </div>
      )
   }
 
+  // Replace only the legacy opening self-introduction in the displayed free reading.
+  const stripLegacyIntroduction = (text) => {
+    if (!autoStart || !/^\s*(?:#{1,3}\s*)?안녕하세요/.test(text)) return text;
+    const paragraphs = text.split(/\r?\n[ \t]*\r?\n/);
+    if (!/(?:30년|명리학[^\n]*대가|심리\s*상담사)/.test(paragraphs[0])) return text;
+    return paragraphs.slice(1).join('\n\n').replace(/^\s*---[ \t]*(?:\r?\n|$)/, '').trimStart();
+  };
+
   // 첫 번째 AI 총평 메시지 파싱
   const aiFirstResponse = messages.find(m => m.type === 'ai')?.text || '';
-  const parsedSteps = parseSections(aiFirstResponse);
+  const parsedSteps = parseSections(stripLegacyIntroduction(aiFirstResponse));
 // 💡 대략 70번째 줄 부근입니다. width와 height를 100%로 변경해 주세요!
 
 return (
   // 💡 전체 화면을 덮는 방식(fixed)을 빼고, 만세력 아래에 100% 너비로 자연스럽게 이어붙도록 변경했습니다.
-  <div style={{ width: '100%', height: '800px', background: '#f5f7ff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+  <div className={autoStart ? 'free-reading-panel' : undefined} style={{ width: '100%', minWidth: 0, height: autoStart ? 'auto' : '800px', background: '#f5f7ff', borderRadius: '16px', display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
       
   
+      <style>{`
+        .free-reading-panel { min-width: 0; }
+        .free-reading-panel .reading-intro { margin: 22px 22px 4px; padding: 22px; background: #fff; border: 1px solid #dbe5f6; border-radius: 14px; }
+        .free-reading-panel .reading-intro h2 { margin: 0 0 12px; color: #19345d; font-size: 24px; line-height: 1.5; font-weight: 800; word-break: keep-all; }
+        .free-reading-panel .reading-intro p { margin: 0; color: #455570; font-size: 18px; line-height: 1.85; word-break: keep-all; }
+        .free-reading-panel .reading-content { font-size: 25px !important; line-height: 1.8 !important; overflow-wrap: anywhere; }
+        .free-reading-panel .reading-title { font-size: 22px !important; line-height: 1.6; }
+        .free-reading-panel .reading-message { font-size: 20px !important; }
+        .free-reading-panel .reading-result-card { padding: 24px !important; }
+        .free-reading-panel .reading-header { font-size: 18px !important; }
+        .free-reading-panel .reading-count { font-size: 14px !important; }
+        .free-reading-panel .reading-compose { flex-wrap: wrap; }
+        .free-reading-panel .reading-compose input { min-width: 160px; }
+        @media (max-width: 639px) {
+          .free-reading-panel .reading-content, .free-reading-panel .reading-message { font-size: 17px !important; }
+          .free-reading-panel .reading-title { font-size: 20px !important; }
+          .free-reading-panel .reading-intro { margin: 12px 10px 0; padding: 16px !important; }
+          .free-reading-panel .reading-intro h2 { font-size: 20px; }
+          .free-reading-panel .reading-intro p { font-size: 15px; }
+          .free-reading-panel .reading-result-card { padding: 16px !important; }
+          .free-reading-panel .reading-header { font-size: 16px !important; }
+          .free-reading-panel .reading-count { font-size: 12px !important; }
+        }
+        .free-reading-panel > div:first-of-type { flex-wrap: wrap; gap: 10px; }
+        .free-reading-panel input { min-width: 0; }
+        @media (max-width: 639px) {
+          .free-reading-panel > div { padding-left: 12px !important; padding-right: 12px !important; }
+          .free-reading-panel input { padding: 12px 10px !important; }
+          .free-reading-panel button { min-height: 44px; }
+          .free-reading-panel input + button { padding: 0 14px !important; }
+        }
+      `}</style>
       {/* 상단 헤더 */}
       <div style={{ background: '#3a5bbf', color: '#fff', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
-        <span style={{ fontWeight: 'bold', fontSize: 16 }}> 사주풀이 상담사</span>
+        <span className="reading-header" style={{ fontWeight: 'bold', fontSize: 16 }}> 무료 사주풀이 · 질문 3회</span>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <span style={{ fontSize: 12, background: chatCount >= MAX_FREE_CHAT ? '#e74c3c' : 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12 }}>
+          <span className="reading-count" style={{ fontSize: 12, background: chatCount >= MAX_FREE_CHAT ? '#e74c3c' : 'rgba(255,255,255,0.2)', padding: '4px 10px', borderRadius: 12 }}>
             남은 질문: {MAX_FREE_CHAT - chatCount}회
           </span>
-          <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 24, cursor: 'pointer', lineHeight: 1 }}>✕</button>
+          {!autoStart && <button onClick={() => setIsOpen(false)} style={{ background: 'transparent', border: 'none', color: '#fff', fontSize: 24, cursor: 'pointer', lineHeight: 1 }}>✕</button>}
         </div>
       </div>
 
+      {autoStart && (
+        <section className="reading-intro" aria-label="운세인사이트 풀이 안내">
+          <h2>정확한 사주는 정확한 만세력에서 시작됩니다.</h2>
+          <p>절입 시각, 출생지 시차, 서머타임 중 하나만 빠져도 사주가 달라질 수 있습니다. 운세인사이트는 한국천문연구원 천문 데이터를 기준으로 이 모두를 반영해 명식을 계산하고, 그 원국에서 풀이를 시작합니다. 궁금한 점은 무료로 3번까지 물어보세요.</p>
+        </section>
+      )}
+
       {/* 중앙 콘텐츠 영역 */}
-      <div style={{ flex: 1, padding: '10px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>  
+      <div style={{ flex: 1, padding: '10px', overflowY: autoStart ? 'visible' : 'auto', display: 'flex', flexDirection: 'column', gap: '16px' }}>  
         
       {/* 💡 기존의 단순했던 로딩 화면을 프리미엄 카운트다운 화면으로 교체! */}
         {loading && (
@@ -247,6 +305,7 @@ return (
         {!loading && error && (
           <div style={{ background: '#fee2e2', color: '#dc2626', padding: '20px', borderRadius: '16px', textAlign: 'center' }}>
             <strong>운세 데이터를 가져오는 중 오류가 발생했습니다.</strong>
+            <button type="button" onClick={onRequest} style={{ display: 'block', margin: '12px auto 0', padding: '12px 16px', borderRadius: 8 }}>다시 불러오기</button>
           </div>
         )}
 
@@ -256,14 +315,14 @@ return (
             <div style={{ fontSize: 28, textAlign: 'center' }}>🧙‍♂️</div>
             
             {parsedSteps.map((step, index) => (
-              <div key={index} style={{ background: '#fff', padding: '16px 12px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
+              <div key={index} className="reading-result-card" style={{ background: '#fff', padding: '16px 12px', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 12px rgba(0,0,0,0.03)' }}>
 
 
-                <h3 style={{ margin: '0 0 12px', color: '#3a5bbf', fontSize: 17, fontWeight: 'bold', borderBottom: '2px solid #f0f2ff', paddingBottom: '8px' }}>
+                <h3 className="reading-title" style={{ margin: '0 0 12px', color: '#3a5bbf', fontSize: 17, fontWeight: 'bold', borderBottom: '2px solid #f0f2ff', paddingBottom: '8px' }}>
                   {step.title}
                 </h3>
                 
-                <div style={{ fontSize: 20, lineHeight: '1.8', color: '#333' }}>
+                <div className="reading-content" style={{ fontSize: autoStart ? 16 : 20, lineHeight: '1.8', color: '#333' }}>
                   {formatText(step.content)}
                 </div>
 
@@ -278,7 +337,7 @@ return (
         {!loading && messages.slice(1).map((msg, idx) => (
           <div key={idx} style={{ display: 'flex', flexDirection: msg.type === 'user' ? 'row-reverse' : 'row', gap: '10px' }}>
             {msg.type === 'ai' && <div style={{ fontSize: 28 }}>🧙‍♂️</div>}
-            <div style={{ maxWidth: '80%', padding: '14px 18px', fontSize: 15, lineHeight: '1.6', whiteSpace: 'pre-wrap', background: msg.type === 'user' ? '#3a5bbf' : '#fff', color: msg.type === 'user' ? '#fff' : '#333', border: msg.type === 'ai' ? '1px solid #e0e0e0' : 'none', borderRadius: '20px', borderTopRightRadius: msg.type === 'user' ? 4 : 20, borderTopLeftRadius: msg.type === 'ai' ? 4 : 20, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
+            <div className="reading-message" style={{ maxWidth: '80%', padding: '14px 18px', fontSize: 15, lineHeight: '1.6', whiteSpace: 'pre-wrap', background: msg.type === 'user' ? '#3a5bbf' : '#fff', color: msg.type === 'user' ? '#fff' : '#333', border: msg.type === 'ai' ? '1px solid #e0e0e0' : 'none', borderRadius: '20px', borderTopRightRadius: msg.type === 'user' ? 4 : 20, borderTopLeftRadius: msg.type === 'ai' ? 4 : 20, boxShadow: '0 2px 6px rgba(0,0,0,0.04)' }}>
               {/* 💡 해결: AI가 답변한 내용일 때만 formatText 마법을 걸어 진한 글씨로 바꿔줍니다! */}
               {msg.type === 'ai' ? formatText(msg.text) : msg.text}
             </div>
@@ -314,11 +373,11 @@ return (
 
 
         ) : (
-          <div style={{ background: '#fff', padding: '16px 20px', display: 'flex', gap: '10px', borderTop: '1px solid #e0e0e0', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
+          <div className="reading-compose" style={{ background: '#fff', padding: '16px 20px', display: 'flex', gap: '10px', borderTop: '1px solid #e0e0e0', paddingBottom: 'max(16px, env(safe-area-inset-bottom))' }}>
             <input 
               type="text" value={input} onChange={e => setInput(e.target.value)} onKeyPress={e => e.key === 'Enter' && handleSend()}
               placeholder="궁금한 점을 물어보세요! (예: 올해 이직운은?)" spellCheck={false} autoComplete="off"
-              style={{ flex: 1, padding: '14px 16px', borderRadius: 12, border: '1px solid #ddd', fontSize: 15, outline: 'none', background: '#f9f9f9' }} disabled={isChatLoading}
+              style={{ flex: 1, minWidth: 0, padding: '14px 16px', borderRadius: 12, border: '1px solid #ddd', fontSize: 16, outline: 'none', background: '#f9f9f9' }} disabled={isChatLoading}
             />
             <button 
               onClick={handleSend} disabled={isChatLoading || !input.trim()}
