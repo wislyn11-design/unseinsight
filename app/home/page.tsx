@@ -176,7 +176,7 @@ const services: ServiceItem[] = [
   { title:"2026 토정비결", description:"다가오는 한 해의 흐름을\n미리 준비하세요", href:"/fortune/tojeong", icon:<DocumentIcon/>, color:"text-[#2873df]" },
 ];
 export default function HomePage() {
-  return <div className="min-h-screen bg-white text-[#071536]">
+  return <div className="min-h-screen bg-white pb-[calc(80px+env(safe-area-inset-bottom))] text-[#071536] lg:pb-0">
     <SiteHeader onUserChange={() => {}} />
 
     <main>
@@ -184,33 +184,33 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_67%_40%,rgba(204,222,255,.7),transparent_36%),radial-gradient(circle_at_95%_5%,rgba(227,215,255,.65),transparent_32%)]"/>
         <div className="absolute -bottom-40 left-[26%] h-[390px] w-[390px] rounded-full bg-[#e9efff]/80"/>
         <div className="absolute -bottom-28 right-[-4%] h-[350px] w-[350px] rounded-full bg-[#e3ecff]/70"/>
-        <div className="relative mx-auto grid min-h-[520px] max-w-[1400px] items-center gap-12 px-6 py-12 lg:grid-cols-[1.04fr_.96fr] lg:px-10 lg:py-12">
+        <div className="relative mx-auto grid min-h-0 max-w-[1400px] lg:min-h-[520px] items-center gap-6 px-4 py-7 sm:gap-12 sm:px-6 sm:py-12 lg:grid-cols-[1.04fr_.96fr] lg:px-10 lg:py-12">
           <div className="lg:pl-4">
-            <h1 className="text-[42px] font-extrabold leading-[1.34] tracking-[-.055em] text-[#07183e] sm:text-[54px]">내 삶의 흐름을<br/>이해하는 가장 쉬운 방법</h1>
-            <p className="mt-7 text-[18px] font-medium text-[#536078] sm:text-[20px]">복잡한 사주를 쉽고 따뜻하게 풀어드려요</p>
-            <Link href="/saju/input" className="mt-11 inline-flex h-[70px] items-center gap-5 rounded-[15px] bg-[#2862e3] px-10 text-[21px] font-bold text-white shadow-[0_11px_22px_rgba(38,98,227,.25)] transition hover:-translate-y-0.5 hover:bg-[#2158d5]">무료로 사주 보기<ArrowRightIcon className="h-6 w-6"/></Link>
-            <p className="mt-5 flex items-center gap-3 text-[16px] font-medium text-[#58657d]"><ShieldIcon className="h-7 w-7 text-[#2264e9]"/>가입 없이 바로 확인</p>
+            <h1 className="text-[28px] font-extrabold leading-[1.34] min-[380px]:text-[30px] sm:text-[54px] tracking-[-.055em] text-[#07183e]">내 삶의 흐름을<br/>이해하는 가장 쉬운 방법</h1>
+            <p className="mt-3 text-[14px] leading-relaxed sm:mt-7 font-medium text-[#536078] sm:text-[20px]">복잡한 사주를 쉽고 따뜻하게 풀어드려요</p>
+            <Link href="/saju/input" className="mt-5 inline-flex min-h-[48px] items-center gap-3 rounded-xl bg-[#2862e3] px-5 py-3 text-[16px] sm:mt-11 sm:h-[70px] sm:gap-5 sm:rounded-[15px] sm:px-10 sm:text-[21px] font-bold text-white shadow-[0_11px_22px_rgba(38,98,227,.25)] transition hover:-translate-y-0.5 hover:bg-[#2158d5]">무료로 사주 보기<ArrowRightIcon className="h-6 w-6"/></Link>
+            <p className="mt-3 flex items-center gap-2 text-[12px] sm:mt-5 sm:gap-3 sm:text-[16px] font-medium text-[#58657d]"><ShieldIcon className="h-4 w-4 text-[#2264e9] sm:h-7 sm:w-7"/>가입 없이 바로 확인</p>
           </div>
-          <HeroIllustration/>
+          <div className="hidden lg:block"><HeroIllustration/></div>
         </div>
       </section>
 
-      <section id="services" className="bg-white px-6 py-8 lg:px-10">
+      <section id="services" className="bg-white px-4 py-6 sm:px-6 sm:py-8 lg:px-10">
         <div className="mx-auto max-w-[1400px]">
-          <h2 className="text-[27px] font-extrabold tracking-[-.035em]">가장 많이 찾는 운세</h2>
-          <div className="mt-5 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <h2 className="text-[20px] font-extrabold tracking-[-.035em] sm:text-[27px]">가장 많이 찾는 운세</h2>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:mt-5 sm:gap-5 lg:grid-cols-4">
             {services.map((service) => {
-              const cardClassName = `group relative flex min-h-[248px] flex-col items-center justify-center rounded-[14px] border bg-white px-4 py-6 text-center transition ${service.comingSoon ? "cursor-not-allowed border-[#d8e0ed] bg-[#fbfcfe]" : service.badge ? "border-[#2862e3] shadow-[0_8px_23px_rgba(47,91,193,.09)] hover:-translate-y-1 hover:shadow-lg" : "border-[#d8e0ed] hover:-translate-y-1 hover:shadow-lg"}`;
+              const cardClassName = `group relative flex min-h-[172px] min-w-0 flex-col items-center justify-center rounded-[14px] border bg-white px-2 py-5 sm:min-h-[248px] sm:px-4 sm:py-6 text-center transition ${service.comingSoon ? "cursor-not-allowed border-[#d8e0ed] bg-[#fbfcfe]" : service.badge ? "border-[#2862e3] shadow-[0_8px_23px_rgba(47,91,193,.09)] hover:-translate-y-1 hover:shadow-lg" : "border-[#d8e0ed] hover:-translate-y-1 hover:shadow-lg"}`;
               const cardContent = (
                 <>
                   {service.badge && (
-                    <span className={`absolute right-3 top-3 rounded px-2.5 py-1 text-xs font-bold ${service.comingSoon ? "bg-[#eef1f6] text-[#778295]" : "bg-[#2862e3] text-white"}`}>
+                    <span className={`absolute right-2 top-2 rounded px-1.5 py-0.5 text-[10px] sm:right-3 sm:top-3 sm:px-2.5 sm:py-1 sm:text-xs font-bold ${service.comingSoon ? "bg-[#eef1f6] text-[#778295]" : "bg-[#2862e3] text-white"}`}>
                       {service.badge}
                     </span>
                   )}
-                  <span className={service.comingSoon ? "text-[#9aa8bc]" : service.color}>{service.icon}</span>
-                  <h3 className={`mt-5 text-[21px] font-extrabold tracking-[-.035em] ${service.comingSoon ? "text-[#667085]" : ""}`}>{service.title}</h3>
-                  <p className="mt-3 whitespace-pre-line text-[14px] leading-6 text-[#536078]">{service.description}</p>
+                  <span className={`[&>svg]:h-8 [&>svg]:w-8 sm:[&>svg]:h-12 sm:[&>svg]:w-12 ${service.comingSoon ? "text-[#9aa8bc]" : service.color}`}>{service.icon}</span>
+                  <h3 className={`mt-3 text-[16px] font-extrabold sm:mt-5 sm:text-[21px] tracking-[-.035em] ${service.comingSoon ? "text-[#667085]" : ""}`}>{service.title}</h3>
+                  <p className="mt-2 whitespace-pre-line break-keep text-[12px] leading-5 sm:mt-3 sm:text-[14px] sm:leading-6 text-[#536078]">{service.description}</p>
                 </>
               );
 
@@ -232,5 +232,34 @@ export default function HomePage() {
         </div>
       </section>
     </main>
+    <footer className="border-t border-[#e5e9f2] bg-[#f7f8fb] px-4 py-7 sm:px-6 lg:px-10" aria-label="회사 정보">
+      <div className="mx-auto max-w-[1400px]">
+        <p className="text-[14px] font-bold text-[#344054]">(주)운세인사이트</p>
+        <dl className="mt-3 grid gap-y-1 text-[12px] leading-6 text-[#667085] sm:grid-cols-2 sm:gap-x-8 lg:grid-cols-3">
+          <div className="flex gap-2"><dt>대표이사:</dt><dd /></div>
+          <div className="flex gap-2"><dt>주소:</dt><dd /></div>
+          <div className="flex gap-2"><dt>사업자등록증:</dt><dd /></div>
+          <div className="flex gap-2"><dt>통신판매업신고:</dt><dd /></div>
+          <div className="flex gap-2"><dt>대표전화:</dt><dd /></div>
+          <div className="flex gap-2"><dt>이메일:</dt><dd /></div>
+        </dl>
+      </div>
+    </footer>
+    <nav aria-label="모바일 하단 메뉴" className="fixed inset-x-0 bottom-0 z-30 border-t border-[#e5e9f2] bg-white pb-[env(safe-area-inset-bottom)] lg:hidden">
+      <div className="mx-auto grid max-w-[640px] grid-cols-3 px-2 py-2">
+        <Link href="/fortune/oracle" className="flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[12px] font-medium text-[#344054] hover:bg-[#f3f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">
+          <ClipboardIcon className="h-6 w-6 text-[#526ff2]" />
+          고민 점괘
+        </Link>
+        <Link href="/fortune/wish-box" className="flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[12px] font-medium text-[#344054] hover:bg-[#f3f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">
+          <HeartIcon className="h-6 w-6 text-[#526ff2]" />
+          소원함
+        </Link>
+        <Link href="/fortune/manseryeok" className="flex min-h-[56px] flex-col items-center justify-center gap-1 rounded-lg text-[12px] font-medium text-[#344054] hover:bg-[#f3f6ff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">
+          <CalendarIcon className="h-6 w-6 text-[#526ff2]" />
+          만세력
+        </Link>
+      </div>
+    </nav>
   </div>;
 }
