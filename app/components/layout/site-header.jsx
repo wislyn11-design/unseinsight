@@ -4,7 +4,7 @@ import Link from "next/link"
 import { useCallback, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import LoginButton from "@/app/components/common/LoginButton"
-import { clearActiveSajuChart } from "@/app/lib/saju/chart-storage"
+import { clearActiveSajuChart, clearPendingFortunePath } from "@/app/lib/saju/chart-storage"
 
 const navigation = [
   { label: "고민 점괘", href: "/fortune/oracle" },
@@ -26,6 +26,11 @@ export function SiteHeader({ onUserChange }) {
     (nextUser) => {
       if (authResolvedRef.current && previousUserRef.current && !nextUser) {
         clearActiveSajuChart()
+        clearPendingFortunePath()
+        try {
+          sessionStorage.removeItem("unseinsight:free-reading-form:v1")
+          sessionStorage.removeItem("unseinsight:free-reading-chat:v1")
+        } catch { /* 저장소 접근 실패 무시 */ }
         if (pathname === "/fortune/oracle" || pathname.startsWith("/fortune/oracle/")) {
           router.replace("/home")
         }

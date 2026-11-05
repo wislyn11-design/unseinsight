@@ -29,14 +29,39 @@ export default function Page() {
   const previousUserRef = useRef<User | null>(null)
 
   useEffect(() => {
-    // OAuth 화면에서 돌아오거나 페이지가 다시 열려도 같은 탭의 입력을 복원합니다.
-    try {
-      const stored = sessionStorage.getItem(READING_FORM_KEY)
-      if (stored) {
-        const data = JSON.parse(stored)
-        if (data && typeof data === "object" && !Array.isArray(data)) setSajuResult(data)
+    const readSavedForm = () => {
+      try {
+        const value = JSON.parse(sessionStorage.getItem(READING_FORM_KEY) || "null")
+        return value && typeof value === "object" && !Array.isArray(value) ? value : null
+      } catch { return null }
+    }
+    const restoreStep = () => {
+      const state = window.history.state || {}
+      setLoginOpen(false)
+      setResumeError("")
+      clearPendingFortunePath()
+      if (state.unseSajuStep === "reading") {
+        setSajuResult(readSavedForm() ? state.unseSajuForm || readSavedForm() : null)
+      } else {
+        setSajuResult(null)
       }
-    } catch { /* 저장소를 사용할 수 없으면 현재 화면에서 계속 이용합니다. */ }
+    }
+
+    const state = window.history.state || {}
+    if (state.unseSajuStep === "reading") {
+      setSajuResult(readSavedForm() ? state.unseSajuForm || readSavedForm() : null)
+    } else if (state.unseSajuStep !== "input") {
+      // 메인에서 새로 들어온 방문은 저장된 풀이가 있어도 입력부터 시작합니다.
+      try {
+        sessionStorage.removeItem(READING_FORM_KEY)
+        sessionStorage.removeItem(READING_CHAT_KEY)
+      } catch { /* 저장소 접근 실패 무시 */ }
+      clearPendingFortunePath()
+      window.history.replaceState({ ...state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
+      setSajuResult(null)
+    }
+    window.addEventListener("popstate", restoreStep)
+    return () => window.removeEventListener("popstate", restoreStep)
   }, [])
 
   const handleSajuSubmit = (data: any) => {
@@ -44,6 +69,7 @@ export default function Page() {
       sessionStorage.removeItem(READING_CHAT_KEY)
       sessionStorage.setItem(READING_FORM_KEY, JSON.stringify(data))
     } catch { /* 저장소 접근 실패가 풀이 시작을 막지 않도록 합니다. */ }
+    window.history.pushState({ ...window.history.state, unseSajuStep: "reading", unseSajuForm: data }, "", window.location.href)
     setSajuResult(data)
   }
 
@@ -53,6 +79,7 @@ export default function Page() {
       sessionStorage.removeItem(READING_CHAT_KEY)
     } catch { /* 저장소 접근 실패 무시 */ }
     clearPendingFortunePath()
+    window.history.pushState({ ...window.history.state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
     setSajuResult(null)
   }
 
@@ -134,6 +161,7 @@ export default function Page() {
 
     // 최초 비회원 확인과 실제 로그아웃을 구분합니다.
     if (previousUserRef.current && !nextUser) {
+      window.history.replaceState({ ...window.history.state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
       setResumeError("")
       setSajuResult(null)
       clearPendingFortunePath()
