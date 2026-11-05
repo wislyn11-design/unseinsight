@@ -229,7 +229,7 @@ return (
         .free-reading-panel .reading-intro { margin: 22px 22px 4px; padding: 22px; background: #fff; border: 1px solid #dbe5f6; border-radius: 14px; }
         .free-reading-panel .reading-intro h2 { margin: 0 0 12px; color: #19345d; font-size: 24px; line-height: 1.5; font-weight: 800; word-break: keep-all; }
         .free-reading-panel .reading-intro p { margin: 0; color: #455570; font-size: 18px; line-height: 1.85; word-break: keep-all; }
-        .free-reading-panel .reading-content { font-size: 25px !important; line-height: 1.8 !important; overflow-wrap: anywhere; }
+        .free-reading-panel .reading-content { font-size: 20px !important; line-height: 1.8 !important; overflow-wrap: anywhere; }
         .free-reading-panel .reading-title { font-size: 22px !important; line-height: 1.6; }
         .free-reading-panel .reading-message { font-size: 20px !important; }
         .free-reading-panel .reading-result-card { padding: 24px !important; }
