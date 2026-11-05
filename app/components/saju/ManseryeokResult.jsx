@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -337,9 +336,7 @@ export function ManseryeokResult({
             <h2 className="text-[20px] font-bold text-[#152849]">오늘의 흐름도 알아볼까요?</h2>
             <p className="mt-3 text-[15px] leading-7 text-[#53617a]">질문을 모두 사용하지 않아도 다음 서비스를 둘러볼 수 있어요.</p>
             <div className="mt-4 flex flex-col gap-3">
-              <button type="button" disabled={chartSaving} onClick={() => handleGoHome("/fortune/today#today-fortune")} className="min-h-12 rounded-xl bg-[#2e63df] px-4 py-3 text-left text-[16px] font-bold text-white disabled:opacity-50">오늘의 운세 보기 →</button>
-              <button type="button" disabled={chartSaving} onClick={() => handleGoHome("/fortune/today#today-plan")} className="min-h-12 rounded-xl border border-[#e0e6f1] px-4 py-3 text-left text-[16px] font-bold text-[#152849] disabled:opacity-50">오늘 일정 점보기 →</button>
-              <Link href="/home" className="flex min-h-12 items-center rounded-xl border border-[#e0e6f1] px-4 py-3 text-[16px] font-bold text-[#152849]">전체 서비스 둘러보기 →</Link>
+              <button type="button" disabled={chartSaving} onClick={() => handleGoHome("/home")} className="min-h-12 rounded-xl bg-[#2e63df] px-4 py-3 text-left text-[16px] font-bold text-white disabled:opacity-50">전체 서비스 둘러보기 →</button>
             </div>
             {!currentUser && <p className="mt-4 text-[14px] leading-6 text-[#53617a]">무료 풀이는 로그인 없이 볼 수 있어요. 내 풀이 저장과 다음 운세 이용은 로그인 후 이어집니다.</p>}
             {chartSaving && <p role="status" className="mt-3 text-sm text-[#63718a]">만세력을 저장하고 있습니다.</p>}

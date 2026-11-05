@@ -16,6 +16,11 @@ import {
 
 const READING_FORM_KEY = "unseinsight:free-reading-form:v1"
 const READING_CHAT_KEY = "unseinsight:free-reading-chat:v1"
+const RETURN_HOME_KEY = "unseinsight:free-reading-return-home:v1"
+
+function isReturningToHome() {
+  try { return sessionStorage.getItem(RETURN_HOME_KEY) === "1" } catch { return false }
+}
 
 export default function Page() {
   const [loginOpen, setLoginOpen] = useState(false)
@@ -40,6 +45,7 @@ export default function Page() {
       setLoginOpen(false)
       setResumeError("")
       clearPendingFortunePath()
+      try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
       if (state.unseSajuStep === "reading") {
         setSajuResult(readSavedForm() ? state.unseSajuForm || readSavedForm() : null)
       } else {
@@ -50,6 +56,11 @@ export default function Page() {
     const state = window.history.state || {}
     if (state.unseSajuStep === "reading") {
       setSajuResult(readSavedForm() ? state.unseSajuForm || readSavedForm() : null)
+    } else if (new URLSearchParams(window.location.search).get("resume") === "home" && isReturningToHome()) {
+      // 로그인 복귀에서만 저장된 입력을 복원하며 새 입력으로 초기화하지 않습니다.
+      const data = readSavedForm()
+      setSajuResult(data)
+      window.history.replaceState({ ...state, unseSajuStep: data ? "reading" : "input", unseSajuForm: data }, "", window.location.href)
     } else if (state.unseSajuStep !== "input") {
       // 메인에서 새로 들어온 방문은 저장된 풀이가 있어도 입력부터 시작합니다.
       try {
@@ -57,6 +68,7 @@ export default function Page() {
         sessionStorage.removeItem(READING_CHAT_KEY)
       } catch { /* 저장소 접근 실패 무시 */ }
       clearPendingFortunePath()
+      try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
       window.history.replaceState({ ...state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
       setSajuResult(null)
     }
@@ -79,12 +91,22 @@ export default function Page() {
       sessionStorage.removeItem(READING_CHAT_KEY)
     } catch { /* 저장소 접근 실패 무시 */ }
     clearPendingFortunePath()
+    try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
     window.history.pushState({ ...window.history.state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
     setSajuResult(null)
   }
 
+  const handleOpenLogin = useCallback(() => {
+    // 무료풀이에서 로그인하면 기존 계산 결과를 저장한 뒤 메인으로 이동합니다.
+    if (sajuResult) {
+      try { sessionStorage.setItem(RETURN_HOME_KEY, "1") } catch { /* 저장소 접근 실패 무시 */ }
+    }
+    setLoginOpen(true)
+  }, [sajuResult])
+
   const handleCloseLogin = useCallback(() => {
     clearPendingFortunePath()
+    try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
     setLoginOpen(false)
   }, [])
 
@@ -103,7 +125,8 @@ export default function Page() {
   useEffect(() => {
     if (!currentUser) return
 
-    const pendingPath = readPendingFortunePath()
+    const returnHome = isReturningToHome()
+    const pendingPath = returnHome ? "/home" : readPendingFortunePath()
     if (!pendingPath) {
       setIsResuming(false)
       return
@@ -112,6 +135,7 @@ export default function Page() {
     const activeSaju = readActiveSajuChart()
     if (!activeSaju) {
       setIsResuming(false)
+      if (returnHome) setResumeError("사주 저장 정보를 확인하지 못했습니다. 다시 시도해 주세요.")
       return
     }
 
@@ -134,6 +158,7 @@ export default function Page() {
         }
 
         clearPendingFortunePath()
+        try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
         window.location.replace(pendingPath)
       } catch (error) {
         loginResumeKeyRef.current = ""
@@ -155,7 +180,7 @@ export default function Page() {
     setAuthReady(true)
 
     const shouldResume = Boolean(
-      nextUser && readPendingFortunePath() && readActiveSajuChart(),
+      nextUser && (isReturningToHome() || readPendingFortunePath()) && readActiveSajuChart(),
     )
     setIsResuming(shouldResume)
 
@@ -165,6 +190,7 @@ export default function Page() {
       setResumeError("")
       setSajuResult(null)
       clearPendingFortunePath()
+      try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
       try {
         sessionStorage.removeItem(READING_FORM_KEY)
         sessionStorage.removeItem(READING_CHAT_KEY)
@@ -187,7 +213,7 @@ export default function Page() {
           {currentUser ? (
             <a href="/home" className="inline-flex min-h-11 items-center rounded-full border border-[#dbe5f5] bg-white px-5 text-sm font-semibold text-[#245bc3] hover:bg-[#f1f5ff]">메인으로 이동 →</a>
           ) : (
-            <button type="button" onClick={() => setLoginOpen(true)} className="inline-flex min-h-11 items-center rounded-full bg-[#edf3ff] px-5 text-sm font-bold text-[#245bc3] transition hover:bg-[#dfeaff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">간편 로그인창 열기 →</button>
+            <button type="button" onClick={handleOpenLogin} className="inline-flex min-h-11 items-center rounded-full bg-[#edf3ff] px-5 text-sm font-bold text-[#245bc3] transition hover:bg-[#dfeaff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">간편 로그인창 열기 →</button>
           )}
         </div>
       )}
@@ -230,9 +256,9 @@ export default function Page() {
           currentUser={currentUser as any}
           nextPath={nextPath}
           onReset={handleReset}
-          onRequireLogin={() => setLoginOpen(true)}
+          onRequireLogin={handleOpenLogin}
         />
-        {!currentUser && <SocialLoginCta onLogin={() => setLoginOpen(true)} showButton={false} />}
+        {!currentUser && <SocialLoginCta onLogin={handleOpenLogin} showButton={false} />}
         </>
       ) : (
         <>
@@ -240,11 +266,11 @@ export default function Page() {
             currentUser={currentUser}
             onSajuSubmit={handleSajuSubmit}
           />
-          {!currentUser && <SocialLoginCta onLogin={() => setLoginOpen(true)} showButton={false} />}
+          {!currentUser && <SocialLoginCta onLogin={handleOpenLogin} showButton={false} />}
         </>
       )}
       {/* @ts-ignore */}
-      <LoginModal open={loginOpen} onClose={handleCloseLogin} />
+      <LoginModal open={loginOpen} onClose={handleCloseLogin} nextPath={sajuResult ? "/saju/input?resume=home" : undefined} />
     </main>
   )
 }
