@@ -1277,10 +1277,12 @@ export default function TodayFortunePage() {
 
             <nav
               id="today-content-tabs"
-              className="scroll-mt-24 mb-8 overflow-x-auto border-y border-[#dce3ee] bg-white"
+              className="scroll-mt-24 mb-8 rounded-2xl border border-[#e0e7f3] bg-[#f4f7fc] p-2 sm:p-2.5"
               aria-label="오늘의 나침반 세부 메뉴"
             >
-              <div role="tablist" aria-label="오늘의 나침반" className="grid min-w-[760px] grid-cols-4">
+              <p className="mb-2 flex items-center justify-between px-2 pt-1 text-xs font-medium text-[#61728e] lg:hidden"><span>원하는 메뉴를 선택하세요</span><span>좌우로 밀어보세요 ↔</span></p>
+              <div className="overflow-x-auto pb-1 [scrollbar-width:thin] [scrollbar-color:#a8bde8_#e8eef8]">
+              <div role="tablist" aria-label="오늘의 나침반" className="grid min-w-[680px] grid-cols-4 gap-2">
                 {TODAY_CONTENT_TABS.map((item) => {
                   const active = activeTodayView === item.id;
                   return (
@@ -1290,10 +1292,10 @@ export default function TodayFortunePage() {
                       disabled={item.disabled}
                       aria-disabled={item.disabled || undefined}
                       onClick={() => moveToTodayView(item.id)}
-                      className={`relative min-h-[68px] px-5 py-4 text-center text-[17px] font-extrabold tracking-[-.025em] transition sm:text-[22px] ${
+                      className={`relative min-h-[56px] rounded-xl px-4 py-3 text-center text-[16px] font-bold tracking-[-.025em] transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2862e3] sm:min-h-[64px] sm:text-[20px] ${
                         active
-                          ? "text-[#163d7a] after:absolute after:inset-x-5 after:bottom-0 after:h-[3px] after:bg-[#3978ed]"
-                          : item.disabled ? "cursor-not-allowed text-[#9ca8b9]" : "text-[#60708a] hover:bg-[#f8faff] hover:text-[#245fc8]"
+                          ? "bg-[#2e63df] text-white shadow-[0_4px_12px_rgba(46,99,223,.24)]"
+                          : item.disabled ? "cursor-not-allowed bg-[#eef1f6] text-[#8a97aa]" : "bg-white text-[#526580] hover:bg-[#e6eeff] hover:text-[#245fc8]"
                       }`}
                       role="tab"
                       tabIndex={active ? 0 : -1}
@@ -1321,6 +1323,7 @@ export default function TodayFortunePage() {
                     </button>
                   );
                 })}
+              </div>
               </div>
             </nav>
 

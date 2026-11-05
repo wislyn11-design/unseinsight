@@ -1,14 +1,14 @@
 import { ArrowRight } from "lucide-react"
 
-export function SocialLoginCta({ onLogin }) {
+export function SocialLoginCta({ onLogin, showButton = true }) {
   return (
     <section className="mx-auto max-w-lg px-5 pb-10">
       <p className="text-center text-sm leading-relaxed text-muted-foreground">매번 입력하기 번거로우신가요?</p>
       <p className="mt-1 text-center text-base font-bold leading-relaxed text-foreground sm:text-lg">
-        3초 만에 로그인하고 내 사주를 평생 무료로 저장하세요!
+        3초만에 로그인하고<br />내 사주를 평생 무료로 저장하세요!
       </p>
 
-      <div className="mt-4 flex justify-center">
+      {showButton && <div className="mt-4 flex justify-center">
         <button
           type="button"
           onClick={onLogin}
@@ -17,7 +17,7 @@ export function SocialLoginCta({ onLogin }) {
           간편 로그인창 열기
           <ArrowRight className="h-4 w-4" aria-hidden="true" />
         </button>
-      </div>
+      </div>}
     </section>
   )
 }

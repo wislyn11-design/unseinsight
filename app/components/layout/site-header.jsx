@@ -7,7 +7,6 @@ import LoginButton from "@/app/components/common/LoginButton"
 import { clearActiveSajuChart } from "@/app/lib/saju/chart-storage"
 
 const navigation = [
-  { label: "오늘의 운세", href: "/fortune/today" },
   { label: "고민 점괘", href: "/fortune/oracle" },
   { label: "만세력", href: "/fortune/manseryeok" },
   { label: "운세 캘린더", href: "/fortune/calendar" },

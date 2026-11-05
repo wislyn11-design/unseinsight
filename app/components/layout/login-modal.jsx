@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import { createPortal } from "react-dom"
 import { Sparkles, X } from "lucide-react"
 import { createClient } from "@/app/lib/supabase/client"
@@ -27,6 +27,34 @@ export function LoginModal({ open, onClose, nextPath }) {
   const [mounted, setMounted] = useState(false)
   const [workingProvider, setWorkingProvider] = useState(null)
   const [errorMessage, setErrorMessage] = useState("")
+  const onCloseRef = useRef(onClose)
+  const historyTokenRef = useRef(null)
+  onCloseRef.current = onClose
+
+  useEffect(() => {
+    if (!open) return
+    const token = `login-${Date.now()}-${Math.random()}`
+    historyTokenRef.current = token
+    window.history.pushState({ ...window.history.state, unseLoginModal: token }, "", window.location.href)
+    const onPopState = () => {
+      if (window.history.state?.unseLoginModal !== token) {
+        historyTokenRef.current = null
+        onCloseRef.current?.()
+      }
+    }
+    const onPageShow = () => setWorkingProvider(null)
+    window.addEventListener("popstate", onPopState)
+    window.addEventListener("pageshow", onPageShow)
+    return () => {
+      window.removeEventListener("popstate", onPopState)
+      window.removeEventListener("pageshow", onPageShow)
+      if (window.history.state?.unseLoginModal === token) {
+        const { unseLoginModal, ...state } = window.history.state
+        window.history.replaceState(state, "", window.location.href)
+      }
+      historyTokenRef.current = null
+    }
+  }, [open])
 
   useEffect(() => {
     setMounted(true)
@@ -41,7 +69,7 @@ export function LoginModal({ open, onClose, nextPath }) {
 
     const previousOverflow = document.body.style.overflow
     const onKeyDown = (event) => {
-      if (event.key === "Escape" && !workingProvider) onClose()
+      if (event.key === "Escape" && !workingProvider) closeModal()
     }
 
     document.body.style.overflow = "hidden"
@@ -55,7 +83,11 @@ export function LoginModal({ open, onClose, nextPath }) {
 
   const closeModal = () => {
     if (workingProvider) return
-    onClose()
+    if (historyTokenRef.current && window.history.state?.unseLoginModal === historyTokenRef.current) {
+      window.history.back()
+    } else {
+      onCloseRef.current?.()
+    }
   }
 
   const handleSocialLogin = async (provider) => {

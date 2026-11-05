@@ -14,6 +14,9 @@ import {
   readPendingFortunePath,
 } from "@/app/lib/saju/chart-storage"
 
+const READING_FORM_KEY = "unseinsight:free-reading-form:v1"
+const READING_CHAT_KEY = "unseinsight:free-reading-chat:v1"
+
 export default function Page() {
   const [loginOpen, setLoginOpen] = useState(false)
   const [sajuResult, setSajuResult] = useState<any>(null)
@@ -23,6 +26,40 @@ export default function Page() {
   const [resumeError, setResumeError] = useState("")
   const [nextPath, setNextPath] = useState("/home")
   const loginResumeKeyRef = useRef("")
+  const previousUserRef = useRef<User | null>(null)
+
+  useEffect(() => {
+    // OAuth 화면에서 돌아오거나 페이지가 다시 열려도 같은 탭의 입력을 복원합니다.
+    try {
+      const stored = sessionStorage.getItem(READING_FORM_KEY)
+      if (stored) {
+        const data = JSON.parse(stored)
+        if (data && typeof data === "object" && !Array.isArray(data)) setSajuResult(data)
+      }
+    } catch { /* 저장소를 사용할 수 없으면 현재 화면에서 계속 이용합니다. */ }
+  }, [])
+
+  const handleSajuSubmit = (data: any) => {
+    try {
+      sessionStorage.removeItem(READING_CHAT_KEY)
+      sessionStorage.setItem(READING_FORM_KEY, JSON.stringify(data))
+    } catch { /* 저장소 접근 실패가 풀이 시작을 막지 않도록 합니다. */ }
+    setSajuResult(data)
+  }
+
+  const handleReset = () => {
+    try {
+      sessionStorage.removeItem(READING_FORM_KEY)
+      sessionStorage.removeItem(READING_CHAT_KEY)
+    } catch { /* 저장소 접근 실패 무시 */ }
+    clearPendingFortunePath()
+    setSajuResult(null)
+  }
+
+  const handleCloseLogin = useCallback(() => {
+    clearPendingFortunePath()
+    setLoginOpen(false)
+  }, [])
 
   useEffect(() => {
     const requestedPath = new URLSearchParams(window.location.search).get("next")
@@ -95,11 +132,17 @@ export default function Page() {
     )
     setIsResuming(shouldResume)
 
-    // 로그인 사용자가 로그아웃하면 현재 만세력 결과도 함께 초기화합니다.
-    if (!nextUser) {
+    // 최초 비회원 확인과 실제 로그아웃을 구분합니다.
+    if (previousUserRef.current && !nextUser) {
       setResumeError("")
       setSajuResult(null)
+      clearPendingFortunePath()
+      try {
+        sessionStorage.removeItem(READING_FORM_KEY)
+        sessionStorage.removeItem(READING_CHAT_KEY)
+      } catch { /* 저장소 접근 실패 무시 */ }
     }
+    previousUserRef.current = nextUser
   }, [])
 
   return (
@@ -110,6 +153,16 @@ export default function Page() {
 
 
 
+
+      {authReady && !isResuming && (
+        <div className="mx-auto flex w-full max-w-[1400px] justify-end px-4 pt-4 sm:px-8">
+          {currentUser ? (
+            <a href="/home" className="inline-flex min-h-11 items-center rounded-full border border-[#dbe5f5] bg-white px-5 text-sm font-semibold text-[#245bc3] hover:bg-[#f1f5ff]">메인으로 이동 →</a>
+          ) : (
+            <button type="button" onClick={() => setLoginOpen(true)} className="inline-flex min-h-11 items-center rounded-full bg-[#edf3ff] px-5 text-sm font-bold text-[#245bc3] transition hover:bg-[#dfeaff] focus-visible:outline focus-visible:outline-2 focus-visible:outline-[#2862e3]">간편 로그인창 열기 →</button>
+          )}
+        </div>
+      )}
 
       {!authReady || isResuming ? (
         <section
@@ -143,24 +196,27 @@ export default function Page() {
           </div>
         </section>
       ) : sajuResult ? (
+        <>
         <ManseryeokResult
           data={sajuResult}
           currentUser={currentUser as any}
           nextPath={nextPath}
-          onReset={() => setSajuResult(null)}
+          onReset={handleReset}
           onRequireLogin={() => setLoginOpen(true)}
         />
+        {!currentUser && <SocialLoginCta onLogin={() => setLoginOpen(true)} showButton={false} />}
+        </>
       ) : (
         <>
           <HeroSection
             currentUser={currentUser}
-            onSajuSubmit={(data: any) => setSajuResult(data)}
+            onSajuSubmit={handleSajuSubmit}
           />
-          <SocialLoginCta onLogin={() => setLoginOpen(true)} />
+          {!currentUser && <SocialLoginCta onLogin={() => setLoginOpen(true)} showButton={false} />}
         </>
       )}
       {/* @ts-ignore */}
-      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+      <LoginModal open={loginOpen} onClose={handleCloseLogin} />
     </main>
   )
 }
