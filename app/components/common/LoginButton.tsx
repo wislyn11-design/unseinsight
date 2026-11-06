@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 import { LoginModal } from "@/app/components/layout/login-modal";
 import { createClient } from "@/app/lib/supabase/client";
@@ -116,6 +117,7 @@ function preloadTodayFortune(userId: string) {
 }
 
 export default function LoginButton({ onUserChange }: LoginButtonProps) {
+  const pathname = usePathname();
   const [supabase] = useState(() => createClient());
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -231,7 +233,7 @@ export default function LoginButton({ onUserChange }: LoginButtonProps) {
       <LoginModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        nextPath=""
+        nextPath={pathname === "/home" || pathname === "/" ? "/home?login=complete" : ""}
       />
     </>
   );

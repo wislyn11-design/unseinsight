@@ -238,12 +238,15 @@ export function readActiveSajuChart(): StoredSajuChart | null {
 
 type LoadActiveSajuChartOptions = {
   requirePersisted?: boolean;
+  // 로그인 직후에는 이전 브라우저 데이터 대신 현재 계정의 DB를 확인합니다.
+  forceRemote?: boolean;
+  requireAuthenticated?: boolean;
 };
 
 export async function loadActiveSajuChart(
   options: LoadActiveSajuChartOptions = {},
 ): Promise<StoredSajuChart | null> {
-  const localEntry = readActiveSajuChart();
+  const localEntry = options.forceRemote ? null : readActiveSajuChart();
   const hasPersistedIds = Boolean(
     localEntry?.birthProfileId && localEntry?.chartId,
   );
@@ -253,12 +256,39 @@ export async function loadActiveSajuChart(
   }
 
   const response = await fetch("/api/saju-charts", { cache: "no-store" });
-  if (response.status === 401 || response.status === 404) return null;
+  if (response.status === 401) {
+    if (options.requireAuthenticated) {
+      throw new Error("로그인 상태를 확인하지 못했습니다. 다시 시도해주세요.");
+    }
+    return null;
+  }
+  if (response.status === 404) {
+    if (options.forceRemote) clearActiveSajuChart();
+    return null;
+  }
   if (!response.ok) throw new Error("저장된 만세력을 불러오지 못했습니다.");
 
   const data = await response.json();
   const entry = data?.entry as StoredSajuChart | undefined;
-  if (!entry || !isChart(entry.chart)) return null;
+  if (options.forceRemote && data?.success === false) {
+    throw new Error("저장된 사주 조회에 실패했습니다. 다시 시도해주세요.");
+  }
+  if (!entry) {
+    if (options.forceRemote) {
+      // 명시적인 빈 결과만 신규 입력으로 안내합니다.
+      if (data?.success !== true || data.entry !== null) {
+        throw new Error("저장된 사주 응답을 확인하지 못했습니다. 다시 시도해주세요.");
+      }
+      clearActiveSajuChart();
+    }
+    return null;
+  }
+  if (!isChart(entry.chart)) {
+    if (options.forceRemote) {
+      throw new Error("저장된 사주 정보를 확인하지 못했습니다. 다시 시도해주세요.");
+    }
+    return null;
+  }
 
   saveActiveSajuChart(entry);
   return entry;

@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { type ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/client";
+import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import { SiteHeader } from "@/app/components/layout/site-header";
 
 
@@ -176,8 +179,70 @@ const services: ServiceItem[] = [
   { title:"2026 토정비결", description:"다가오는 한 해의 흐름을\n미리 준비하세요", href:"/fortune/tojeong", icon:<DocumentIcon/>, color:"text-[#2873df]" },
 ];
 export default function HomePage() {
+  const router = useRouter();
+  const [supabase] = useState(() => createClient());
+  const [loginReturnStatus, setLoginReturnStatus] = useState<"idle" | "loading" | "error">("idle");
+  const [loginReturnError, setLoginReturnError] = useState("");
+  const [retryCount, setRetryCount] = useState(0);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("login") !== "complete") return;
+    let cancelled = false;
+
+    const restoreMemberChart = async () => {
+      setLoginReturnStatus("loading");
+      setLoginReturnError("");
+      try {
+        const { data, error } = await supabase.auth.getUser();
+        if (cancelled) return;
+        if (error || !data?.user) {
+          throw new Error("로그인 상태를 확인하지 못했습니다. 다시 시도해주세요.");
+        }
+
+        const entry = await loadActiveSajuChart({
+          forceRemote: true,
+          requireAuthenticated: true,
+        });
+        if (cancelled) return;
+        if (!entry) {
+          router.replace("/saju/input");
+          return;
+        }
+
+        // 저장된 사주 복원이 끝난 뒤에만 메인 화면을 표시합니다.
+        const url = new URL(window.location.href);
+        url.searchParams.delete("login");
+        window.history.replaceState(window.history.state, "", `${url.pathname}${url.search}${url.hash}`);
+        setLoginReturnStatus("idle");
+      } catch (error) {
+        if (cancelled) return;
+        setLoginReturnError(error instanceof Error ? error.message : "저장된 사주를 불러오지 못했습니다.");
+        setLoginReturnStatus("error");
+      }
+    };
+
+    void restoreMemberChart();
+    return () => { cancelled = true; };
+  }, [router, supabase, retryCount]);
+
+  if (loginReturnStatus !== "idle") {
+    return <div className="min-h-screen bg-white text-[#071536]">
+      <SiteHeader />
+      <main className="mx-auto max-w-[1400px] px-4 py-12 sm:px-6 lg:px-10" aria-busy={loginReturnStatus === "loading"}>
+        {loginReturnStatus === "loading" ? (
+          <p role="status" className="text-[#536078]">저장된 사주를 불러오고 있습니다…</p>
+        ) : (
+          <div role="alert">
+            <p className="text-[#536078]">{loginReturnError}</p>
+            <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="mt-5 rounded-xl bg-[#2862e3] px-5 py-3 font-bold text-white">다시 불러오기</button>
+          </div>
+        )}
+      </main>
+    </div>;
+  }
+
   return <div className="min-h-screen bg-white pb-[calc(80px+env(safe-area-inset-bottom))] text-[#071536] lg:pb-0">
-    <SiteHeader onUserChange={() => {}} />
+    <SiteHeader />
 
     <main>
       <section className="relative overflow-hidden bg-[#f7f9ff]">
