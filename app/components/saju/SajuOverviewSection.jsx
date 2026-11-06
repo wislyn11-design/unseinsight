@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { formatBirthTime, getDayMasterIdentity } from "@/app/lib/saju/display-profile";
 import styles from "./SajuOverviewSection.module.css";
 
 export const sampleServices = [
@@ -25,12 +26,7 @@ const overviewSections = [
   { key: "flow", label: "현재의 흐름과 조언", ids: [10, 11, 12] },
 ];
 
-function koreanBirthTime(value) {
-  const digits = String(value ?? "").replace(/\D/g, "");
-  if (!digits) return "";
-  const padded = digits.padStart(4, "0").slice(-4);
-  return `${Number(padded.slice(0, 2))}시 ${padded.slice(2)}분`;
-}
+const koreanBirthTime = formatBirthTime;
 
 function getChartId(entry) {
   return String(entry?.chartId || entry?.chart_id || entry?.id || "").trim();
@@ -355,6 +351,7 @@ export default function SajuOverviewSection({
   const [, setReadIds] = useState([1]);
   const [introProfile, setIntroProfile] = useState(providedProfile);
   const [chartId, setChartId] = useState("");
+  const [dayMasterElement, setDayMasterElement] = useState("");
   const [overviewSummary, setOverviewSummary] = useState(providedSummary);
   const [overviewServices, setOverviewServices] = useState(() =>
     providedEssence
@@ -526,6 +523,7 @@ export default function SajuOverviewSection({
         setIntroProfile(cachedProfile);
       }
       if (cachedChartId) setChartId(cachedChartId);
+      setDayMasterElement(getDayMasterIdentity(activeEntry?.chart || activeEntry)?.element || "");
 
       // chartId만 있고 프로필이 없는 오래된 세션도 DB에서 즉시 보완합니다.
       if (!cachedChartId || (!providedProfile && !cachedProfile)) {
@@ -554,6 +552,7 @@ export default function SajuOverviewSection({
           JSON.stringify(activeEntry),
         );
         setChartId(getChartId(activeEntry));
+        setDayMasterElement(getDayMasterIdentity(activeEntry?.chart || activeEntry)?.element || "");
 
         if (!providedProfile) {
           setIntroProfile(buildIntroProfile(activeEntry));
@@ -648,6 +647,7 @@ export default function SajuOverviewSection({
 
         if (section.key === "essence") {
           setOverviewSummary(overviewData.summary);
+          if (overviewData.dayMaster?.element) setDayMasterElement(overviewData.dayMaster.element);
         }
         setOverviewServices((previous) =>
           mergeEssenceServices(previous, generatedStories),
@@ -786,7 +786,7 @@ export default function SajuOverviewSection({
         <div className={styles.summarySymbol}>
           {summaryLoading
             ? <span className={styles.summaryLoadingSpinner} aria-label="분석 중" />
-            : <span>{displaySummary.element}</span>}
+            : <span>{dayMasterElement || "—"}</span>}
           <small>중심 기운</small>
         </div>
         <div className={styles.summaryCopy}>

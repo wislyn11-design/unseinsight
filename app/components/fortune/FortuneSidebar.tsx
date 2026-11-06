@@ -112,6 +112,12 @@ const MENUS: MenuItem[] = [
   { label: "토정비결", href: "/fortune/tojeong", icon: <Icon name="doc" /> },
 ];
 
+const WEALTH_SUBMENUS = [
+  { label: "평생 재물사주", hash: "wealth-lifetime" },
+  { label: "이번 달 재물운", hash: "wealth-month", disabled: true },
+  { label: "내 돈 고민 상담", hash: "wealth-counsel", disabled: true },
+] as const;
+
 const TODAY_SUBMENUS = [
   { label: "나의 30일 지도", hash: "today-map" },
   { label: "오늘의 운세", hash: "today-fortune" },
@@ -270,6 +276,9 @@ function SidebarBody({
   const pathname = usePathname();
   const todayActive = pathname === "/fortune/today";
   const sajuActive = pathname === "/fortune/saju";
+  const wealthActive = pathname === "/fortune/wealth";
+  const [wealthExpanded, setWealthExpanded] = useState(wealthActive);
+  useEffect(() => { if (wealthActive) setWealthExpanded(true); }, [wealthActive]);
   const [todayExpanded, setTodayExpanded] = useState(todayActive);
   const [activeTodayHash, setActiveTodayHash] = useState("today-map");
   const [sajuExpanded, setSajuExpanded] = useState(sajuActive);
@@ -485,6 +494,37 @@ function SidebarBody({
                 )}
               </div>
             );
+          }
+
+          if (menu.href === "/fortune/wealth") {
+            return <div key={menu.href}>
+              <div className="relative">
+                <Link href={menu.href} onClick={() => { setWealthExpanded(true); onNavigate?.(); }}
+                  aria-current={active ? "page" : undefined} title={!open ? menu.label : undefined}
+                  className={`${menuClassName} ${open ? "pr-12" : ""}`}>{menuContent}</Link>
+                {open && <button type="button" onClick={() => setWealthExpanded(value => !value)}
+                  className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[#66738a] transition hover:bg-white/70 hover:text-[#1760ee]"
+                  aria-label={wealthExpanded ? "재물운 하위 메뉴 접기" : "재물운 하위 메뉴 펼치기"} aria-expanded={wealthExpanded}>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${wealthExpanded ? "rotate-180" : ""}`} aria-hidden="true" />
+                </button>}
+              </div>
+              {open && wealthExpanded && <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
+                {WEALTH_SUBMENUS.map(item => "disabled" in item && item.disabled ? (
+                  <button key={item.hash} type="button" disabled aria-disabled="true"
+                    className="block min-h-12 w-full cursor-not-allowed rounded-[10px] px-4 py-3 text-left font-semibold text-[#9ca8b9]"
+                    style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}<span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[13px]">준비 중</span></button>
+                ) : (
+                  <Link key={item.hash} href={`/fortune/wealth#${item.hash}`} onClick={event => {
+                    if (wealthActive) { event.preventDefault();
+                      window.history.replaceState(window.history.state, "", `/fortune/wealth#${item.hash}`);
+                      document.getElementById(item.hash)?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                    onNavigate?.();
+                  }} aria-current={wealthActive ? "location" : undefined}
+                    className={`relative block min-h-12 rounded-[10px] px-4 py-3 font-semibold transition before:absolute before:-left-[25px] before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full ${wealthActive ? "bg-[#f0f5ff] text-[#1760ee] before:bg-[#1760ee]" : "text-[#53627a] before:bg-[#cad8ed] hover:bg-[#f5f8ff] hover:text-[#1760ee] hover:before:bg-[#6c94df]"}`}
+                    style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}</Link>
+                ))}
+              </div>}
+            </div>;
           }
 
           if (menu.href === "/fortune/saju") {

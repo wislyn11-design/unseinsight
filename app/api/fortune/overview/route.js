@@ -1,3 +1,4 @@
+import { getDayMasterIdentity } from "@/app/lib/saju/display-profile";
 import { GoogleGenAI } from "@google/genai";
 import fs from "fs";
 import path from "path";
@@ -19,6 +20,24 @@ const CHEONGAN = ["갑", "을", "병", "정", "무", "기", "경", "신", "임",
 const JIJI = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "유", "술", "해"];
 
 const OVERVIEW_SECTIONS = {
+  wealth: {
+    key: "wealth", label: "평생 재물사주", periodKey: "lifetime:wealth",
+    promptVersion: "wealth-lifetime-v1.0", resultKey: "stories", includeSummary: true,
+    minParagraphs: 3, maxOutputTokens: 16384,
+    timelineGuidance: `재물에만 집중하세요. 일간과 가장 강한 오행을 혼동하지 마세요.
+사주로 보는 해석과 일반적인 생활 제안을 구분해 서술하세요.
+대운의 나이·연도가 제공된 경우에만 시기를 특정하고 없는 시기를 계산하거나 만들지 마세요.
+얼마를 벌지, 부의 상한선, 수익률, 투자 적합성, 복권 당첨, 계약 성공을 예측·보장하지 마세요.
+자산군·종목·매매 시점·차입·레버리지를 권유하지 마세요. 손재수로 공포를 주거나 개운 상품을 권하지 마세요.
+사용자의 실제 직업·소득·소비 기록은 제공되지 않았으므로 이미 알고 있는 사실처럼 말하지 마세요.
+각 항목을 '명식에서 읽는 특징', '생활에서 돌아볼 모습', '관리할 때 참고할 점'으로 구성하세요.`,
+    items: [
+      { id: 101, title: "나와 돈의 관계", guidance: "원국의 재물 구조, 돈과 안정감의 관계, 재성을 다른 십성과 함께 해석한 기본 성향" },
+      { id: 102, title: "돈을 버는 나의 방식", guidance: "경험·전문성·활동·관계가 수입과 연결되는 성향과 균형, 특정 직업이나 성공 보장 금지" },
+      { id: 103, title: "돈을 모으고 사용하는 습관", guidance: "모으는 강점, 지출과 책임에서 돌아볼 성향, 저축·소비 관리에 참고할 생활 습관" },
+      { id: 104, title: "시기별 재물 흐름", guidance: "저장된 전체 대운의 변화와 재물 주제, 근거가 있는 나이 구간만 표시, 돈이 실제 들어오는 시점으로 단정 금지" },
+    ],
+  },
   lifeMap: {
     key: "lifeMap",
     label: "나의 인생 지도",
@@ -48,7 +67,7 @@ paragraphs는 반드시 '이 시기의 전체 흐름', '일·돈·관계에서 �
     key: "essence",
     label: "나의 본질",
     periodKey: "lifetime",
-    promptVersion: "saju-overview-essence-v1.1-evidence",
+    promptVersion: "saju-overview-essence-v1.2-fixed-day-master",
     resultKey: "essence",
     includeSummary: true,
     items: [
@@ -275,12 +294,15 @@ function validateEvidenceFactIds(
   }
 }
 
-function validateSummary(summary, availableFactIds) {
+function validateSummary(summary, availableFactIds, identity) {
   if (!isPlainObject(summary)) {
     throw new Error("Gemini 사주총평 대표 결과가 올바른 객체가 아닙니다.");
   }
   if (!VALID_ELEMENTS.includes(summary.element)) {
     throw new Error("Gemini 사주총평의 중심 기운이 올바르지 않습니다.");
+  }
+  if (identity && summary.element !== identity.element) {
+    throw new Error("대표 기운이 저장된 일간의 오행과 일치하지 않습니다.");
   }
   if (!isNonEmptyString(summary.sentence)) {
     throw new Error("Gemini 사주총평의 대표 문장이 누락되었습니다.");
@@ -362,7 +384,7 @@ function validateOverviewResult(result, featureSnapshot, section) {
     throw new Error("명리 특징 스냅샷에 사용할 수 있는 근거가 없습니다.");
   }
   if (section.includeSummary) {
-    validateSummary(result.summary, availableFactIds);
+    validateSummary(result.summary, availableFactIds, featureSnapshot.displayIdentity);
   }
 
   const stories = getResultStories(result, section);
@@ -430,6 +452,9 @@ ${JSON.stringify(featureSnapshot.daeunFeatures, null, 2)}
 [사용 가능한 명리 근거 목록]
 ${JSON.stringify(featureSnapshot.factCatalog, null, 2)}
 
+[저장된 일간 표시 정보 — 선택하거나 변경하지 마세요]
+${JSON.stringify(featureSnapshot.displayIdentity)}
+
 [분석 기준 연도]
 ${currentYear}년
 
@@ -446,7 +471,7 @@ ${currentYear}년
 10. 현재 대운은 대운 데이터에 시작 연도·나이·현재 표시가 있을 때만 ${currentYear}년을 기준으로 특정하세요. 근거가 부족하면 현재 대운을 임의로 추측하지 마세요.
 11. 모든 evidenceFactIds에는 [사용 가능한 명리 근거 목록]에 실제 존재하는 factId만 1~12개 넣고 새로운 ID를 만들지 마세요.
 12. 각 이야기와 각 paragraph에는 그 내용을 작성할 때 직접 사용한 evidenceFactIds를 각각 넣으세요.
-${section.includeSummary ? "13. summary의 중심 기운은 木·火·土·金·水 중 하나를 선택하고 대표 문장과 키워드 세 개에도 직접 사용한 근거 ID를 넣으세요." : ""}
+${section.includeSummary ? "13. summary.element는 아래 고정 일간 정보의 element를 그대로 사용하세요. 강한 오행이나 대운의 오행으로 바꾸지 마세요. 대표 문장과 키워드에도 사용한 근거 ID를 넣으세요." : ""}
 
 ${section.timelineGuidance ? `[인생 지도 전용 기준]\n${section.timelineGuidance}` : ""}
 
@@ -871,6 +896,10 @@ export async function POST(request) {
       );
     }
 
+    // 저장된 일주의 천간을 표시 정보로 읽기만 합니다. 원국 계산은 하지 않습니다.
+    featureSnapshot.displayIdentity = getDayMasterIdentity(saju);
+    if (!featureSnapshot.displayIdentity) throw new Error("저장된 일간을 확인하지 못했습니다.");
+
     const existingInterpretation = existingResult.data || null;
     const cachedResult = existingInterpretation?.structured_result;
     const cacheMatches =
@@ -892,6 +921,7 @@ export async function POST(request) {
           success: true,
           sectionKey: section.key,
           summary: cachedResult.summary,
+          dayMaster: featureSnapshot.displayIdentity,
           stories: cachedStories,
           ...(section.key === "essence"
             ? { essence: cachedStories }
@@ -966,6 +996,7 @@ export async function POST(request) {
       success: true,
       sectionKey: section.key,
       summary: result.summary,
+      dayMaster: featureSnapshot.displayIdentity,
       stories,
       ...(section.key === "essence" ? { essence: stories } : {}),
       ...(section.key === "lifeMap"
