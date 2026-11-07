@@ -2,9 +2,8 @@
 
 import Link from "next/link";
 import { type ReactNode, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/client";
-import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
+import { loadActiveSajuChart, readPendingSajuChart, clearPendingSajuChart, persistActiveSajuChart, clearPendingFortunePath } from "@/app/lib/saju/chart-storage";
 import { SiteHeader } from "@/app/components/layout/site-header";
 
 
@@ -179,7 +178,6 @@ const services: ServiceItem[] = [
   { title:"2026 토정비결", description:"다가오는 한 해의 흐름을\n미리 준비하세요", href:"/fortune/tojeong", icon:<DocumentIcon/>, color:"text-[#2873df]" },
 ];
 export default function HomePage() {
-  const router = useRouter();
   const [supabase] = useState(() => createClient());
   const [loginReturnStatus, setLoginReturnStatus] = useState<"idle" | "loading" | "error">("idle");
   const [loginReturnError, setLoginReturnError] = useState("");
@@ -199,15 +197,17 @@ export default function HomePage() {
           throw new Error("로그인 상태를 확인하지 못했습니다. 다시 시도해주세요.");
         }
 
-        const entry = await loadActiveSajuChart({
-          forceRemote: true,
-          requireAuthenticated: true,
-        });
-        if (cancelled) return;
-        if (!entry) {
-          router.replace("/saju/input");
-          return;
+        const pending = readPendingSajuChart();
+        if (pending) {
+          const saved = await persistActiveSajuChart(pending);
+          if (!saved.saved) throw new Error("입력한 사주를 저장하지 못했습니다. 다시 시도해주세요.");
+          if (cancelled) return;
         }
+        await loadActiveSajuChart({ forceRemote: true, requireAuthenticated: true });
+        if (cancelled) return;
+        clearPendingSajuChart();
+        clearPendingFortunePath();
+        sessionStorage.removeItem("unseinsight:free-reading-return-home:v1");
 
         // 저장된 사주 복원이 끝난 뒤에만 메인 화면을 표시합니다.
         const url = new URL(window.location.href);
@@ -223,7 +223,7 @@ export default function HomePage() {
 
     void restoreMemberChart();
     return () => { cancelled = true; };
-  }, [router, supabase, retryCount]);
+  }, [supabase, retryCount]);
 
   if (loginReturnStatus !== "idle") {
     return <div className="min-h-screen bg-white text-[#071536]">

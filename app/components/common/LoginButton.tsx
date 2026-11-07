@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import { readPendingSajuChart, clearPendingSajuChart, clearActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import type { User } from "@supabase/supabase-js";
 import { LoginModal } from "@/app/components/layout/login-modal";
 import { createClient } from "@/app/lib/supabase/client";
@@ -29,6 +30,7 @@ function getTodayInKorea() {
 }
 
 function preloadTodayFortune(userId: string) {
+  if (readPendingSajuChart()) return;
   const today = getTodayInKorea();
   if (!today) return;
 
@@ -54,6 +56,7 @@ function preloadTodayFortune(userId: string) {
       // 저장된 만세력이 없는 회원은 오늘의 운세 페이지에서 먼저 계산하도록 둡니다.
       if (!chartResponse.ok || !chartData?.success || !chartId) return;
 
+      if (readPendingSajuChart()) return;
       try {
         sessionStorage.setItem(
           "unseinsight:lastSaju",
@@ -170,6 +173,8 @@ export default function LoginButton({ onUserChange }: LoginButtonProps) {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
 
+      clearPendingSajuChart();
+      clearActiveSajuChart();
       setUser(null);
       onUserChange?.(null);
     } catch (error) {

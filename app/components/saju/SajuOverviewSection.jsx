@@ -516,21 +516,13 @@ export default function SajuOverviewSection({
         }
       }
 
-      const cachedProfile = buildIntroProfile(activeEntry);
       const cachedChartId = getChartId(activeEntry);
 
-      if (!providedProfile && cachedProfile) {
-        setIntroProfile(cachedProfile);
-      }
-      if (cachedChartId) setChartId(cachedChartId);
-      setDayMasterElement(getDayMasterIdentity(activeEntry?.chart || activeEntry)?.element || "");
-
-      // chartId만 있고 프로필이 없는 오래된 세션도 DB에서 즉시 보완합니다.
-      if (!cachedChartId || (!providedProfile && !cachedProfile)) {
-        const chartResponse = await fetch("/api/saju-charts", {
-          method: "GET",
-          cache: "no-store",
-          signal: controller.signal,
+      // 브라우저의 이전 계정 데이터로 먼저 풀이를 시작하지 않습니다.
+      {
+        const chartEndpoint = cachedChartId ? `/api/saju-charts?chartId=${encodeURIComponent(cachedChartId)}` : "/api/saju-charts";
+        const chartResponse = await fetch(chartEndpoint, {
+          method: "GET", cache: "no-store", signal: controller.signal,
         });
         const chartData = await chartResponse.json().catch(() => null);
 

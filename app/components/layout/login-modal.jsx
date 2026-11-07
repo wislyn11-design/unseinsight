@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useRef, useState } from "react"
+import { prepareFreeReadingLogin } from "@/app/lib/saju/chart-storage"
 import { createPortal } from "react-dom"
 import { Sparkles, X } from "lucide-react"
 import { createClient } from "@/app/lib/supabase/client"
@@ -10,16 +11,6 @@ const PROVIDER_NAME = {
   google: "Google",
   kakao: "카카오",
   "custom:naver": "네이버",
-}
-
-function safeNextPath(nextPath) {
-  const fallback = `${window.location.pathname}${window.location.search}` || "/home"
-
-  if (!nextPath || !nextPath.startsWith("/") || nextPath.startsWith("//")) {
-    return fallback
-  }
-
-  return nextPath
 }
 
 export function LoginModal({ open, onClose, nextPath }) {
@@ -95,8 +86,9 @@ export function LoginModal({ open, onClose, nextPath }) {
       setWorkingProvider(provider)
       setErrorMessage("")
 
+      prepareFreeReadingLogin()
       const callbackUrl = new URL("/auth/callback", window.location.origin)
-      callbackUrl.searchParams.set("next", safeNextPath(nextPath))
+      callbackUrl.searchParams.set("next", "/home?login=complete")
 
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
@@ -115,7 +107,7 @@ export function LoginModal({ open, onClose, nextPath }) {
     } catch (error) {
       console.error(`${provider} 로그인 오류:`, error)
       setErrorMessage(
-        `${PROVIDER_NAME[provider]} 로그인 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.`,
+        error instanceof Error ? error.message : `${PROVIDER_NAME[provider]} 로그인 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.`,
       )
       setWorkingProvider(null)
     }

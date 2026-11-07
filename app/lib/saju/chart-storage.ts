@@ -48,6 +48,7 @@ export type StoredSajuChart = {
   chart: SajuChart;
   birthProfileId?: string;
   chartId?: string;
+  ownerUserId?: string;
 };
 
 type LooseFormData = Record<string, unknown>;
@@ -251,19 +252,22 @@ export async function loadActiveSajuChart(
     localEntry?.birthProfileId && localEntry?.chartId,
   );
 
-  if (localEntry && (!options.requirePersisted || hasPersistedIds)) {
+  if (localEntry && !hasPersistedIds && !options.requirePersisted && !options.forceRemote) {
     return localEntry;
   }
 
-  const response = await fetch("/api/saju-charts", { cache: "no-store" });
+  const requestedId = !options.forceRemote && hasPersistedIds ? localEntry?.chartId : "";
+  const endpoint = requestedId ? `/api/saju-charts?chartId=${encodeURIComponent(requestedId)}` : "/api/saju-charts";
+  const response = await fetch(endpoint, { cache: "no-store" });
   if (response.status === 401) {
+    if (hasPersistedIds) clearActiveSajuChart();
     if (options.requireAuthenticated) {
       throw new Error("로그인 상태를 확인하지 못했습니다. 다시 시도해주세요.");
     }
     return null;
   }
   if (response.status === 404) {
-    if (options.forceRemote) clearActiveSajuChart();
+    clearActiveSajuChart();
     return null;
   }
   if (!response.ok) throw new Error("저장된 만세력을 불러오지 못했습니다.");
@@ -281,6 +285,7 @@ export async function loadActiveSajuChart(
       }
       clearActiveSajuChart();
     }
+    if (hasPersistedIds) clearActiveSajuChart();
     return null;
   }
   if (!isChart(entry.chart)) {
@@ -351,4 +356,36 @@ export async function persistActiveSajuChart(entry: StoredSajuChart) {
   }
 
   throw new Error("만세력을 저장하지 못했습니다.");
+}
+
+// OAuth 중 DB 조회가 시작되어도 이번에 입력한 결과는 별도로 보관합니다.
+export const PENDING_SAJU_LOGIN_KEY = "unseinsight:pending-saju-login:v1";
+
+export function readPendingSajuChart(): StoredSajuChart | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(PENDING_SAJU_LOGIN_KEY) || "null");
+    if (!saved || !Number.isFinite(saved.savedAt) || Date.now() - saved.savedAt > 60 * 60 * 1000 || !isChart(saved.entry?.chart)) return null;
+    return saved.entry;
+  } catch { return null; }
+}
+
+export function clearPendingSajuChart() {
+  if (typeof window !== "undefined") sessionStorage.removeItem(PENDING_SAJU_LOGIN_KEY);
+}
+
+export function prepareFreeReadingLogin() {
+  if (typeof window === "undefined") return;
+  const form = window.history.state?.unseSajuForm;
+  const isReading = window.location.pathname === "/saju/input" && window.history.state?.unseSajuStep === "reading" && form;
+  if (!isReading) { clearPendingSajuChart(); return; }
+  const entry = readActiveSajuChart();
+  if (!entry) throw new Error("사주 계산이 완료된 뒤 다시 로그인해주세요.");
+  const expected = profileFromForm(form, entry.chart);
+  for (const key of ["birthDate", "birthTime", "gender", "calendarType", "isLeapMonth"] as const) {
+    if (expected[key] !== entry.birthProfile[key]) throw new Error("현재 입력한 사주를 확인하고 있습니다. 잠시 후 다시 로그인해주세요.");
+  }
+  // 이전 계정의 DB 식별자는 가져가지 않고 계산 결과 자체만 저장합니다.
+  const { birthProfileId, chartId, ownerUserId, ...pending } = entry;
+  sessionStorage.setItem(PENDING_SAJU_LOGIN_KEY, JSON.stringify({ savedAt: Date.now(), entry: { ...pending, birthProfile: { ...pending.birthProfile, relationship: form.relationship === "other" || form.isSelf === false ? "other" : "self", isSelf: !(form.relationship === "other" || form.isSelf === false) } } }));
 }

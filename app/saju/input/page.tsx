@@ -12,6 +12,8 @@ import {
   persistActiveSajuChart,
   readActiveSajuChart,
   readPendingFortunePath,
+  readPendingSajuChart,
+  clearPendingSajuChart,
 } from "@/app/lib/saju/chart-storage"
 
 const READING_FORM_KEY = "unseinsight:free-reading-form:v1"
@@ -41,6 +43,7 @@ export default function Page() {
       } catch { return null }
     }
     const restoreStep = () => {
+      clearPendingSajuChart()
       const state = window.history.state || {}
       setLoginOpen(false)
       setResumeError("")
@@ -77,6 +80,7 @@ export default function Page() {
   }, [])
 
   const handleSajuSubmit = (data: any) => {
+    clearPendingSajuChart()
     try {
       sessionStorage.removeItem(READING_CHAT_KEY)
       sessionStorage.setItem(READING_FORM_KEY, JSON.stringify(data))
@@ -86,6 +90,7 @@ export default function Page() {
   }
 
   const handleReset = () => {
+    clearPendingSajuChart()
     try {
       sessionStorage.removeItem(READING_FORM_KEY)
       sessionStorage.removeItem(READING_CHAT_KEY)
@@ -107,6 +112,7 @@ export default function Page() {
   const handleCloseLogin = useCallback(() => {
     clearPendingFortunePath()
     try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
+    clearPendingSajuChart()
     setLoginOpen(false)
   }, [])
 
@@ -132,7 +138,7 @@ export default function Page() {
       return
     }
 
-    const activeSaju = readActiveSajuChart()
+    const activeSaju = readPendingSajuChart() || readActiveSajuChart()
     if (!activeSaju) {
       setIsResuming(false)
       if (returnHome) setResumeError("사주 저장 정보를 확인하지 못했습니다. 다시 시도해 주세요.")
@@ -148,7 +154,7 @@ export default function Page() {
         setIsResuming(true)
         setResumeError("")
 
-        if (!activeSaju.birthProfileId || !activeSaju.chartId) {
+        if (readPendingSajuChart() || !activeSaju.birthProfileId || !activeSaju.chartId) {
           // OAuth 직후 발급된 JWT가 Data API에 전파될 짧은 시간을 확보합니다.
           await new Promise((resolve) => setTimeout(resolve, 1_500))
           const result = await persistActiveSajuChart(activeSaju)
@@ -157,6 +163,7 @@ export default function Page() {
           }
         }
 
+        clearPendingSajuChart()
         clearPendingFortunePath()
         try { sessionStorage.removeItem(RETURN_HOME_KEY) } catch { /* 저장소 접근 실패 무시 */ }
         window.location.replace(pendingPath)
@@ -186,6 +193,7 @@ export default function Page() {
 
     // 최초 비회원 확인과 실제 로그아웃을 구분합니다.
     if (previousUserRef.current && !nextUser) {
+      clearPendingSajuChart()
       window.history.replaceState({ ...window.history.state, unseSajuStep: "input", unseSajuForm: null }, "", window.location.href)
       setResumeError("")
       setSajuResult(null)
@@ -270,7 +278,7 @@ export default function Page() {
         </>
       )}
       {/* @ts-ignore */}
-      <LoginModal open={loginOpen} onClose={handleCloseLogin} nextPath={sajuResult ? "/saju/input?resume=home" : undefined} />
+      <LoginModal open={loginOpen} onClose={handleCloseLogin} nextPath="/home?login=complete" />
     </main>
   )
 }

@@ -117,16 +117,38 @@ export async function GET(request: Request) {
     );
   }
 
-  const { data, error } = await supabase
-    .from("saju_charts")
-    .select("id, birth_profile_id, engine_version, calculated_at, chart_data, birth_profiles(profile_name, relationship, gender, calendar_type, birth_date, birth_time, is_leap_month)")
-    .eq("user_id", user.id)
-    .order("calculated_at", { ascending: false })
-    .limit(1)
-    .maybeSingle();
-
-  if (error) return Response.json({ success: false, error: error.message }, { status: 500 });
-  if (!data) return Response.json({ success: false, error: "저장된 만세력이 없습니다." }, { status: 404 });
+  // 선택된 차트도 반드시 현재 계정 소유인지 서버에서 확인합니다.
+  const requestedChartId = new URL(request.url).searchParams.get("chartId");
+  const columns = "id, birth_profile_id, engine_version, calculated_at, chart_data, birth_profiles(profile_name, relationship, is_primary, gender, calendar_type, birth_date, birth_time, is_leap_month)";
+  let data: any = null;
+  if (requestedChartId) {
+    const selected = await supabase.from("saju_charts").select(columns)
+      .eq("user_id", user.id).eq("id", requestedChartId).maybeSingle();
+    if (selected.error) return Response.json({ success: false, error: selected.error.message }, { status: 500 });
+    data = selected.data;
+  }
+  if (!data) {
+    const primary = await supabase.from("birth_profiles").select("id")
+      .eq("user_id", user.id).eq("is_primary", true).limit(1).maybeSingle();
+    if (primary.error) return Response.json({ success: false, error: primary.error.message }, { status: 500 });
+    if (primary.data) {
+      const ownChart = await supabase.from("saju_charts").select(columns)
+        .eq("user_id", user.id).eq("birth_profile_id", primary.data.id)
+        .order("calculated_at", { ascending: false }).limit(1).maybeSingle();
+      if (ownChart.error) return Response.json({ success: false, error: ownChart.error.message }, { status: 500 });
+      data = ownChart.data;
+    } else {
+      // 대표 지정이 없는 과거 데이터는 본인으로 저장된 프로필만 찾습니다.
+      const legacy = await supabase.from("saju_charts").select(columns)
+        .eq("user_id", user.id).order("calculated_at", { ascending: false });
+      if (legacy.error) return Response.json({ success: false, error: legacy.error.message }, { status: 500 });
+      data = (legacy.data || []).find((item: any) => {
+        const profile = Array.isArray(item.birth_profiles) ? item.birth_profiles[0] : item.birth_profiles;
+        return profile?.relationship === "self";
+      }) || null;
+    }
+  }
+  if (!data) return Response.json({ success: true, entry: null }, { headers: { "Cache-Control": "no-store" } });
 
   const profileValue = Array.isArray(data.birth_profiles) ? data.birth_profiles[0] : data.birth_profiles;
   const profile = profileValue as Record<string, any> | null;
@@ -134,14 +156,15 @@ export async function GET(request: Request) {
     success: true,
     entry: {
       schemaVersion: 1,
+      ownerUserId: user.id,
       birthProfileId: data.birth_profile_id,
       chartId: data.id,
       engineVersion: data.engine_version,
       calculatedAt: data.calculated_at,
       birthProfile: {
         profileName: profile?.profile_name || "내 사주",
-        relationship: normalizeRelationship(profile?.relationship, false),
-        isSelf: normalizeRelationship(profile?.relationship, false) === "self",
+        relationship: profile?.is_primary ? "self" : normalizeRelationship(profile?.relationship, false),
+        isSelf: Boolean(profile?.is_primary || profile?.relationship === "self"),
         gender: normalizeGender(profile?.gender),
         calendarType: profile?.calendar_type || "양력",
         birthDate: profile?.birth_date || "",
@@ -149,7 +172,7 @@ export async function GET(request: Request) {
         isLeapMonth: Boolean(profile?.is_leap_month),
         usesEarlyRatHour: false,
       },
-      chart: data.chart_data,
+      chart: data.chart_data?.chart || data.chart_data,
     },
   }, { headers: { "Cache-Control": "no-store" } });
 }
