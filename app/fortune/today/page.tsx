@@ -346,17 +346,6 @@ function FortuneAccordionRow({
               "오늘의 흐름을 차분히 살펴보세요."}
           </p>
 
-          {section.detail?.reason && (
-            <div className="mt-5 border-l-[3px] border-[#b7c9ee] pl-4">
-              <strong className="block text-[16px] font-black text-[#314663] sm:text-[18px]">
-                이렇게 풀이했어요
-              </strong>
-              <p className="mt-2 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
-                {section.detail.reason}
-              </p>
-            </div>
-          )}
-
           {section.detail?.flow && (
             <p className="mt-5 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
               {section.detail.flow}
@@ -395,6 +384,17 @@ function FortuneAccordionRow({
             >
               {section.advice}
             </p>
+          )}
+
+          {section.detail?.reason && (
+            <div className="mt-5 border-l-[3px] border-[#b7c9ee] pl-4">
+              <strong className="block text-[16px] font-black text-[#314663] sm:text-[18px]">
+                이렇게 풀이했어요
+              </strong>
+              <p className="mt-2 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
+                {section.detail.reason}
+              </p>
+            </div>
           )}
         </div>
       )}
