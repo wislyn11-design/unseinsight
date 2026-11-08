@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { DAILY_PROMPT_VERSION } from "@/app/lib/fortune/daily-content-version";
 import { usePathname } from "next/navigation";
 import { readPendingSajuChart, clearPendingSajuChart, clearActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import type { User } from "@supabase/supabase-js";
@@ -34,7 +35,7 @@ function preloadTodayFortune(userId: string) {
   const today = getTodayInKorea();
   if (!today) return;
 
-  const preloadKey = `unseinsight:today-preloaded-v2:${userId}:${today}`;
+  const preloadKey = `unseinsight:today-preloaded-v2:${DAILY_PROMPT_VERSION}:${userId}:${today}`;
 
   try {
     if (sessionStorage.getItem(preloadKey) === "completed") return;
@@ -89,7 +90,7 @@ function preloadTodayFortune(userId: string) {
         }
       }
 
-      if (!completedEvent) return;
+      if (!completedEvent || completedEvent.promptVersion !== DAILY_PROMPT_VERSION) return;
 
       const fortuneCacheKey = `unseinsight:today-fortune:${chartId}:${today}`;
 
@@ -98,6 +99,7 @@ function preloadTodayFortune(userId: string) {
           fortuneCacheKey,
           JSON.stringify({
             fortune: completedEvent.fortune,
+            promptVersion: completedEvent.promptVersion,
             interpretationId: String(completedEvent.interpretationId || ""),
             chartId,
             date: today,

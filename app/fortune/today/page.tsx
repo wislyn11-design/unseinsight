@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { DAILY_PROMPT_VERSION } from "@/app/lib/fortune/daily-content-version";
 import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import { useCallback, useEffect, useState } from "react";
 
@@ -563,7 +564,8 @@ export default function TodayFortunePage() {
           const cachedText = sessionStorage.getItem(fortuneCacheKey);
           if (cachedText) {
             const cached = JSON.parse(cachedText);
-            if (cached?.fortune && cached?.date === date) {
+            if (cached?.fortune && cached?.date === date &&
+                cached?.chartId === chartId && cached?.promptVersion === DAILY_PROMPT_VERSION) {
               showedCachedFortune = true;
               setFortune(cached.fortune as TodayFortune);
               setInterpretationId(String(cached.interpretationId || ""));
@@ -640,6 +642,9 @@ export default function TodayFortunePage() {
           }
 
           if (event?.type === "complete" && event?.fortune) {
+            if (event.promptVersion !== DAILY_PROMPT_VERSION) {
+              throw new Error("오늘의 운세 업데이트가 아직 반영되지 않았습니다. 잠시 후 새로고침해 주세요.");
+            }
             completedFortune = event.fortune as TodayFortune;
             nextInterpretationId = String(event.interpretationId || "");
             return;
@@ -692,6 +697,7 @@ export default function TodayFortunePage() {
             fortuneCacheKey,
             JSON.stringify({
               fortune: completedFortune,
+              promptVersion: DAILY_PROMPT_VERSION,
               interpretationId: nextInterpretationId,
               chartId,
               date,

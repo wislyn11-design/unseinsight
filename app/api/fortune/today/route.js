@@ -4,6 +4,8 @@ import fs from "fs";
 import path from "path";
 import { createClient } from "@/app/lib/supabase/server";
 
+import { DAILY_PROMPT_VERSION } from "../../../lib/fortune/daily-content-version.js";
+
 import { getSipseong } from "../../../lib/saju/sipseong.js";
 import { get12un } from "../../../lib/saju/un12.js";
 import { getTransitSinsal } from "../../../lib/saju/sinsal.js";
@@ -15,7 +17,7 @@ export const maxDuration = 120;
 const PROJECT_ID = process.env.GOOGLE_CLOUD_PROJECT || "906229574147";
 const LOCATION = process.env.GOOGLE_CLOUD_LOCATION || "us-central1";
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
-const DAILY_PROMPT_VERSION = "today-v6.6-concise-3-sentences";
+
 const LOADING_MESSAGE = "오늘의 흐름을 꼼꼼히 살펴 오늘의 운세를 풀이하고 있습니다.";
 
 const SECTION_KEYS = ["overall", "wealth", "workStudy", "love", "health"];
@@ -253,7 +255,7 @@ function validateFortuneShape(fortune) {
 }
 
 function buildStreamingPrompt(saju, target) {
-  return `당신은 대한민국 최고 수준의 정통 명리학(Myeonglihak) 사주 전문 풀이 상담가입니다.
+  return `당신은 제공된 정통 명리학 데이터를 바탕으로 현대인의 하루를 이해하기 쉽게 안내하는 라이프 내비게이터입니다. 분석 근거와 생활 조언의 어휘를 구분하고, 아래의 기존 NDJSON 구조로 응답하세요.
 
 [DB에 저장된 사용자 만세력 원국]
 ${JSON.stringify(saju, null, 2)}
@@ -261,16 +263,27 @@ ${JSON.stringify(saju, null, 2)}
 [오늘 일진 및 명리적 흐름 기준]
 ${JSON.stringify(target, null, 2)}
 
-[핵심 명리 풀이 지침]
-1. 위 DB 만세력의 일간(日干), 오행(五行)의 상생상극, 십성(十星: 편재/정재/식신/상관/정관/편관 등), 12운성, 신살(神煞) 작용을 정확히 분석하세요.
-2. 분석된 명리적 근거(예: 오늘 일진 천간과 내 일간의 십성 관계, 지지 형충파해 및 신살 작용)를 바탕으로, 이용자가 깊이 공감하고 현실에서 즉시 실천할 수 있는 정교한 운세 풀이를 작성하세요.
-3. 절대로 문장을 생략하거나 줄이지 말고, 깊고 풍부한 어조로 정성껏 설명하세요.
-4. 행운의 색, 행운의 숫자, 추천 활동은 오늘 명리 흐름상 가장 상생을 돕는 단 하나씩만 엄선하세요.
-5. 추천 활동은 실제 일상에서 자연스럽게 실천할 수 있는 행동으로 구체적으로 작성하세요. (예: "햇볕을 쬐며 15분 산책하기", "따뜻한 차 마시며 상반기 계획 정리하기")
-6. dailyInsight.headline은 24자 이내의 강한 한 문장, scene은 3문장 이내, caution과 prescription은 각각 1문장으로 작성하세요.
-7. 각 분야 title은 20자 이내, description은 핵심만 2문장 이내, detail.reason은 명리적 근거를 2문장 이내로 작성하세요.
-8. goodActions와 avoidActions는 각각 가장 중요한 행동 하나만 넣고, 각 문장은 45자 이내로 작성하세요.
+[계산 결과 사용 원칙]
+1. 위 DB 원국과 오늘 흐름 데이터는 코드가 계산한 입력값입니다. 날짜, 간지, 일간, 십성, 운성, 신살 값을 새로 계산하거나 바꾸지 마세요.
+2. 입력에 명시된 관계만 근거로 사용하세요. 입력에 없는 합·충·형·파·해나 용신·희신을 확정하거나 사용자 직업·재산·일정을 지어내지 마세요.
+3. 같은 분석으로 본문·조언·근거를 작성하고, "빨리 실행하라"와 "서두르지 말라"처럼 서로 모순되는 행동을 권하지 마세요.
 
+[어휘 분리 - 가장 중요]
+1. title, description, advice, detail.flow, detail.goodActions, detail.avoidActions에는 명리학 전문용어와 한자를 쓰지 마세요. dailyInsight의 모든 필드, 추천 활동, 주의사항, 시간대별 안내 등 사용자에게 보여주는 나머지 설명도 쉬운 일상어로 작성하세요.
+2. 일간·일진·천간·지지·오행·십성·편관·정재·합충·병술일 등의 전문 개념을 본문에 넣지 마세요. 단, "충분히", "합리적인" 같은 일반 단어의 글자까지 금지하는 것은 아닙니다.
+3. 명리학 전문용어와 한자는 각 분야 detail.reason에만 사용하세요. 이 필드가 화면의 '이렇게 풀이했어요'입니다. dailyInsight.reason은 별도 생활 요약이므로 전문용어를 넣지 마세요.
+4. detail.reason은 입력 근거와 본문 조언의 연결을 2문장 이내로 설명하세요. 전문용어는 쉬운 뜻을 곁들이고, 한자는 필요할 때만 정확히 병기하세요. 화면에 제목이 이미 있으므로 '[이렇게 풀이했어요]' 문구를 값에 반복하지 마세요.
+
+[생활 언어와 작성 분량]
+1. description은 오늘의 분위기, 느낄 수 있는 부담이나 기회, 대처 방향을 쉬운 말로 2문단·총 3~4문장으로 작성하세요. 문단 사이는 JSON 문자열 안의 이스케이프된 줄바꿈으로 표현하고 각 NDJSON 객체는 실제 한 줄을 유지하세요.
+2. 나쁜 예: "경금 일간에 병술일로 강한 편관과 충이 겹칩니다."
+   좋은 예: "예상하지 못한 요청이나 일정 변화로 부담을 느낄 수 있어요. 중요한 일부터 정리하면 상황을 차분히 풀어가는 데 도움이 됩니다."
+3. 첫 문장부터 독자가 이해할 수 있는 생활 상황으로 설명하세요. 자연의 비유는 이해에 도움이 될 때만 짧게 쓰고, 과장된 비유나 추상적인 '에너지' 표현으로 내용을 채우지 마세요.
+4. title은 직관적인 15자 이내 제목, detail.flow는 생활에서 적용할 방향 1문장으로 작성하세요. goodActions와 avoidActions에는 각각 구체적인 행동 하나만 넣고 각 문장은 45자 이내로 작성하세요.
+5. dailyInsight.headline은 24자 이내, scene은 3문장 이내, caution과 prescription은 각각 1문장으로 작성하세요. dailyInsight.reason도 근거의 생활상 의미를 쉽게 요약하세요.
+6. 행운의 색, 숫자, 추천 활동은 기존처럼 각각 하나만 제시하되, 효과·수익·결과를 보장하지 마세요. 추천 활동은 일상에서 실행할 수 있는 행동으로 작성하세요.
+7. 미래의 사건, 질병, 손실을 확정하지 말고 가능성과 점검할 행동으로 안내하세요. 불안·공포를 조장하거나 사주만으로 투자·대출·계약 결정을 지시하지 마세요.
+8. main_text, good_action, bad_action, technical_explanation 같은 새 필드를 만들지 마세요. 본문은 description, 행동은 detail.goodActions·detail.avoidActions, 전문 근거는 detail.reason에 담고 기존 필드명과 자료형을 유지하세요.
 
 [스트리밍 출력 형식 - NDJSON 7줄]
 마크다운 태그, 코드블록(\`\`\`), 기타 설명 문장을 절대 포함하지 마시고, 아래 JSON 객체 7개를 순서대로 한 줄에 하나씩 출력하세요.
@@ -557,6 +570,7 @@ export async function POST(request) {
           send({ type: "status", stage: "cache", message: LOADING_MESSAGE });
           send({
             type: "complete",
+            promptVersion: DAILY_PROMPT_VERSION,
             fortune: cachedFortune,
             target,
             interpretationId: existingInterpretation.id,
@@ -619,6 +633,7 @@ export async function POST(request) {
 
       send({
         type: "complete",
+        promptVersion: DAILY_PROMPT_VERSION,
         fortune,
         target,
         interpretationId: saved.id,
