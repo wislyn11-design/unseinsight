@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import { useCallback, useEffect, useState } from "react";
 
 type FortuneSection = {
@@ -452,6 +453,7 @@ export default function TodayFortunePage() {
   const [fortune, setFortune] = useState<TodayFortune | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [needsBirthProfile, setNeedsBirthProfile] = useState(false);
   const [interpretationId, setInterpretationId] = useState("");
 
   const [, setIntroProfile] = useState<IntroProfile | null>(null);
@@ -477,53 +479,30 @@ export default function TodayFortunePage() {
     async (date: string, signal?: AbortSignal) => {
       setLoading(true);
       setError("");
+      setNeedsBirthProfile(false);
+      setActiveChartId("");
       setStreamStatus(LOADING_MESSAGE);
       setStreamSections([]);
       let showedCachedFortune = false;
 
       try {
-        const storedSaju = sessionStorage.getItem("unseinsight:lastSaju");
-        let activeEntry: any = null;
-
-        if (storedSaju) {
-          try {
-            activeEntry = JSON.parse(storedSaju);
-          } catch {
-            sessionStorage.removeItem("unseinsight:lastSaju");
-          }
+        // 브라우저에 남은 ID도 서버에서 현재 계정 소유인지 확인합니다.
+        // DB 조회 실패를 사주 미등록으로 취급하지 않습니다.
+        const activeEntry = await loadActiveSajuChart({
+          requirePersisted: true,
+          requireAuthenticated: true,
+          signal,
+        });
+        if (signal?.aborted) return;
+        if (!activeEntry) {
+          setNeedsBirthProfile(true);
+          throw new Error("아직 이 계정에 저장된 사주정보가 없습니다. 사주정보를 한 번 등록하면 다시 입력하지 않아도 됩니다.");
         }
 
-        if (!activeEntry?.chartId) {
-          const chartResponse = await fetch("/api/saju-charts", {
-            method: "GET",
-            cache: "no-store",
-            signal,
-          });
-          const chartData = await chartResponse.json().catch(() => null);
-
-          if (
-            chartResponse.ok &&
-            chartData?.success &&
-            chartData?.entry?.chartId
-          ) {
-            activeEntry = chartData.entry;
-            sessionStorage.setItem(
-              "unseinsight:lastSaju",
-              JSON.stringify(activeEntry),
-            );
-          } else if (chartResponse.status === 401) {
-            throw new Error("로그인 후 오늘의 운세를 확인해 주세요.");
-          } else {
-            throw new Error(
-              "DB에 저장된 만세력 정보가 없습니다. 만세력을 먼저 계산해 주세요.",
-            );
-          }
-        }
-
-        const localChart = activeEntry?.chart || activeEntry;
+        const localChart = activeEntry.chart;
         const chartId = activeEntry?.chartId;
         setActiveChartId(String(chartId || ""));
-        const profile = activeEntry?.profile || activeEntry?.birthProfile || {};
+        const profile: Record<string, any> = activeEntry.birthProfile || {};
         const name =
           profile.profileName ||
           profile.profile_name ||
@@ -574,7 +553,7 @@ export default function TodayFortunePage() {
 
         if (!chartId) {
           throw new Error(
-            "저장된 만세력과 연결할 수 없습니다. 로그인 상태에서 만세력을 다시 계산해 주세요.",
+            "저장된 사주와 연결하지 못했습니다. 잠시 후 다시 시도해주세요.",
           );
         }
 
@@ -1223,10 +1202,10 @@ export default function TodayFortunePage() {
                 다시 시도
               </button>
               <Link
-                href="/"
+                href={needsBirthProfile ? "/saju/input" : "/home"}
                 className="today-action-button rounded-xl border border-[#dce3ed] px-6 py-3.5 font-bold text-[#263149]"
               >
-                만세력 화면으로 돌아가기
+                {needsBirthProfile ? "사주정보 입력하기" : "메인으로 돌아가기"}
               </Link>
             </div>
           </section>

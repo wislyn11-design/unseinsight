@@ -242,6 +242,7 @@ type LoadActiveSajuChartOptions = {
   // 로그인 직후에는 이전 브라우저 데이터 대신 현재 계정의 DB를 확인합니다.
   forceRemote?: boolean;
   requireAuthenticated?: boolean;
+  signal?: AbortSignal;
 };
 
 export async function loadActiveSajuChart(
@@ -258,7 +259,8 @@ export async function loadActiveSajuChart(
 
   const requestedId = !options.forceRemote && hasPersistedIds ? localEntry?.chartId : "";
   const endpoint = requestedId ? `/api/saju-charts?chartId=${encodeURIComponent(requestedId)}` : "/api/saju-charts";
-  const response = await fetch(endpoint, { cache: "no-store" });
+  const response = await fetch(endpoint, { cache: "no-store", signal: options.signal });
+  options.signal?.throwIfAborted();
   if (response.status === 401) {
     if (hasPersistedIds) clearActiveSajuChart();
     if (options.requireAuthenticated) {
@@ -267,32 +269,24 @@ export async function loadActiveSajuChart(
     return null;
   }
   if (response.status === 404) {
-    clearActiveSajuChart();
-    return null;
+    throw new Error("사주 조회 경로를 찾지 못했습니다. 잠시 후 다시 시도해주세요.");
   }
   if (!response.ok) throw new Error("저장된 만세력을 불러오지 못했습니다.");
 
   const data = await response.json();
-  const entry = data?.entry as StoredSajuChart | undefined;
-  if (options.forceRemote && data?.success === false) {
+  options.signal?.throwIfAborted();
+  if (data?.success !== true) {
     throw new Error("저장된 사주 조회에 실패했습니다. 다시 시도해주세요.");
   }
-  if (!entry) {
-    if (options.forceRemote) {
-      // 명시적인 빈 결과만 신규 입력으로 안내합니다.
-      if (data?.success !== true || data.entry !== null) {
-        throw new Error("저장된 사주 응답을 확인하지 못했습니다. 다시 시도해주세요.");
-      }
-      clearActiveSajuChart();
-    }
-    if (hasPersistedIds) clearActiveSajuChart();
+  // API가 명시적으로 빈 결과를 반환한 경우만 사주 미등록으로 처리합니다.
+  if (data.entry === null) {
+    clearActiveSajuChart();
     return null;
   }
-  if (!isChart(entry.chart)) {
-    if (options.forceRemote) {
-      throw new Error("저장된 사주 정보를 확인하지 못했습니다. 다시 시도해주세요.");
-    }
-    return null;
+  const entry = data.entry as StoredSajuChart | undefined;
+  if (!entry || !isChart(entry.chart) ||
+      (options.requirePersisted && (!entry.birthProfileId || !entry.chartId))) {
+    throw new Error("저장된 사주 정보를 확인하지 못했습니다. 다시 시도해주세요.");
   }
 
   saveActiveSajuChart(entry);

@@ -54,7 +54,7 @@ function getAccountDisplayName(user) {
 export function SajuForm({ currentUser, onSubmitData }) {
   // 사용자가 입력하는 모든 데이터를 관리하는 State (선생님의 핵심 로직)
   const [profileName, setProfileName] = useState("");
-  const [subjectType, setSubjectType] = useState("other");
+  const [subjectType, setSubjectType] = useState("self");
   const [gender, setGender] = useState("male");
   const [calendar, setCalendar] = useState("solar");
   const [year, setYear] = useState("");
@@ -71,10 +71,12 @@ export function SajuForm({ currentUser, onSubmitData }) {
   const [deletingProfileId, setDeletingProfileId] = useState("");
   const autoFilledNameRef = useRef("");
   const previousUserIdRef = useRef(null);
+  const selectionVersionRef = useRef(0);
   const accountDisplayName = getAccountDisplayName(currentUser);
   const currentUserId = currentUser?.id ?? null;
 
   const applySavedProfile = (profile) => {
+    selectionVersionRef.current += 1;
     const [birthYear = "", birthMonth = "", birthDay = ""] = String(
       profile.birthDate || "",
     ).split("-");
@@ -108,6 +110,7 @@ export function SajuForm({ currentUser, onSubmitData }) {
 
     setProfilesLoading(true);
     setProfilesError("");
+    const selectionVersion = selectionVersionRef.current;
 
     fetch("/api/saju-charts?view=profiles", { cache: "no-store" })
       .then(async (response) => {
@@ -124,7 +127,7 @@ export function SajuForm({ currentUser, onSubmitData }) {
         setSavedProfiles(profiles);
 
         const selfProfile = profiles.find((profile) => profile.relationship === "self");
-        if (selfProfile) {
+        if (selfProfile && selectionVersion === selectionVersionRef.current) {
           applySavedProfile(selfProfile);
         }
       })
@@ -150,29 +153,34 @@ export function SajuForm({ currentUser, onSubmitData }) {
     const previousUserId = previousUserIdRef.current;
 
     if (currentUserId) {
-      setSubjectType("self");
+      const accountChanged = previousUserId !== currentUserId;
+      // 인증 정보가 갱신되어도 사용자가 선택한 타인 사주를 본인으로 바꾸지 않습니다.
+      if (accountChanged) setSubjectType("self");
 
-      setProfileName((currentName) => {
-        if (!currentName.trim() || currentName === autoFilledNameRef.current) {
-          autoFilledNameRef.current = accountDisplayName;
-          return accountDisplayName;
-        }
-
-        return currentName;
-      });
+      if (accountChanged || subjectType === "self") {
+        setProfileName((currentName) => {
+          if (!currentName.trim() || currentName === autoFilledNameRef.current) {
+            autoFilledNameRef.current = accountDisplayName;
+            return accountDisplayName;
+          }
+  
+          return currentName;
+        });
+      }
 
     } else if (previousUserId) {
       // 로그인 상태에서 로그아웃한 경우에는 본인/타인 여부와 관계없이
       // 이전 사주 대상자의 이름을 남기지 않습니다.
-      setSubjectType("other");
+      setSubjectType("self");
       setProfileName("");
       autoFilledNameRef.current = "";
     }
 
     previousUserIdRef.current = currentUserId;
-  }, [accountDisplayName, currentUserId]);
+  }, [accountDisplayName, currentUserId, subjectType]);
 
   const selectSelf = () => {
+    selectionVersionRef.current += 1;
     const savedSelf = savedProfiles.find((profile) => profile.relationship === "self");
     if (savedSelf) {
       applySavedProfile(savedSelf);
@@ -186,6 +194,7 @@ export function SajuForm({ currentUser, onSubmitData }) {
   };
 
   const selectOtherPerson = () => {
+    selectionVersionRef.current += 1;
     setSelectedProfileId("");
     setSubjectType("other");
     setProfileName("");
@@ -317,6 +326,7 @@ export function SajuForm({ currentUser, onSubmitData }) {
     const sajuData = {
       birthProfileId: selectedProfileId || undefined,
       profileName: trimmedName,
+      relationship: subjectType,
       isSelf: subjectType === "self",
       year,
       month,

@@ -142,6 +142,12 @@ export function ManseryeokResult({
     if (!saju || !data) return;
 
     const chartKey = JSON.stringify({
+      // 같은 원국도 비회원 → 회원 전환 또는 대상자 변경 시에는 저장을 다시 확인합니다.
+      userId: currentUser?.id || null,
+      birthProfileId: data.birthProfileId || null,
+      relationship: data.relationship || null,
+      isSelf: data.isSelf ?? null,
+      profileName: data.profileName || "",
       year: saju.year,
       month: saju.month,
       day: saju.day,
