@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { DAILY_PROMPT_VERSION } from "@/app/lib/fortune/daily-content-version";
 import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type FortuneSection = {
   score?: number;
@@ -441,6 +441,7 @@ function LoadingState({
 }
 
 export default function TodayFortunePage() {
+  const activeFortuneController = useRef<AbortController | null>(null);
   const [selectedDate, setSelectedDate] = useState("");
   const [todayTask, setTodayTask] = useState("");
   const [planSaved, setPlanSaved] = useState(false);
@@ -477,7 +478,14 @@ export default function TodayFortunePage() {
 
 
   const loadFortune = useCallback(
-    async (date: string, signal?: AbortSignal) => {
+    async (date: string, requestSignal?: AbortSignal) => {
+      if (requestSignal?.aborted) return;
+      activeFortuneController.current?.abort();
+      const controller = new AbortController();
+      activeFortuneController.current = controller;
+      const signal = controller.signal;
+      const abortRequest = () => controller.abort();
+      requestSignal?.addEventListener("abort", abortRequest, { once: true });
       setLoading(true);
       setError("");
       setNeedsBirthProfile(false);
@@ -616,6 +624,7 @@ export default function TodayFortunePage() {
         let nextInterpretationId = "";
 
         const handleEvent = (event: any) => {
+          if (signal.aborted) return;
           if (event?.type === "status") {
             setStreamStatus(LOADING_MESSAGE);
             return;
@@ -628,6 +637,7 @@ export default function TodayFortunePage() {
 
           if (event?.type === "section" && event?.value) {
             setStreamSections((current) => {
+              if (signal.aborted) return current;
               const next = current.filter((item) => item.key !== event.key);
               return [
                 ...next,
@@ -658,22 +668,33 @@ export default function TodayFortunePage() {
           }
         };
 
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
+        let streamFinished = false;
+        try {
+          while (true) {
+            const { value, done } = await reader.read();
+            signal.throwIfAborted();
+            if (done) {
+              streamFinished = true;
+              break;
+            }
+            buffer += decoder.decode(value, { stream: true });
 
-          let newlineIndex = buffer.indexOf("\n");
-          while (newlineIndex >= 0) {
-            const line = buffer.slice(0, newlineIndex).trim();
-            buffer = buffer.slice(newlineIndex + 1);
-            if (line) handleEvent(JSON.parse(line));
-            newlineIndex = buffer.indexOf("\n");
+            let newlineIndex = buffer.indexOf("\n");
+            while (newlineIndex >= 0) {
+              const line = buffer.slice(0, newlineIndex).trim();
+              buffer = buffer.slice(newlineIndex + 1);
+              if (line) handleEvent(JSON.parse(line));
+              newlineIndex = buffer.indexOf("\n");
+            }
           }
+          buffer += decoder.decode();
+          if (buffer.trim()) handleEvent(JSON.parse(buffer.trim()));
+        } finally {
+          if (!streamFinished) await reader.cancel().catch(() => {});
+          reader.releaseLock();
         }
 
-        buffer += decoder.decode();
-        if (buffer.trim()) handleEvent(JSON.parse(buffer.trim()));
+        signal.throwIfAborted();
         if (!completedFortune) {
           throw new Error(
             "Gemini 운세 생성이 완료되지 않았습니다. 다시 시도해 주세요.",
@@ -714,6 +735,7 @@ export default function TodayFortunePage() {
             { cache: "no-store", signal },
           );
           const statusData = await statusResponse.json().catch(() => null);
+          signal.throwIfAborted();
           if (statusResponse.ok && statusData?.success) {
             setFeedbackLocked(Boolean(statusData.evaluated));
             setFeedbackChoice(statusData.evaluated ? statusData.helpful : null);
@@ -721,7 +743,7 @@ export default function TodayFortunePage() {
           }
         }
       } catch (reason) {
-        if (reason instanceof DOMException && reason.name === "AbortError")
+        if (signal.aborted || (reason instanceof Error && reason.name === "AbortError"))
           return;
 
         if (showedCachedFortune) {
@@ -736,11 +758,17 @@ export default function TodayFortunePage() {
             : "오늘의 운세를 불러오지 못했습니다.",
         );
       } finally {
+        requestSignal?.removeEventListener("abort", abortRequest);
+        if (activeFortuneController.current === controller) activeFortuneController.current = null;
         if (!signal?.aborted) setLoading(false);
       }
     },
     [],
   );
+
+  useEffect(() => {
+    return () => activeFortuneController.current?.abort();
+  }, []);
 
   useEffect(() => {
     setSelectedDate(seoulToday());

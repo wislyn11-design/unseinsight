@@ -22,15 +22,34 @@ const JIJI = ["자", "축", "인", "묘", "진", "사", "오", "미", "신", "�
 const OVERVIEW_SECTIONS = {
   wealth: {
     key: "wealth", label: "평생 재물사주", periodKey: "lifetime:wealth",
-    promptVersion: "wealth-lifetime-v1.0", resultKey: "stories", includeSummary: true,
+    promptVersion: "wealth-lifetime-v1.1-action-evidence", resultKey: "stories", includeSummary: true,
     minParagraphs: 3, maxOutputTokens: 16384,
-    timelineGuidance: `재물에만 집중하세요. 일간과 가장 강한 오행을 혼동하지 마세요.
-사주로 보는 해석과 일반적인 생활 제안을 구분해 서술하세요.
-대운의 나이·연도가 제공된 경우에만 시기를 특정하고 없는 시기를 계산하거나 만들지 마세요.
-얼마를 벌지, 부의 상한선, 수익률, 투자 적합성, 복권 당첨, 계약 성공을 예측·보장하지 마세요.
-자산군·종목·매매 시점·차입·레버리지를 권유하지 마세요. 손재수로 공포를 주거나 개운 상품을 권하지 마세요.
-사용자의 실제 직업·소득·소비 기록은 제공되지 않았으므로 이미 알고 있는 사실처럼 말하지 마세요.
-각 항목을 '명식에서 읽는 특징', '생활에서 돌아볼 모습', '관리할 때 참고할 점'으로 구성하세요.`,
+    timelineGuidance: `재물에만 집중하세요. 다음 기준은 공통 분석 원칙 중 본문에 전문 근거를 섞으라는 지시보다 우선합니다.
+[재물운의 기본 약속]
+독자가 자신을 이해하고 다음 행동을 알 수 있게 쓰세요. "무게를 둔 해석입니다", "돌아볼 필요가 있습니다"처럼 제3자 보고서 문체로 거리를 두지 마세요.
+사주 관점의 성향은 "돈을 관리할 때 중요한 기준은 …입니다"처럼 명료하게 정리하되, 실제 소득·직업·부채·소비·가족 행동을 이미 확인한 사실처럼 말하지 마세요.
+"돈이 들어오는 길은 탄탄하다", "사람 때문에 돈을 잃는다" 등 실제 재무 상태나 미래 결과를 단정하지 마세요. 생활 사례는 "…할 때", "…했다면"처럼 조건을 밝혀 설명하세요.
+평생의 수입 형성 방식, 축적·사용 원칙, 반복해 점검할 위험, 제공된 시기별 변화까지 연결하세요. 단순 월급 관리법만 네 번 반복하지 마세요.
+[읽는 순서와 어휘]
+각 항목의 paragraphs는 정확히 3개입니다. 제목은 순서대로 "핵심 성향", "생활에서 돌아볼 모습", "먼저 해볼 일"로 고정하세요.
+첫 문단에는 강점과 과해질 때의 부담을 함께, 두 번째에는 해당 특징과 연결된 구체적인 생활 상황을, 세 번째에는 그 상황에 맞는 우선 행동 1~2개를 작성하세요.
+각 body는 2~4문장으로 씁니다. 행동은 무엇을 언제 어떻게 점검할지 분명하게 쓰고, 두 단계가 필요하면 JSON 문자열 안의 줄바꿈으로 구분하세요.
+summary.sentence, keywords, eyebrow, headline, paragraphs, tip, evidenceReasons.title 및 conclusion에는 한자와 명리 전문 용어를 쓰지 마세요.
+일간·십성·재성·식상·비겁·정재·편재·인성·관성·공망·합충·대운 등의 전문 설명은 evidenceReasons.body에만 두세요. tip은 가장 먼저 할 행동 한 문장입니다.
+[확인된 원인과 결론 연결]
+각 항목에 evidenceReasons 배열을 정확히 3개 작성하고 key 순서는 income, retention, risk로 고정하세요.
+income은 "수입을 만드는 힘", retention은 "모으고 지키는 기준", risk는 "주의할 지점"입니다.
+각 conclusion에는 앞선 본문에서 설명한 결론 하나를 일상어로 요약하고, body에는 그 결론에 직접 사용한 실제 원국·저장된 운의 근거와 해석 연결을 설명하세요.
+각 body는 2문장 이내입니다. 용어에 한자를 병기할 경우 뜻이 맞는 경우에만 쓰고 일상어로 의미를 덧붙이세요.
+evidenceFactIds에는 해당 근거의 실제 factId를 넣으세요. ID가 존재하는 것과 그 ID가 결론을 뒷받침하는 것은 다르므로 내용을 확인하세요.
+없는 현상을 채우려고 비겁 과다·군비쟁재·재다신약·식상생재·재고·개고·격국·용신을 새로 판정하지 마세요. 서버가 확정하지 않은 복합 판정은 원국의 단일 요소를 근거로 확정하지 마세요.
+근거가 부족한 결론은 본문에서도 빼고, 확인 가능한 구조와 연결되는 다른 관찰을 작성하세요. 정재 하나를 월급, 편재 하나를 투자 성공, 인성 하나를 부동산 적합성으로 공식화하지 마세요.
+지장간에 있는 재성을 겉에 드러난 재성과 혼동하지 말고, 일간과 가장 강한 오행을 혼동하지 마세요.
+[시기와 재무 제안의 경계]
+대운의 나이·연도가 제공된 경우에만 시기를 특정하고 없는 시기를 계산하거나 만들지 마세요. 평생 재산 규모·부의 상한선·수익률·복권·실제 수입 시점은 예측하지 마세요.
+어떤 자산이 유리한지, 현금·부동산·주식·사업 중 무엇을 선택할지, 매매·계약 시점이나 차입·레버리지를 사주로 권유하지 마세요.
+일반 생활 제안은 지출 내역 확인, 지원 금액의 한도 설정, 약속의 문서 확인, 목표와 사용 목적 구분처럼 낮은 위험의 행동으로 작성하세요. 가족을 위한 필수 생활비를 낭비로 취급하지 마세요.
+강제 이체·투자·자금 동결을 모든 사람의 정답처럼 권하지 마세요. 손실 공포나 개운 상품으로 유도하지 마세요.`,
     items: [
       { id: 101, title: "나와 돈의 관계", guidance: "원국의 재물 구조, 돈과 안정감의 관계, 재성을 다른 십성과 함께 해석한 기본 성향" },
       { id: 102, title: "돈을 버는 나의 방식", guidance: "경험·전문성·활동·관계가 수입과 연결되는 성향과 균형, 특정 직업이나 성공 보장 금지" },
@@ -317,6 +336,46 @@ function validateSummary(summary, availableFactIds, identity) {
   );
 }
 
+function validateWealthStory(item, availableFactIds) {
+  const headings = ["핵심 성향", "생활에서 돌아볼 모습", "먼저 해볼 일"];
+  if (item.paragraphs.length !== headings.length || item.paragraphs.some((p, i) => p.title !== headings[i])) {
+    throw new Error("재물풀이의 본문 순서를 확인하지 못했습니다.");
+  }
+  const keys = ["income", "retention", "risk"];
+  const titles = ["수입을 만드는 힘", "모으고 지키는 기준", "주의할 지점"];
+  if (!Array.isArray(item.evidenceReasons) || item.evidenceReasons.length !== keys.length) {
+    throw new Error("재물풀이의 구조화된 근거가 누락되었습니다.");
+  }
+  item.evidenceReasons.forEach((reason, i) => {
+    if (!isPlainObject(reason) || reason.key !== keys[i] || reason.title !== titles[i] || !isNonEmptyString(reason.conclusion) || !isNonEmptyString(reason.body)) {
+      throw new Error("재물풀이의 근거 구성이 올바르지 않습니다.");
+    }
+    validateEvidenceFactIds(reason.evidenceFactIds, availableFactIds, `재물풀이 ${item.id}번 ${reason.title}`);
+  });
+  for (const key of ["eyebrow", "headline", "tip"]) {
+    validateWealthPlainText(item[key], `stories[id=${item.id}].${key}`);
+  }
+  normalizeKeywords(item.keywords).forEach((text, i) => validateWealthPlainText(text, `stories[id=${item.id}].keywords[${i}]`));
+  item.paragraphs.forEach((paragraph, i) => {
+    for (const key of ["title", "body"]) {
+      validateWealthPlainText(paragraph[key], `stories[id=${item.id}].paragraphs[${i}].${key}`);
+    }
+  });
+  item.evidenceReasons.forEach((reason, i) => {
+    for (const key of ["title", "conclusion"]) {
+      validateWealthPlainText(reason[key], `stories[id=${item.id}].evidenceReasons[${i}].${key}`);
+    }
+  });
+}
+
+function validateWealthPlainText(text, context) {
+  const technicalWords = /[\u3400-\u4dbf\u4e00-\u9fff]|일간|원국|명식|십성|오행|천간|지장간|정재|편재|식신|정관|편관|비견|겁재|정인|편인|식상|재성|투간|군비쟁재|재다신약|신강|신약|용신|희신|기신|개고|공망|합충|형충|생극제화|대운/;
+  const match = String(text).match(technicalWords);
+  if (match) {
+    throw new Error(`재물풀이 ${context}에 전문 용어 '${match[0]}'가 포함되어 있습니다. 해당 표현은 일상어로 바꾸고 전문 설명은 evidenceReasons.body에만 작성하세요.`);
+  }
+}
+
 function validateStoryItem(item, expectedItem, availableFactIds, section) {
   const expectedId = expectedItem.id;
   if (!isPlainObject(item) || Number(item.id) !== expectedId) {
@@ -385,6 +444,10 @@ function validateOverviewResult(result, featureSnapshot, section) {
   }
   if (section.includeSummary) {
     validateSummary(result.summary, availableFactIds, featureSnapshot.displayIdentity);
+    if (section.key === "wealth") {
+      validateWealthPlainText(result.summary.sentence, "summary.sentence");
+      normalizeKeywords(result.summary.keywords).forEach((text, i) => validateWealthPlainText(text, `summary.keywords[${i}]`));
+    }
   }
 
   const stories = getResultStories(result, section);
@@ -398,6 +461,7 @@ function validateOverviewResult(result, featureSnapshot, section) {
       (candidate) => Number(candidate?.id) === expectedItem.id,
     );
     validateStoryItem(item, expectedItem, availableFactIds, section);
+    if (section.key === "wealth") validateWealthStory(item, availableFactIds);
   }
 }
 
@@ -410,11 +474,18 @@ function buildOutputExample(section) {
     keywords: ["키워드1", "키워드2", "키워드3"],
     evidenceFactIds: ["실제 factId"],
     paragraphs: Array.from({ length: paragraphCount }, (_, index) => index + 1).map((number) => ({
-      title: `서로 다른 소제목${number}`,
+      title: section.key === "wealth" ? ["핵심 성향", "생활에서 돌아볼 모습", "먼저 해볼 일"][number - 1] : `서로 다른 소제목${number}`,
       body: "충분하고 깊이 있는 풀이 원문",
       evidenceFactIds: ["실제 factId"],
     })),
     tip: "나를 위한 구체적인 인사이트 원문",
+    ...(section.key === "wealth" ? {
+      evidenceReasons: [
+        { key: "income", title: "수입을 만드는 힘", conclusion: "앞선 본문의 수입 성향 결론", body: "이 결론에 사용한 확인된 명리 근거와 해석 연결", evidenceFactIds: ["실제 factId"] },
+        { key: "retention", title: "모으고 지키는 기준", conclusion: "앞선 본문의 축적·관리 결론", body: "이 결론에 사용한 확인된 명리 근거와 해석 연결", evidenceFactIds: ["실제 factId"] },
+        { key: "risk", title: "주의할 지점", conclusion: "앞선 본문의 주의점 결론", body: "이 결론에 사용한 확인된 명리 근거와 해석 연결", evidenceFactIds: ["실제 factId"] },
+      ],
+    } : {}),
   }));
 
   const output = { [section.resultKey]: stories };
@@ -464,7 +535,7 @@ ${currentYear}년
 3. 세운·월운·일진이나 오늘의 운세는 분석하지 마세요.
 4. 막연한 칭찬이나 누구에게나 맞는 표현을 피하고, 제공된 원국과 대운의 명리적 특징을 반영하세요.
 5. 유료 사주총평에 어울리도록 충분히 깊고 풍부하게 설명하되 같은 말을 반복하지 마세요.
-6. 각 상세 본문에는 명리적 근거, 실제 생활에서 드러나는 모습, 균형을 위한 방향을 자연스럽게 연결하세요.
+${section.key === "wealth" ? "6. 본문에는 생활에서 이해할 수 있는 성향과 구체적 행동을 연결하고, 명리적 근거는 evidenceReasons.body에 분리하세요." : "6. 각 상세 본문에는 명리적 근거, 실제 생활에서 드러나는 모습, 균형을 위한 방향을 자연스럽게 연결하세요."}
 7. 신강·신약, 격국, 용신·희신·기신은 서버가 확정하지 않았으므로 사실처럼 단정하거나 새로 계산하지 마세요.
 8. 오행의 개수만 보고 특정 오행이 무조건 좋거나 나쁘다고 단정하지 말고 월지·일간·원국 관계를 함께 살펴보세요.
 9. 직업·재물·연애·인생 시기를 운명처럼 확정하거나 성공·부·결혼을 보장하지 마세요.
@@ -473,23 +544,62 @@ ${currentYear}년
 12. 각 이야기와 각 paragraph에는 그 내용을 작성할 때 직접 사용한 evidenceFactIds를 각각 넣으세요.
 ${section.includeSummary ? "13. summary.element는 아래 고정 일간 정보의 element를 그대로 사용하세요. 강한 오행이나 대운의 오행으로 바꾸지 마세요. 대표 문장과 키워드에도 사용한 근거 ID를 넣으세요." : ""}
 
-${section.timelineGuidance ? `[인생 지도 전용 기준]\n${section.timelineGuidance}` : ""}
+${section.timelineGuidance ? `[${section.key === "wealth" ? "재물운" : "인생 지도"} 전용 기준]\n${section.timelineGuidance}` : ""}
 
 [항목별 작성 기준]
 ${itemInstructions}
-각 항목의 paragraphs는 최소 ${section.minParagraphs || 4}개 이상의 서로 다른 소주제로 작성하세요. body는 한두 문장으로 급하게 끝내지 말고 충분히 풀어서 설명하세요.
+${section.key === "wealth" ? "각 항목의 paragraphs는 재물운 전용 기준에 따라 정확히 3개로 작성하고, 전문적인 근거는 evidenceReasons에만 작성하세요." : `각 항목의 paragraphs는 최소 ${section.minParagraphs || 4}개 이상의 서로 다른 소주제로 작성하세요. body는 한두 문장으로 급하게 끝내지 말고 충분히 풀어서 설명하세요.`}
 
 [출력 형식]
 마크다운, 코드블록, 부가 설명 없이 아래 구조의 JSON 객체 하나만 출력하세요.
 화면에는 문자열을 수정하거나 요약하지 않고 그대로 표시하므로 완성된 자연스러운 한국어 문장으로 작성하세요.
-${JSON.stringify(buildOutputExample(section), null, 2)}`;
+${section.key === "wealth" ? "API의 responseSchema에 지정된 모든 필수 필드를 작성하세요. stories는 101, 102, 103, 104 순서이며 각 항목·문단·근거 및 summary의 evidenceFactIds를 빠짐없이 작성하세요. 실제로 사용한 factId만 선택하고, 모든 근거 목록을 같게 복사하거나 임의로 채우지 마세요." : JSON.stringify(buildOutputExample(section), null, 2)}`;
+}
+
+// API에는 필수 필드와 자료형만 지정합니다. 근거 목록을 enum으로 반복하거나
+// 중첩 배열에 개수 제한을 넣으면 Vertex AI의 스키마 복잡도 한도를 넘을 수 있습니다.
+// 정확한 개수·순서·일간·실제 근거 ID 검증은 기존 서버 검증에서 수행합니다.
+function buildWealthResponseSchema() {
+  const object = (properties) => ({ type: "OBJECT", properties, required: Object.keys(properties), propertyOrdering: Object.keys(properties) });
+  const array = (items) => ({ type: "ARRAY", items });
+  const text = { type: "STRING" };
+  const evidenceFactIds = array(text);
+  const keywords = array(text);
+  return object({
+    stories: array(object({
+      id: { type: "INTEGER" },
+      eyebrow: text,
+      headline: text,
+      keywords,
+      evidenceFactIds,
+      paragraphs: array(object({
+        title: text,
+        body: text,
+        evidenceFactIds,
+      })),
+      tip: text,
+      evidenceReasons: array(object({
+        key: text,
+        title: text,
+        conclusion: text,
+        body: text,
+        evidenceFactIds,
+      })),
+    })),
+    summary: object({
+      element: text,
+      sentence: text,
+      keywords,
+      evidenceFactIds,
+    }),
+  });
 }
 
 function normalizeEvidenceFactIds(evidenceFactIds) {
   return evidenceFactIds.map((factId) => factId.trim());
 }
 
-function normalizeStory(item) {
+function normalizeStory(item, section) {
   return {
     id: Number(item.id),
     eyebrow: item.eyebrow.trim(),
@@ -504,6 +614,15 @@ function normalizeStory(item) {
       ),
     })),
     tip: item.tip.trim(),
+    ...(section.key === "wealth" ? {
+      evidenceReasons: item.evidenceReasons.map(reason => ({
+        key: reason.key,
+        title: reason.title.trim(),
+        conclusion: reason.conclusion.trim(),
+        body: reason.body.trim(),
+        evidenceFactIds: normalizeEvidenceFactIds(reason.evidenceFactIds),
+      })),
+    } : {}),
   };
 }
 
@@ -548,7 +667,7 @@ function parseGeminiJson(text, featureSnapshot, section) {
   const stories = getResultStories(result, section)
     .slice()
     .sort((a, b) => Number(a.id) - Number(b.id))
-    .map(normalizeStory);
+    .map(item => normalizeStory(item, section));
   const normalized = { [section.resultKey]: stories };
 
   if (section.includeSummary) {
@@ -566,21 +685,34 @@ function parseGeminiJson(text, featureSnapshot, section) {
 
 async function generateOverview(ai, featureSnapshot, section) {
   let lastError = null;
+  let previousText = null;
+  const prompt = buildOverviewPrompt(featureSnapshot, section);
+  const responseSchema = section.key === "wealth" ? buildWealthResponseSchema() : null;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    let receivedResponse = false;
     try {
       const response = await ai.models.generateContent({
         model: MODEL,
-        contents: buildOverviewPrompt(featureSnapshot, section),
+        contents: section.key === "wealth" && previousText !== null ? [
+          { role: "user", parts: [{ text: prompt }] },
+          { role: "model", parts: [{ text: previousText || "{}" }] },
+          { role: "user", parts: [{ text: `직전 응답이 서버 검증을 통과하지 못했습니다. 오류: ${lastError?.message}\n위 오류를 수정하고 나머지 필수 필드도 모두 점검한 완전한 JSON 객체를 다시 작성하세요. 전문 설명은 evidenceReasons.body에만 두고 다른 문자열은 일상어로 작성하세요. 모든 evidenceFactIds는 실제 목록에서 해당 문장의 근거를 골라 1~12개 작성하세요. 누락된 근거를 추측하거나 임의로 채우지 마세요.` }] },
+        ] : prompt,
         config: {
           thinkingConfig: { thinkingBudget: 2048 },
           maxOutputTokens: section.maxOutputTokens || 12288,
           responseMimeType: "application/json",
           temperature: 0.4,
+          ...(responseSchema ? { responseSchema } : {}),
         },
       });
-      return parseGeminiJson(response.text || "", featureSnapshot, section);
+      receivedResponse = true;
+      previousText = response.text || "";
+      return parseGeminiJson(previousText, featureSnapshot, section);
     } catch (error) {
+      // 결제·권한 등 API 호출 자체의 실패는 내용 수정 재시도로 해결되지 않습니다.
+      if (section.key === "wealth" && !receivedResponse) throw error;
       lastError = error;
     }
   }
@@ -602,6 +734,7 @@ function collectOverviewContent(result, section) {
       ...item.keywords,
       ...item.paragraphs.flatMap((paragraph) => [paragraph.title, paragraph.body]),
       item.tip,
+      ...(section.key === "wealth" ? item.evidenceReasons : []).flatMap(reason => [reason.title, reason.conclusion, reason.body]),
     ]),
   ]
     .filter(Boolean)

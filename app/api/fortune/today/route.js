@@ -370,10 +370,11 @@ function applyGeminiEvent(fortune, event) {
   throw new Error(`Gemini가 알 수 없는 응답 유형(${event.type})을 반환했습니다.`);
 }
 
-async function generateGeminiFortune(ai, saju, target, send) {
+async function generateGeminiFortune(ai, saju, target, send, signal) {
   let lastError = null;
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
+    signal.throwIfAborted();
     if (attempt > 0) {
       send({ type: "reset" });
       send({
@@ -389,14 +390,17 @@ async function generateGeminiFortune(ai, saju, target, send) {
         contents: buildStreamingPrompt(saju, target),
         config: {
           thinkingConfig: { thinkingBudget: 256 },
+          abortSignal: signal,
         },
       });
+      signal.throwIfAborted();
 
       const fortune = {};
       let buffer = "";
       let parsedEventCount = 0;
 
       const parseObject = (jsonObject) => {
+        signal.throwIfAborted();
         const modelEvent = JSON.parse(jsonObject);
         const clientEvent = applyGeminiEvent(fortune, modelEvent);
         parsedEventCount += 1;
@@ -404,6 +408,7 @@ async function generateGeminiFortune(ai, saju, target, send) {
       };
 
       for await (const chunk of modelStream) {
+        signal.throwIfAborted();
         const text = chunk.text || "";
         if (!text) continue;
         buffer += text;
@@ -412,6 +417,7 @@ async function generateGeminiFortune(ai, saju, target, send) {
         for (const jsonObject of extracted.objects) parseObject(jsonObject);
       }
 
+      signal.throwIfAborted();
       const finalExtracted = extractCompleteJsonObjects(buffer);
       for (const jsonObject of finalExtracted.objects) parseObject(jsonObject);
       const unparsed = finalExtracted.rest.replace(/```\s*$/i, "").trim();
@@ -427,6 +433,10 @@ async function generateGeminiFortune(ai, saju, target, send) {
       validateFortuneShape(fortune);
       return fortune;
     } catch (error) {
+      // 요청 취소와 스트림 종료는 새 Gemini 호출로 재시도하지 않습니다.
+      if (signal.aborted || error?.name === "AbortError" || error?.code === "ERR_INVALID_STATE") {
+        throw error;
+      }
       lastError = error;
     }
   }
@@ -458,20 +468,77 @@ function collectContent(fortune) {
   ].filter(Boolean).join("\n\n");
 }
 
-function createNdjsonResponse(producer) {
+function createNdjsonResponse(producer, requestSignal) {
   const encoder = new TextEncoder();
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+  let closed = false;
+  let streamController;
+
+  const detach = () => requestSignal?.removeEventListener("abort", onRequestAbort);
+  const close = () => {
+    detach();
+    if (closed) return;
+    closed = true;
+    try {
+      streamController.close();
+    } catch {
+      // 응답 전송 계층에서 이미 종료했다면 추가 작업도 중단합니다.
+      abortController.abort();
+    }
+  };
+  const onRequestAbort = () => {
+    abortController.abort();
+    close();
+  };
   const stream = new ReadableStream({
     start(controller) {
-      const send = (event) => controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
-      void producer(send)
-        .catch((error) => {
+      streamController = controller;
+      requestSignal?.addEventListener("abort", onRequestAbort, { once: true });
+      if (requestSignal?.aborted) {
+        onRequestAbort();
+        return;
+      }
+
+      const send = (event) => {
+        signal.throwIfAborted();
+        if (closed) throw new DOMException("응답 연결이 종료되었습니다.", "AbortError");
+        const data = encoder.encode(`${JSON.stringify(event)}\n`);
+        try {
+          controller.enqueue(data);
+        } catch {
+          closed = true;
+          detach();
+          abortController.abort();
+          throw new DOMException("응답 연결이 종료되었습니다.", "AbortError");
+        }
+      };
+
+      // producer의 동기 오류부터 종료까지 한 흐름에서 처리합니다.
+      void (async () => {
+        try {
+          await producer(send, signal);
+        } catch (error) {
+          if (signal.aborted || error?.name === "AbortError") return;
           console.error("오늘의 운세 스트리밍 오류:", error);
-          send({
-            type: "error",
-            error: error instanceof Error ? error.message : "Gemini 운세 생성에 실패했습니다. 다시 시도해 주세요.",
-          });
-        })
-        .finally(() => controller.close());
+          try {
+            send({
+              type: "error",
+              error: error instanceof Error ? error.message : "Gemini 운세 생성에 실패했습니다. 다시 시도해 주세요.",
+            });
+          } catch {
+            // 오류 안내를 보내는 사이에도 클라이언트가 이탈할 수 있습니다.
+          }
+        } finally {
+          close();
+        }
+      })();
+    },
+    cancel() {
+      // 취소된 ReadableStream의 controller는 다시 닫지 않습니다.
+      closed = true;
+      detach();
+      abortController.abort();
     },
   });
 
@@ -576,13 +643,13 @@ export async function POST(request) {
             interpretationId: existingInterpretation.id,
             reused: true,
           });
-        });
+        }, request.signal);
       } catch {
         // 형식이 깨진 저장 결과는 표시하지 않고 Gemini에 새로 요청합니다.
       }
     }
 
-    return createNdjsonResponse(async (send) => {
+    return createNdjsonResponse(async (send, signal) => {
       send({
         type: "status",
         stage: "generating",
@@ -596,7 +663,8 @@ export async function POST(request) {
         location: LOCATION,
       });
 
-      const fortune = await generateGeminiFortune(ai, saju, target, send);
+      const fortune = await generateGeminiFortune(ai, saju, target, send, signal);
+      signal.throwIfAborted();
 
       const interpretationPayload = {
         user_id: user.id,
@@ -639,7 +707,7 @@ export async function POST(request) {
         interpretationId: saved.id,
         reused: false,
       });
-    });
+    }, request.signal);
   } catch (error) {
     console.error("오늘의 운세 API 오류:", error);
     return jsonError(
