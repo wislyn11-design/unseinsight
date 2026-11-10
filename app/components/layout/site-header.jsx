@@ -13,7 +13,10 @@ const navigation = [
   { label: "소원함", href: "/fortune/wish-box" },
 ]
 
-export function SiteHeader({ onUserChange }) {
+/**
+ * @param {{ onUserChange?: (user: import("@supabase/supabase-js").User | null) => void }} props
+ */
+export function SiteHeader({ onUserChange } = {}) {
   const pathname = usePathname()
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
