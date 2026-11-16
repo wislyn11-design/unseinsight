@@ -9,6 +9,7 @@ export const SAJU_SCHEMA_VERSION = 1 as const;
 export type SajuRelationship = "self" | "other";
 
 export type BirthProfileInput = {
+  profileKind?: "person" | "child";
   profileName: string;
   relationship: SajuRelationship;
   isSelf: boolean;
@@ -95,6 +96,7 @@ function profileFromForm(form: LooseFormData = {}, chart?: SajuChart): BirthProf
   const relationship = normalizeRelationship(form.relationship, form.isSelf);
 
   return {
+    ...(form.profileKind === "child" ? { profileKind: "child" as const } : {}),
     profileName: text(form.profileName || chart?.profileName) || "내 사주",
     relationship,
     isSelf: relationship === "self",
@@ -293,19 +295,25 @@ export async function loadActiveSajuChart(
   return entry;
 }
 
-export async function persistActiveSajuChart(entry: StoredSajuChart) {
+export async function persistActiveSajuChart(
+  entry: StoredSajuChart,
+  options: { makeActive?: boolean; signal?: AbortSignal } = {},
+) {
   const retryDelays = [0, 1_500, 2_500];
 
   for (let attempt = 0; attempt < retryDelays.length; attempt += 1) {
+    options.signal?.throwIfAborted();
     const delay = retryDelays[attempt];
     if (delay > 0) {
       await new Promise((resolve) => window.setTimeout(resolve, delay));
     }
+    options.signal?.throwIfAborted();
 
     const response = await fetch("/api/saju-charts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(entry),
+      signal: options.signal,
     });
 
     if (response.status === 401) {
@@ -325,7 +333,7 @@ export async function persistActiveSajuChart(entry: StoredSajuChart) {
         chartId: data.chartId,
       };
 
-      saveActiveSajuChart(savedEntry);
+      if (options.makeActive !== false) saveActiveSajuChart(savedEntry);
 
       return {
         saved: true,
@@ -350,6 +358,25 @@ export async function persistActiveSajuChart(entry: StoredSajuChart) {
   }
 
   throw new Error("만세력을 저장하지 못했습니다.");
+}
+
+// 자녀 선택은 본인/타인 서비스를 위한 활성 사주 저장소를 변경하지 않습니다.
+export async function loadChildSajuCharts(signal?: AbortSignal): Promise<{
+  ownerUserId: string;
+  entries: StoredSajuChart[];
+}> {
+  const response = await fetch("/api/saju-charts?view=children", { cache: "no-store", signal });
+  const data = await response.json();
+  signal?.throwIfAborted();
+  if (!response.ok || data?.success !== true) {
+    throw new Error(data?.error || "저장된 자녀 사주를 불러오지 못했습니다.");
+  }
+  if (!text(data.ownerUserId) || !Array.isArray(data.entries) || data.entries.some((entry: StoredSajuChart) =>
+    !entry?.chartId || !entry.birthProfileId || entry.ownerUserId !== data.ownerUserId ||
+    entry.birthProfile?.profileKind !== "child" || entry.birthProfile?.isSelf || !isChart(entry.chart))) {
+    throw new Error("저장된 자녀 사주 응답을 확인하지 못했습니다.");
+  }
+  return { ownerUserId: data.ownerUserId, entries: data.entries };
 }
 
 // OAuth 중 DB 조회가 시작되어도 이번에 입력한 결과는 별도로 보관합니다.

@@ -3,6 +3,7 @@ import { createClient } from "@/app/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 type BirthProfile = {
+  profileKind?: "person" | "child";
   profileName?: string;
   relationship?: string;
   isSelf?: boolean;
@@ -69,12 +70,47 @@ function validateEntry(entry: unknown) {
   return value;
 }
 
+function chartEntry(data: any, userId: string) {
+  const profile = Array.isArray(data.birth_profiles) ? data.birth_profiles[0] : data.birth_profiles;
+  return {
+    schemaVersion: 1, ownerUserId: userId, birthProfileId: data.birth_profile_id,
+    chartId: data.id, engineVersion: data.engine_version, calculatedAt: data.calculated_at,
+    birthProfile: {
+      profileName: profile?.profile_name || "내 사주",
+      relationship: profile?.is_primary ? "self" : normalizeRelationship(profile?.relationship, false),
+      isSelf: Boolean(profile?.is_primary || profile?.relationship === "self"),
+      ...(profile?.profile_kind ? { profileKind: profile.profile_kind } : {}),
+      gender: normalizeGender(profile?.gender), calendarType: profile?.calendar_type || "양력",
+      birthDate: profile?.birth_date || "", birthTime: profile?.birth_time || "",
+      isLeapMonth: Boolean(profile?.is_leap_month), usesEarlyRatHour: false,
+    },
+    chart: data.chart_data?.chart || data.chart_data,
+  };
+}
+
+function childrenDatabaseError(error: { code?: string; message?: string }) {
+  return error.code === "42703" || error.code === "PGRST204"
+    ? "자녀 등록용 DB 설정이 필요합니다. 20261112_child_profile_kind.sql을 먼저 실행해 주세요."
+    : error.message || "자녀 사주 조회에 실패했습니다.";
+}
+
 export async function GET(request: Request) {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return Response.json({ success: false, error: "로그인이 필요합니다." }, { status: 401 });
 
   const view = new URL(request.url).searchParams.get("view");
+
+  if (view === "children") {
+    const { data, error } = await supabase.from("saju_charts")
+      .select("id, birth_profile_id, engine_version, calculated_at, chart_data, birth_profiles!inner(profile_name, relationship, is_primary, profile_kind, gender, calendar_type, birth_date, birth_time, is_leap_month)")
+      .eq("user_id", user.id).eq("birth_profiles.profile_kind", "child")
+      .eq("birth_profiles.is_primary", false).eq("birth_profiles.relationship", "other")
+      .order("calculated_at", { ascending: false });
+    if (error) return Response.json({ success: false, error: childrenDatabaseError(error) }, { status: 500 });
+    return Response.json({ success: true, ownerUserId: user.id, entries: (data || []).map(row => chartEntry(row, user.id)) },
+      { headers: { "Cache-Control": "no-store" } });
+  }
 
   if (view === "profiles") {
     const { data: profiles, error: profilesError } = await supabase
@@ -150,31 +186,9 @@ export async function GET(request: Request) {
   }
   if (!data) return Response.json({ success: true, entry: null }, { headers: { "Cache-Control": "no-store" } });
 
-  const profileValue = Array.isArray(data.birth_profiles) ? data.birth_profiles[0] : data.birth_profiles;
-  const profile = profileValue as Record<string, any> | null;
-  return Response.json({
-    success: true,
-    entry: {
-      schemaVersion: 1,
-      ownerUserId: user.id,
-      birthProfileId: data.birth_profile_id,
-      chartId: data.id,
-      engineVersion: data.engine_version,
-      calculatedAt: data.calculated_at,
-      birthProfile: {
-        profileName: profile?.profile_name || "내 사주",
-        relationship: profile?.is_primary ? "self" : normalizeRelationship(profile?.relationship, false),
-        isSelf: Boolean(profile?.is_primary || profile?.relationship === "self"),
-        gender: normalizeGender(profile?.gender),
-        calendarType: profile?.calendar_type || "양력",
-        birthDate: profile?.birth_date || "",
-        birthTime: profile?.birth_time || "",
-        isLeapMonth: Boolean(profile?.is_leap_month),
-        usesEarlyRatHour: false,
-      },
-      chart: data.chart_data?.chart || data.chart_data,
-    },
-  }, { headers: { "Cache-Control": "no-store" } });
+  return Response.json({ success: true, entry: chartEntry(data, user.id) }, {
+    headers: { "Cache-Control": "no-store" },
+  });
 }
 
 export async function POST(request: Request) {
@@ -188,6 +202,8 @@ export async function POST(request: Request) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return Response.json({ success: false, error: "로그인이 필요합니다." }, { status: 401 });
 
+    const isChild = profile.profileKind === "child";
+    if (isChild && relationship !== "other") throw new Error("자녀는 다른 사람 사주로 등록해야 합니다.");
     const profilePayload = {
       user_id: user.id,
       profile_name: profile.profileName || (relationship === "self" ? "내 사주" : "다른 사람"),
@@ -200,7 +216,27 @@ export async function POST(request: Request) {
       is_leap_month: Boolean(profile.isLeapMonth),
       timezone: "Asia/Seoul",
       is_primary: relationship === "self",
+      ...(isChild ? { profile_kind: "child" } : {}),
     };
+
+    if (isChild) {
+      // 기존 타인과 출생정보가 같으면 같은 프로필을 재사용하되 대표 본인은 보호합니다.
+      let query = supabase.from("birth_profiles").select("id, is_primary")
+        .eq("user_id", user.id);
+      if (entry.birthProfileId) {
+        query = query.eq("id", entry.birthProfileId);
+      } else {
+        query = query.eq("gender", profilePayload.gender).eq("calendar_type", profilePayload.calendar_type)
+          .eq("birth_date", profilePayload.birth_date).eq("birth_time_unknown", profilePayload.birth_time_unknown)
+          .eq("is_leap_month", profilePayload.is_leap_month).eq("timezone", profilePayload.timezone);
+        query = profilePayload.birth_time ? query.eq("birth_time", profilePayload.birth_time) : query.is("birth_time", null);
+      }
+      const { data: match, error: matchError } = await query.limit(1).maybeSingle();
+      if (matchError) throw matchError;
+      if (entry.birthProfileId && !match) throw new Error("이 계정의 사주 대상자를 찾지 못했습니다.");
+      if (match?.is_primary) throw new Error("본인의 대표 사주는 자녀로 변경할 수 없습니다.");
+      if (match) entry.birthProfileId = match.id;
+    }
 
     let savedProfile: { id: string } | null = null;
     let profileError: { message?: string } | null = null;
@@ -313,6 +349,34 @@ export async function POST(request: Request) {
       },
       { status: 400 }
     );
+  }
+}
+
+// 저장된 가족/지인 중 사용자가 직접 선택한 대상만 자녀로 분류합니다.
+export async function PATCH(request: Request) {
+  try {
+    const body = await request.json();
+    const id = String(body?.birthProfileId || "").trim();
+    if (!id || body?.profileKind !== "child") return Response.json({ success: false, error: "자녀로 등록할 사주를 선택해 주세요." }, { status: 400 });
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return Response.json({ success: false, error: "로그인이 필요합니다." }, { status: 401 });
+    const { data: target, error } = await supabase.from("birth_profiles").select("id, is_primary")
+      .eq("user_id", user.id).eq("id", id).maybeSingle();
+    if (error) throw error;
+    if (!target) return Response.json({ success: false, error: "이 계정의 사주를 찾지 못했습니다." }, { status: 404 });
+    if (target.is_primary) return Response.json({ success: false, error: "본인의 대표 사주는 자녀로 변경할 수 없습니다." }, { status: 409 });
+    const { data: chart, error: chartError } = await supabase.from("saju_charts").select("id")
+      .eq("user_id", user.id).eq("birth_profile_id", id).maybeSingle();
+    if (chartError) throw chartError;
+    if (!chart) return Response.json({ success: false, error: "저장된 만세력이 없습니다. 자녀 정보를 입력해 먼저 계산해 주세요." }, { status: 409 });
+    const { data: saved, error: updateError } = await supabase.from("birth_profiles")
+      .update({ profile_kind: "child", relationship: "other", is_primary: false })
+      .eq("user_id", user.id).eq("id", id).eq("is_primary", false).select("id").single();
+    if (updateError) throw updateError;
+    return Response.json({ success: true, birthProfileId: saved.id, chartId: chart.id });
+  } catch (reason: any) {
+    return Response.json({ success: false, error: childrenDatabaseError(reason) }, { status: 500 });
   }
 }
 

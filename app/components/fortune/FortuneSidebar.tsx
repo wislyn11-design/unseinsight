@@ -95,7 +95,6 @@ const MENUS: MenuItem[] = [
     label: "자녀운",
     href: "/fortune/children",
     icon: <Icon name="child" />,
-    comingSoon: true,
   },
   {
     label: "건강운",
@@ -111,6 +110,12 @@ const MENUS: MenuItem[] = [
   },
   { label: "토정비결", href: "/fortune/tojeong", icon: <Icon name="doc" /> },
 ];
+
+const CHILDREN_SUBMENUS = [
+  { label: "자녀사주", hash: "children-saju" },
+  { label: "출산 계획", hash: "children-birth", disabled: true },
+  { label: "아기 이름 짓기", hash: "children-naming", disabled: true },
+] as const;
 
 const WEALTH_SUBMENUS = [
   { label: "평생 재물사주", hash: "wealth-lifetime" },
@@ -276,6 +281,9 @@ function SidebarBody({
   const pathname = usePathname();
   const todayActive = pathname === "/fortune/today";
   const sajuActive = pathname === "/fortune/saju";
+  const childrenActive = pathname === "/fortune/children";
+  const [childrenExpanded, setChildrenExpanded] = useState(childrenActive);
+  useEffect(() => { if (childrenActive) setChildrenExpanded(true); }, [childrenActive]);
   const wealthActive = pathname === "/fortune/wealth";
   const [wealthExpanded, setWealthExpanded] = useState(wealthActive);
   useEffect(() => { if (wealthActive) setWealthExpanded(true); }, [wealthActive]);
@@ -521,6 +529,52 @@ function SidebarBody({
                     onNavigate?.();
                   }} aria-current={wealthActive ? "location" : undefined}
                     className={`relative block min-h-12 rounded-[10px] px-4 py-3 font-semibold transition before:absolute before:-left-[25px] before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full ${wealthActive ? "bg-[#f0f5ff] text-[#1760ee] before:bg-[#1760ee]" : "text-[#53627a] before:bg-[#cad8ed] hover:bg-[#f5f8ff] hover:text-[#1760ee] hover:before:bg-[#6c94df]"}`}
+                    style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}</Link>
+                ))}
+              </div>}
+            </div>;
+          }
+
+          if (menu.href === "/fortune/children") {
+            return <div key={menu.href}>
+              <div className="relative">
+                <Link href="/fortune/children#children-list" onClick={(event) => {
+                  if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                  setChildrenExpanded(true);
+                  if (childrenActive) {
+                    event.preventDefault();
+                    window.history.replaceState({ ...window.history.state,
+                      unseChildrenProfileId: "", unseChildrenPath: window.location.pathname },
+                      "", "/fortune/children#children-list");
+                    window.dispatchEvent(new Event("children:show-list"));
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                  onNavigate?.();
+                }}
+                  aria-current={active ? "page" : undefined} title={!open ? menu.label : undefined}
+                  className={`${menuClassName} ${open ? "pr-12" : ""}`}>{menuContent}</Link>
+                {open && <button type="button" onClick={() => setChildrenExpanded(value => !value)}
+                  className="absolute right-2 top-1/2 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-lg text-[#66738a] transition hover:bg-white/70 hover:text-[#1760ee]"
+                  aria-label={childrenExpanded ? "자녀운 하위 메뉴 접기" : "자녀운 하위 메뉴 펼치기"} aria-expanded={childrenExpanded}>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${childrenExpanded ? "rotate-180" : ""}`} aria-hidden="true" />
+                </button>}
+              </div>
+              {open && childrenExpanded && <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
+                {CHILDREN_SUBMENUS.map(item => "disabled" in item && item.disabled ? (
+                  <button key={item.hash} type="button" disabled aria-disabled="true"
+                    className="block min-h-12 w-full cursor-not-allowed rounded-[10px] px-4 py-3 text-left font-semibold text-[#9ca8b9]"
+                    style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}<span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[13px]">준비 중</span></button>
+                ) : (
+                  <Link key={item.hash} href={`/fortune/children#${item.hash}`} onClick={event => {
+                    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+                    if (childrenActive) { event.preventDefault();
+                      window.history.replaceState({ ...window.history.state,
+                        unseChildrenProfileId: "", unseChildrenPath: window.location.pathname }, "", `/fortune/children#${item.hash}`);
+                      window.dispatchEvent(new Event("children:show-list"));
+                      document.getElementById(item.hash)?.scrollIntoView({ behavior: "smooth", block: "start" }); }
+                    onNavigate?.();
+                  }} aria-current={childrenActive ? "location" : undefined}
+                    className={`relative block min-h-12 rounded-[10px] px-4 py-3 font-semibold transition before:absolute before:-left-[25px] before:top-1/2 before:h-2 before:w-2 before:-translate-y-1/2 before:rounded-full ${childrenActive ? "bg-[#f0f5ff] text-[#1760ee] before:bg-[#1760ee]" : "text-[#53627a] before:bg-[#cad8ed] hover:bg-[#f5f8ff] hover:text-[#1760ee] hover:before:bg-[#6c94df]"}`}
                     style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}</Link>
                 ))}
               </div>}

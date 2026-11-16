@@ -57,7 +57,8 @@ export default function FortuneAccessGate({ children }: FortuneAccessGateProps) 
       try {
         // 접근 여부는 브라우저 캐시가 아닌 현재 로그인 계정의 DB로 판단합니다.
         // 공통 로더의 캐시 삭제 이벤트가 다시 접근 검사를 실행하지 않도록 직접 조회합니다.
-        const response = await fetch("/api/saju-charts", {
+        const childService = pathname === "/fortune/children" || pathname.startsWith("/fortune/children/");
+        const response = await fetch(childService ? "/api/saju-charts?view=children" : "/api/saju-charts", {
           cache: "no-store",
           signal: controller.signal,
         });
@@ -69,6 +70,13 @@ export default function FortuneAccessGate({ children }: FortuneAccessGateProps) 
         const data = await response.json();
         if (controller.signal.aborted) return;
         if (data?.success !== true) throw new Error("저장된 사주 조회에 실패했습니다. 다시 확인해 주세요.");
+
+        // 자녀사주는 부모의 대표 사주 등록 여부와 별개로 로그인 후 이용합니다.
+        if (childService) {
+          if (!Array.isArray(data.entries)) throw new Error("자녀 사주 목록을 확인하지 못했습니다.");
+          setStatus("ready");
+          return;
+        }
 
         // 조회에 성공했고 명시적으로 빈 결과일 때만 입력창으로 이동합니다.
         if (data.entry === null) {

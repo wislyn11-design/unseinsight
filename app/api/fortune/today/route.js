@@ -239,6 +239,10 @@ function validateFortuneShape(fortune) {
   if (!Number.isFinite(Number(fortune.dailyInsight.moodScore))) {
     throw new Error("Gemini 응답의 dailyInsight.moodScore 형식이 올바르지 않습니다.");
   }
+  validateExtrasShape(fortune);
+}
+
+function validateExtrasShape(fortune) {
   if (!isNonEmptyString(fortune.luckyColor)) {
     throw new Error("Gemini 응답에 행운의 색이 없습니다.");
   }
@@ -247,7 +251,7 @@ function validateFortuneShape(fortune) {
     fortune.luckyNumbers.length !== 1 ||
     fortune.luckyNumbers.some((number) => !Number.isFinite(Number(number)))
   ) {
-    throw new Error("Gemini 응답의 행운의 숫자는 가장 가능성 높은 하나여야 합니다.");
+    throw new Error("Gemini extras.value.luckyNumbers는 숫자 1개를 담은 배열이어야 합니다. 예: [3]. 0개 또는 여러 개를 반환하지 마세요.");
   }
   if (!isNonEmptyString(fortune.recommendedActivity)) {
     throw new Error("Gemini 응답에 추천 활동이 없습니다.");
@@ -286,6 +290,10 @@ ${JSON.stringify(target, null, 2)}
 8. main_text, good_action, bad_action, technical_explanation 같은 새 필드를 만들지 마세요. 본문은 description, 행동은 detail.goodActions·detail.avoidActions, 전문 근거는 detail.reason에 담고 기존 필드명과 자료형을 유지하세요.
 
 [스트리밍 출력 형식 - NDJSON 7줄]
+각 줄의 type은 아래에 지정된 section, dailyInsight, extras만 사용할 수 있습니다.
+overall, wealth, workStudy, love, health는 type이 아니라 key입니다. 예를 들어 연애 항목은 {"type":"section","key":"love","value":{...}}로 작성하며 {"type":"love",...}로 작성하지 마세요.
+7줄 전체를 빠짐없이 아래 순서대로 작성하고, 각 줄에 실제 풀이를 채우세요. 각 객체를 감싸는 배열이나 fortune 객체를 추가하지 마세요.
+마지막 extras의 value.luckyNumbers는 반드시 숫자 하나가 들어 있는 배열입니다. 하나의 숫자는 Gemini가 선택하고 배열을 비우거나 여러 후보를 넣지 마세요.
 마크다운 태그, 코드블록(\`\`\`), 기타 설명 문장을 절대 포함하지 마시고, 아래 JSON 객체 7개를 순서대로 한 줄에 하나씩 출력하세요.
 1. {"type":"section","key":"overall","value":{"score":0,"title":"","description":"","detail":{"reason":"","flow":"","goodActions":[""],"avoidActions":[""]}}}
 2. {"type":"section","key":"wealth","value":{"score":0,"title":"","description":"","detail":{"reason":"","flow":"","goodActions":[""],"avoidActions":[""]}}}
@@ -372,6 +380,8 @@ function applyGeminiEvent(fortune, event) {
 
 async function generateGeminiFortune(ai, saju, target, send, signal) {
   let lastError = null;
+  let previousOutput = "";
+  const prompt = buildStreamingPrompt(saju, target);
 
   for (let attempt = 0; attempt < 2; attempt += 1) {
     signal.throwIfAborted();
@@ -384,13 +394,20 @@ async function generateGeminiFortune(ai, saju, target, send, signal) {
       });
     }
 
+    let currentOutput = "";
     try {
       const modelStream = await ai.models.generateContentStream({
         model: MODEL,
-        contents: buildStreamingPrompt(saju, target),
+        contents: attempt > 0 && previousOutput ? [
+          { role: "user", parts: [{ text: prompt }] },
+          { role: "model", parts: [{ text: previousOutput }] },
+          { role: "user", parts: [{ text: `이전 응답이 검증을 통과하지 못했습니다. 오류: ${lastError?.message}\n위 문제를 바로잡아 NDJSON 7줄 전체를 처음부터 다시 작성하세요. 첫 5줄은 type=section, key는 overall·wealth·workStudy·love·health 순서입니다. 6번째는 dailyInsight, 7번째는 extras입니다. extras.value.luckyNumbers는 직접 선택한 숫자 하나를 담은 배열입니다. 모든 항목의 실제 풀이와 필수 필드를 채우고 일반 본문은 쉬운 말로, 전문 근거는 detail.reason에만 작성하세요. 설명이나 코드블록은 추가하지 마세요.` }] },
+        ] : prompt,
         config: {
           thinkingConfig: { thinkingBudget: 256 },
           abortSignal: signal,
+          temperature: 0.2,
+          maxOutputTokens: 12288,
         },
       });
       signal.throwIfAborted();
@@ -398,11 +415,19 @@ async function generateGeminiFortune(ai, saju, target, send, signal) {
       const fortune = {};
       let buffer = "";
       let parsedEventCount = 0;
+      const receivedEvents = new Set();
 
       const parseObject = (jsonObject) => {
         signal.throwIfAborted();
         const modelEvent = JSON.parse(jsonObject);
+        if (!["section", "dailyInsight", "extras"].includes(modelEvent?.type)) {
+          throw new Error(`Gemini 응답의 type은 section, dailyInsight, extras 중 하나여야 합니다. 받은 type=${String(modelEvent?.type)}.${SECTION_KEYS.includes(modelEvent?.type) ? ` 이 항목은 type=section, key=${modelEvent.type}으로 작성하세요.` : ""}`);
+        }
+        const eventId = modelEvent.type === "section" ? `section:${modelEvent.key}` : modelEvent.type;
+        if (receivedEvents.has(eventId)) throw new Error(`Gemini 응답에 ${eventId} 항목이 중복되었습니다. 5개 영역과 dailyInsight, extras를 각각 한 번만 작성하세요.`);
+        if (modelEvent.type === "extras") validateExtrasShape(modelEvent.value || {});
         const clientEvent = applyGeminiEvent(fortune, modelEvent);
+        receivedEvents.add(eventId);
         parsedEventCount += 1;
         send(clientEvent);
       };
@@ -411,6 +436,7 @@ async function generateGeminiFortune(ai, saju, target, send, signal) {
         signal.throwIfAborted();
         const text = chunk.text || "";
         if (!text) continue;
+        currentOutput += text;
         buffer += text;
         const extracted = extractCompleteJsonObjects(buffer);
         buffer = extracted.rest;
@@ -437,6 +463,8 @@ async function generateGeminiFortune(ai, saju, target, send, signal) {
       if (signal.aborted || error?.name === "AbortError" || error?.code === "ERR_INVALID_STATE") {
         throw error;
       }
+      if ([400, 401, 403, 404].includes(Number(error?.status))) throw error;
+      previousOutput = currentOutput;
       lastError = error;
     }
   }

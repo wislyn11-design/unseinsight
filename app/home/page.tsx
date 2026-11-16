@@ -171,7 +171,7 @@ const services: ServiceItem[] = [
   },
   
   { title:"재물운", description:"재물 흐름과 기회를\n미리 살펴보세요", href:"/fortune/wealth", icon:<ChartIcon/>, color:"text-[#2774dd]" },
-  { title:"자녀운", description:"자녀와의 인연과 성장의\n흐름을 살펴보세요", href:"/fortune/children", icon:<ChildIcon/>, color:"text-[#4d77df]", badge:"준비중", comingSoon:true },
+  { title:"자녀운", description:"자녀와의 인연과 성장의\n흐름을 살펴보세요", href:"/fortune/children", icon:<ChildIcon/>, color:"text-[#4d77df]" },
   { title:"건강운", description:"몸과 마음의 흐름을\n미리 살펴보세요", href:"/fortune/health", icon:<HealthIcon/>, color:"text-[#28a17b]", badge:"준비중", comingSoon:true },
   { title:"연애운", description:"연애 흐름과 인연의\n타이밍을 알려드려요", href:"/fortune/love", icon:<HeartIcon/>, color:"text-[#8a63dc]" },
   { title:"궁합", description:"두 사람의 조화와\n궁합을 확인해보세요", href:"/fortune/compatibility", icon:<PeopleIcon/>, color:"text-[#3177db]" },
