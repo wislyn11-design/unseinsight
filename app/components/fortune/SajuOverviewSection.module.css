@@ -1,0 +1,3258 @@
+.overview,.overview * {
+  box-sizing: border-box;
+}
+
+.overview {
+  height: 100%;
+  overflow: auto;
+  color: var(--ink);
+  font-family: "Pretendard Variable",Pretendard,"Noto Sans KR","Apple SD Gothic Neo",Arial,sans-serif;
+  letter-spacing: -.02em;
+}
+
+.overview button {
+  font-family: inherit;
+  color: inherit;
+}
+
+.overview h1 {
+  margin: 0;
+  line-height: 1.15;
+  font-weight: 850;
+  letter-spacing: -.055em;
+}
+
+.summaryCard {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr 220px;
+  align-items: center;
+  gap: 24px;
+  margin-top: 20px;
+  padding: 22px 26px;
+  border-radius: 20px;
+  overflow: hidden;
+  color: #fff;
+  background: linear-gradient(112deg,#304c9f,#4164c8 62%,#5476d4);
+  box-shadow: 0 14px 32px rgba(50,78,158,.2);
+}
+
+.summaryCard:after {
+  content: "";
+  position: absolute;
+  width: 230px;
+  height: 230px;
+  border: 42px solid rgba(255,255,255,.055);
+  border-radius: 50%;
+  right: 11%;
+  top: -115px;
+}
+
+.summarySymbol {
+  position: relative;
+  z-index: 1;
+  width: 72px;
+  height: 72px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.summarySymbol span {
+  font-family: serif;
+  font-size: 29px;
+}
+
+.summarySymbol small {
+  opacity: .78;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.summaryCopy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 7px;
+}
+
+.summaryCopy>small {
+  opacity: .75;
+}
+
+.summaryCopy>div {
+  display: flex;
+  gap: 7px;
+}
+
+.summaryCopy>div span {
+  padding: 4px 9px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 99px;
+  background: rgba(255,255,255,.13);
+}
+
+.detailContent {
+  padding: 31px 8% 27px;
+}
+
+.detailTopline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detailTopline span {
+  color: var(--blue);
+  font-weight: 850;
+}
+
+.detailTopline small {
+  color: #959cad;
+}
+
+.eyebrow {
+  margin: 19px 0 8px;
+  color: var(--blue);
+  font-weight: 800;
+}
+
+.detailContent>h2 {
+  max-width: 760px;
+  margin: 0;
+  font-size: 27px;
+  line-height: 1.46;
+  letter-spacing: -.04em;
+}
+
+.keyTags {
+  display: flex;
+  gap: 7px;
+  margin-top: 14px;
+}
+
+.keyTags span {
+  padding: 5px 10px;
+  border-radius: 99px;
+  background: #eff3ff;
+  color: #526bb8;
+  font-weight: 700;
+}
+
+.detailSections {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid var(--line);
+}
+
+.detailSections section {
+  position: relative;
+  padding-left: 15px;
+}
+
+.detailSections section:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 3px;
+  height: 17px;
+  border-radius: 5px;
+  background: #91a5e7;
+}
+
+.detailSections h3 {
+  margin: 0 0 10px;
+}
+
+.detailSections p {
+  margin: 0;
+  color: #626b80;
+  word-break: keep-all;
+}
+
+.tip {
+  display: flex;
+  gap: 13px;
+  margin-top: 29px;
+  padding: 18px 20px;
+  border: 1px solid #e1e7fb;
+  border-radius: 14px;
+  background: linear-gradient(110deg,#f1f4ff,#fafbff);
+}
+
+.tip>span {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--blue);
+  box-shadow: 0 4px 12px rgba(58,91,191,.1);
+}
+
+.tip div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.tip b {
+  color: var(--blue-dark);
+}
+
+.tip p {
+  margin: 0;
+  color: #596277;
+}
+
+@media(max-width:1100px) {
+  .desktopExperience {
+    grid-template-columns: 330px 1fr;
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .intro {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .progress {
+    display: none;
+  }
+
+  .summaryCard {
+    grid-template-columns: auto 1fr;
+  }
+
+  .detailSections {
+    grid-template-columns: 1fr;
+  }
+
+}
+
+@media(max-width:800px) {
+  .overview {
+    height: auto;
+    min-height: 100%;
+    overflow: visible;
+  }
+
+  .intro {
+    padding: 22px 16px 18px;
+  }
+
+  .overview h1 {
+    font-size: 30px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+
+  .profilePill {
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+
+  .summaryCard {
+    grid-template-columns: 58px 1fr;
+    gap: 14px;
+    padding: 17px;
+    border-radius: 17px;
+  }
+
+  .summarySymbol {
+    width: 58px;
+    height: 58px;
+    border-radius: 15px;
+  }
+
+  .summaryCopy>strong {
+    font-size: 15px;
+  }
+
+  .summaryCopy>div {
+    display: none;
+  }
+
+  .desktopExperience {
+    display: none;
+  }
+
+  .mobileExperience {
+    display: block;
+    padding: 0 16px 34px;
+  }
+
+  .mobileHeading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 17px 4px 11px;
+  }
+
+  .mobileHeading>div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobileHeading small {
+    color: #969dad;
+    font-size: 11px;
+  }
+
+  .mobileHeading b {
+    font-size: 16px;
+  }
+
+  .mobileHeading>span {
+    padding: 6px 10px;
+    border-radius: 99px;
+    background: var(--blue50);
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 750;
+  }
+
+  .mobileGroup {
+    margin-top: 15px;
+  }
+
+  .accordion {
+    overflow: hidden;
+    margin-bottom: 8px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  .accordionOpen {
+    border-color: #cdd8fb;
+    box-shadow: 0 8px 22px rgba(47,70,135,.07);
+  }
+
+  .accordion>button {
+    display: grid;
+    grid-template-columns: 38px 1fr 20px;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px;
+    border: 0;
+    background: #fff;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .accordion>button>span:nth-child(2) {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .accordion>button b {
+    font-size: 14px;
+  }
+
+  .accordion>button small {
+    color: #8b93a5;
+    font-size: 11px;
+    line-height: 1.4;
+  }
+
+  .mobileDetail {
+    border-top: 1px solid var(--line);
+    background: #fdfdff;
+  }
+
+  .mobileDetail .detailContent {
+    padding: 24px 18px;
+  }
+
+  .mobileDetail .detailContent>h2 {
+    font-size: 22px;
+  }
+
+  .mobileDetail .detailSections {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 24px;
+    padding-top: 22px;
+  }
+
+  .mobileNav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding: 0 18px 20px;
+  }
+
+  .mobileNav button {
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .mobileNav button:last-child {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .mobileNav button:disabled {
+    opacity: .35;
+  }
+
+  .detailTopline {
+    display: none;
+  }
+
+}
+
+/* 데스크톱과 모바일에서 공통으로 사용하는 세로형 아코디언 */
+
+.accordionHeading {
+  align-items: center;
+  justify-content: space-between;
+}
+
+.accordionHeading>div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.accordionHeading small {
+  color: #9299aa;
+}
+
+.accordionHeading>span {
+  padding: 7px 12px;
+  border-radius: 99px;
+  background: var(--blue50);
+  color: var(--blue);
+  font-weight: 750;
+}
+
+.accordionCard {
+  overflow: hidden;
+  border: 1px solid #dde3ee;
+  background: #fff;
+  transition: border-color .2s,box-shadow .2s,transform .2s;
+}
+
+.accordionCardOpen .accordionLabel b {
+  color: var(--blue-dark);
+}
+
+.accordionBody {
+  border-top: 1px solid var(--line);
+  animation: accordionReveal .22s ease-out;
+}
+
+@keyframes accordionReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+}
+
+@media(max-width:1100px) {
+  .accordionExperience {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .accordionLabel {
+    grid-template-columns: minmax(190px,.7fr) minmax(220px,1.3fr);
+  }
+
+}
+
+@media(max-width:800px) {
+  .accordionExperience {
+    padding: 0 16px 34px;
+  }
+
+  .accordionHeading {
+    margin-bottom: 12px;
+    padding: 16px;
+    border-radius: 15px;
+  }
+
+  .accordionHeading b {
+    font-size: 16px;
+  }
+
+  .accordionHeading>span {
+    font-size: 11px;
+  }
+
+  .accordionGroup {
+    margin-top: 17px;
+  }
+
+  .accordionToggle {
+    grid-template-columns: 40px minmax(0,1fr) 20px;
+    gap: 11px;
+    padding: 13px;
+  }
+
+  .accordionToggle .serviceIcon {
+    width: 40px;
+    height: 40px;
+  }
+
+  .accordionLabel {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 3px;
+  }
+
+  .accordionLabel small {
+    font-size: 10px;
+  }
+
+  .accordionLabel b {
+    font-size: 14px;
+  }
+
+  .accordionLabel em {
+    max-width: 100%;
+    font-size: 11px;
+    white-space: normal;
+  }
+
+  .accordionBody .detailContent {
+    padding: 24px 18px;
+  }
+
+  .accordionBody .detailContent>h2 {
+    font-size: 22px;
+  }
+
+  .accordionBody .detailSections {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    margin-top: 24px;
+    padding-top: 22px;
+  }
+
+  .accordionNav {
+    gap: 8px;
+    padding: 0 18px 20px;
+  }
+
+  .accordionNav button {
+    padding: 11px 8px;
+  }
+
+  .accordionNav button:last-child {
+    border-color: var(--blue);
+    background: var(--blue);
+    color: #fff;
+  }
+
+  .accordionBody .detailTopline {
+    display: none;
+  }
+
+}
+
+/* v4: 읽기 편한 큰 글씨와 넉넉한 행간 */
+.overview {
+  line-height: 1.6;
+}
+
+.overview h1 {
+  font-size: 52px;
+}
+
+.summaryCopy>small {
+  font-size: 14px;
+}
+
+.summaryCopy>strong {
+  font-size: 25px;
+  line-height: 1.5;
+}
+
+.summaryCopy>div span {
+  font-size: 13px;
+}
+
+.accordionHeading small {
+  font-size: 14px;
+}
+
+.accordionHeading>span {
+  font-size: 14px;
+}
+
+.detailTopline span {
+  font-size: 14px;
+}
+
+.detailTopline small {
+  font-size: 13px;
+}
+
+.eyebrow {
+  font-size: 16px;
+}
+
+.accordionBody .detailContent>h2 {
+  font-size: 34px;
+  line-height: 1.55;
+}
+
+.keyTags span {
+  font-size: 13px;
+}
+
+.detailSections h3 {
+  font-size: 19px;
+}
+
+.detailSections p {
+  font-size: 17px;
+  line-height: 2;
+}
+
+.tip b {
+  font-size: 15px;
+}
+
+.tip p {
+  font-size: 16px;
+  line-height: 1.85;
+}
+
+@media(max-width:800px) {
+  .breadcrumb {
+    font-size: 15px;
+  }
+
+  .overview h1 {
+    font-size: 36px;
+  }
+
+  .subtitle {
+    font-size: 16px;
+  }
+
+  .profilePill {
+    font-size: 14px;
+  }
+
+  .summaryCopy>small {
+    font-size: 12px;
+  }
+
+  .summaryCopy>strong {
+    font-size: 18px;
+  }
+
+  .progress {
+    display: none;
+  }
+
+  .accordionHeading small {
+    font-size: 12px;
+  }
+
+  .accordionHeading b {
+    font-size: 19px;
+  }
+
+  .accordionHeading>span {
+    font-size: 12px;
+  }
+
+  .accordionGroup>.groupTitle b {
+    font-size: 16px;
+  }
+
+  .accordionGroup>.groupTitle small {
+    font-size: 12px;
+  }
+
+  .accordionToggle {
+    padding: 16px 14px;
+  }
+
+  .accordionLabel small {
+    font-size: 11px;
+  }
+
+  .accordionLabel b {
+    font-size: 17px;
+  }
+
+  .accordionLabel em {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .accordionBody .detailContent>h2 {
+    font-size: 26px;
+    line-height: 1.55;
+  }
+
+  .eyebrow {
+    font-size: 14px;
+  }
+
+  .detailSections h3 {
+    font-size: 17px;
+  }
+
+  .detailSections p {
+    font-size: 16px;
+    line-height: 1.9;
+  }
+
+  .tip b {
+    font-size: 14px;
+  }
+
+  .tip p {
+    font-size: 15px;
+  }
+
+  .accordionNav button {
+    font-size: 13px;
+  }
+
+}
+
+/* v5: 나의 본질·균형과 관계 등 대분류 제목 강조 */
+
+.accordionGroup>.groupTitle {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 18px 22px;
+  border: 1px solid #d6e2ff;
+  border-radius: 17px;
+  background: linear-gradient(105deg,#eaf1ff 0%,#f4f7ff 58%,#fff 100%);
+  box-shadow: 0 7px 20px rgba(49,83,168,.07);
+}
+
+.accordionGroup>.groupTitle>span {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 14px;
+  background: var(--blue);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 850;
+  box-shadow: 0 7px 16px rgba(47,107,234,.22);
+}
+
+.accordionGroup>.groupTitle>div {
+  gap: 3px;
+}
+
+.accordionGroup>.groupTitle b {
+  color: #10234d;
+  font-size: 27px;
+  font-weight: 850;
+  line-height: 1.25;
+  letter-spacing: -.045em;
+}
+
+.accordionGroup>.groupTitle small {
+  color: #65728c;
+  font-size: 15px;
+  font-weight: 550;
+  line-height: 1.5;
+}
+
+.accordionGroup>.groupTitle:after {
+  content: "";
+  position: absolute;
+  right: 24px;
+  width: 58px;
+  height: 5px;
+  border-radius: 9px;
+  background: linear-gradient(90deg,#9ab5fb,#d9e4ff);
+}
+
+@media(max-width:800px) {
+  .accordionGroup {
+    margin-top: 26px;
+  }
+
+  .accordionGroup>.groupTitle {
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  .accordionGroup>.groupTitle>span {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    font-size: 14px;
+  }
+
+  .accordionGroup>.groupTitle b {
+    font-size: 22px;
+  }
+
+  .accordionGroup>.groupTitle small {
+    font-size: 13px;
+  }
+
+  .accordionGroup>.groupTitle:after {
+    display: none;
+  }
+
+}
+
+/* v6: 공통 서비스 인트로 아래의 사주총평 요약 카드 영역 */
+.summaryWrap {
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 0 clamp(38px,5.6vw,108px) 23px;
+}
+
+@media(max-width:1100px) {
+  .summaryWrap {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+}
+
+@media(max-width:800px) {
+  .summaryWrap {
+    padding: 0 16px 18px;
+  }
+
+}
+
+/* v9: 1번보다 먼저 보여주는 독립형 10년 단위 인생 지도 */
+.lifeMap {
+  padding: 0 clamp(38px,5.6vw,108px);
+}
+
+/* ‘사주총평의 시작’ */
+
+/*‘나의 인생 지도’*/
+
+/*‘10대부터 100세까지…’*/
+
+.lifeMapLoading,.lifeMapError {
+  display: flex;
+  min-height: 390px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 58px 24px;
+  border: 1px solid #dfe5ef;
+  border-top: 0;
+  border-radius: 0 0 20px 20px;
+  background: #fff;
+  text-align: center;
+}
+
+.lifeMapLoading b,.lifeMapError b {
+  color: #142b5c;
+  font-size: 24px;
+}
+
+.lifeMapLoading p,.lifeMapError p {
+  max-width: 680px;
+  margin: 12px 0 0;
+  color: #65728c;
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.lifeMapLoading small,.lifeMapError small {
+  margin-top: 8px;
+  color: #98a2b3;
+  font-size: 14px;
+}
+
+.lifeMapError b {
+  color: #254c9d;
+}
+
+.lifeMapSummary {
+  grid-template-columns: repeat(3,1fr);
+  border-right: 1px solid #dfe5ef;
+  border-left: 1px solid #dfe5ef;
+}
+
+.lifeMapSummary>div {
+  padding: 15px 17px;
+  border: 1px solid #dae4ff;
+  border-radius: 14px;
+  background: #f6f9ff;
+}
+
+.lifeMapSummary small {
+  display: block;
+}
+
+.lifeMapSummary b {
+  display: block;
+}
+
+.lifeMapAge {
+  align-self: start;
+}
+
+.lifeMapAge>small {
+  color: var(--blue);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.lifeMapAge>strong {
+  display: block;
+  margin-top: 5px;
+  color: #153878;
+  font-size: 50px;
+  line-height: 1.2;
+  letter-spacing: -.07em;
+}
+
+.lifeMapAge>span {
+  display: inline-flex;
+  margin-top: 16px;
+  padding: 7px 10px;
+  border-radius: 99px;
+  background: #fff;
+  color: var(--blue-dark);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 5px 14px rgba(45,80,160,.1);
+}
+
+.lifeMapCopy>small {
+  color: var(--blue);
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.lifeMapCopy>h3 {
+  max-width: 930px;
+  margin: 10px 0 0;
+  color: #111d3d;
+  font-size: 35px;
+  line-height: 1.52;
+  letter-spacing: -.045em;
+  word-break: keep-all;
+}
+
+.lifeMapParagraphs section {
+  position: relative;
+  border-bottom: 1px solid #e9edf3;
+}
+
+.lifeMapParagraphs section:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 31px;
+  width: 3px;
+  height: 22px;
+  border-radius: 9px;
+  background: #8fa9f5;
+}
+
+.lifeMapParagraphs h4 {
+  margin: 0 0 12px;
+}
+
+.lifeMapParagraphs p {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.lifeMapDaeun {
+  margin-top: 28px;
+  padding: 21px 23px;
+  border: 1px solid #dfe7fb;
+}
+
+.lifeMapDaeun>div:first-child {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.lifeMapDaeun>div:first-child>b {
+  color: #173d91;
+  font-size: 16px;
+}
+
+.lifeMapDaeun>div:first-child>small {
+  color: #7f8aa0;
+  font-size: 12px;
+}
+
+.lifeMapDaeun>div:nth-child(2) {
+  display: grid;
+  grid-template-columns: repeat(2,1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.lifeMapDaeun>div:nth-child(2)>span {
+  display: block;
+  padding: 14px 15px;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 4px 13px rgba(49,75,135,.06);
+}
+
+.lifeMapDaeun>div:nth-child(2) b {
+  display: block;
+  color: #244fa9;
+  font-size: 14px;
+}
+
+.lifeMapDaeun>div:nth-child(2) small {
+  display: block;
+  margin-top: 5px;
+  color: #758096;
+  font-size: 12px;
+}
+
+.lifeMapDaeun>p {
+  margin: 13px 0 0;
+  color: #758096;
+  font-size: 14px;
+}
+
+.lifeMapInsight {
+  display: flex;
+  gap: 13px;
+  margin-top: 26px;
+  padding: 20px 22px;
+  border: 1px solid #e1e7fb;
+}
+
+.lifeMapInsight>span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 9px;
+  background: #fff;
+  color: var(--blue);
+}
+
+.lifeMapInsight b {
+  color: var(--blue-dark);
+}
+
+.lifeMapInsight p {
+  margin: 5px 0 0;
+  color: #596277;
+  white-space: pre-wrap;
+}
+
+@media(max-width:1100px) {
+  .lifeMap {
+    padding-left: 34px;
+    padding-right: 34px;
+  }
+
+  .decadeNavigation {
+    display: flex;
+    overflow-x: auto;
+    padding-bottom: 30px;
+    scroll-snap-type: x mandatory;
+  }
+
+  .decadeButton {
+    min-width: 92px;
+    scroll-snap-align: start;
+  }
+
+  .lifeMapStory {
+    grid-template-columns: 180px 1fr;
+    gap: 30px;
+    padding: 36px;
+  }
+
+  .lifeMapCopy>h3 {
+    font-size: 30px;
+  }
+
+}
+
+@media(max-width:800px) {
+  .lifeMap {
+    margin-bottom: 28px;
+    padding: 0 16px;
+  }
+
+  .lifeMapHeading {
+    padding: 20px;
+    border-radius: 17px 17px 0 0;
+  }
+
+  .lifeMapHeading h2 {
+    font-size: 27px;
+  }
+
+  .lifeMapHeading p {
+    font-size: 14px;
+  }
+
+  .lifeMapMark {
+    display: none;
+  }
+
+  .lifeMapLoading,.lifeMapError {
+    min-height: 300px;
+    padding: 44px 20px;
+  }
+
+  .lifeMapLoading b,.lifeMapError b {
+    font-size: 20px;
+  }
+
+  .lifeMapLoading p,.lifeMapError p {
+    font-size: 15px;
+  }
+
+  .lifeMapSummary {
+    grid-template-columns: 1fr;
+    padding: 18px 20px 12px;
+  }
+
+  .lifeMapSummary>div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+  }
+
+  .lifeMapSummary b {
+    margin: 0;
+    font-size: 15px;
+    text-align: right;
+  }
+
+  .decadeNavigation {
+    padding: 9px 20px 24px;
+  }
+
+  .lifeMapStory {
+    display: block;
+    padding: 28px 20px 34px;
+    border-radius: 0 0 18px 18px;
+  }
+
+  .lifeMapAge {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    text-align: left;
+  }
+
+  .lifeMapAge>strong {
+    margin: 0;
+    font-size: 32px;
+  }
+
+  .lifeMapAge>span {
+    margin: 0;
+  }
+
+  .lifeMapCopy {
+    margin-top: 26px;
+  }
+
+  .lifeMapCopy>h3 {
+    font-size: 27px;
+    line-height: 1.55;
+  }
+
+  .lifeMapParagraphs p {
+    font-size: 16px;
+    line-height: 1.9;
+    word-break: normal;
+  }
+
+  .lifeMapDaeun>div:first-child {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .lifeMapDaeun>div:nth-child(2) {
+    grid-template-columns: 1fr;
+  }
+
+  .lifeMapInsight p {
+    font-size: 15px;
+  }
+
+}
+
+/* v7: 긴 사주풀이 원문을 위한 전체 너비 단일 열 본문 */
+
+.accordionBody .detailSections {
+  flex-direction: column;
+  gap: 0;
+  padding-top: 10px;
+}
+
+.accordionBody .detailSections section {
+  width: 100%;
+  margin: 0;
+}
+
+.accordionBody .detailSections section:last-child {
+  border-bottom: 0;
+}
+
+.accordionBody .detailSections section:before {
+  top: 31px;
+  height: 21px;
+}
+
+.accordionBody .detailSections h3 {
+  margin-bottom: 14px;
+}
+
+.accordionBody .detailSections p {
+  max-width: none;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.accordionBody .tip p {
+  white-space: pre-wrap;
+}
+
+@media(max-width:800px) {
+  .accordionBody .detailContent {
+    padding: 28px 18px 30px;
+  }
+
+  .accordionBody .detailSections {
+    margin-top: 28px;
+    padding-top: 6px;
+  }
+
+  .accordionBody .detailSections section {
+    padding: 22px 0 25px 16px;
+  }
+
+  .accordionBody .detailSections section:before {
+    top: 27px;
+    height: 18px;
+  }
+
+  .accordionBody .detailSections h3 {
+    font-size: 18px;
+  }
+
+  .accordionBody .detailSections p {
+    font-size: 16px;
+    line-height: 1.95;
+    word-break: normal;
+  }
+
+  .accordionBody .tip {
+    margin-top: 26px;
+    padding: 18px;
+  }
+
+  .accordionBody .tip p {
+    font-size: 15px;
+    line-height: 1.85;
+  }
+
+}
+
+/* v8: 사주총평 분석 중 로딩 화면 */
+.summarySymbol .summaryLoadingSpinner {
+  display: block;
+  width: 30px;
+  height: 30px;
+  border: 3px solid rgba(255,255,255,.28);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: overviewLoadingSpin .85s linear infinite;
+}
+
+.loadingState {
+  display: flex;
+  min-height: 360px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 56px 24px;
+  text-align: center;
+}
+
+.loadingSpinner {
+  display: block;
+  width: 54px;
+  height: 54px;
+  margin-bottom: 22px;
+  border: 5px solid #dfe8ff;
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  box-shadow: 0 7px 20px rgba(47,107,234,.12);
+  animation: overviewLoadingSpin .85s linear infinite;
+}
+
+.loadingState b {
+  color: #142b5c;
+  font-size: 24px;
+  line-height: 1.45;
+}
+
+.loadingState p {
+  max-width: 640px;
+  margin: 12px 0 0;
+  color: #65728c;
+  font-size: 17px;
+  line-height: 1.8;
+  word-break: keep-all;
+}
+
+.loadingState small {
+  margin-top: 8px;
+  color: #98a2b3;
+  font-size: 14px;
+}
+
+@keyframes overviewLoadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+
+}
+
+@media(max-width:800px) {
+  .loadingState {
+    min-height: 280px;
+    padding: 42px 20px;
+  }
+
+  .loadingSpinner {
+    width: 46px;
+    height: 46px;
+    margin-bottom: 18px;
+    border-width: 4px;
+  }
+
+  .loadingState b {
+    font-size: 20px;
+  }
+
+  .loadingState p {
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .loadingState small {
+    font-size: 13px;
+  }
+
+}
+
+@media(prefers-reduced-motion:reduce) {
+  .summaryLoadingSpinner,.loadingSpinner {
+    animation-duration: 1.8s;
+  }
+
+}
+
+/* v10: 사주총평 글씨 크기를 한곳에서 관리 */
+.overview {
+  --saju-overview-menu-title-size: 22px;
+  --saju-overview-menu-description-size: 18px;
+}
+
+.accordionBody .detailSections h3,
+.lifeMapParagraphs h4 {
+  font-size: var(--saju-overview-section-title-size);
+}
+
+.accordionBody .detailSections p,
+.lifeMapParagraphs p {
+  font-size: var(--saju-overview-body-size);
+  line-height: var(--saju-overview-body-line-height);
+}
+
+.accordionBody .tip b,
+.lifeMapInsight b {
+  font-size: var(--saju-overview-tip-title-size);
+}
+
+.accordionBody .tip p,
+.lifeMapInsight p {
+  font-size: var(--saju-overview-tip-body-size);
+  line-height: 1.9;
+}
+
+@media(max-width:800px) {
+  .overview {
+    --saju-overview-menu-title-size: 18px;
+    --saju-overview-menu-description-size: 15px;
+    --saju-overview-eyebrow-size: 16px;
+    --saju-overview-headline-size: 28px;
+    --saju-overview-section-title-size: 20px;
+    --saju-overview-body-size: 30px;
+    --saju-overview-body-line-height: 1.85;
+    --saju-overview-tip-title-size: 16px;
+    --saju-overview-tip-body-size: 17px;
+  }
+}
+
+/* v11: 10년 단위 인생 지도 글씨 크기 */
+.overview {      /* 각 항목 제목 */
+  --saju-life-section-title-size: 24px;    /* 각 항목 제목 */
+  --saju-life-body-size: 26px;      /* 풀이 본문 */
+  --saju-life-label-size: 16px;
+}
+
+/* 상단 핵심 문장 */
+
+/* 안정·확장·결실 태그 */
+
+/* 이 시기의 전체 흐름 등 소제목 */
+
+/* 사주풀이 본문 */
+
+/* 선택한 시기, 대운 등의 작은 글씨 */
+.lifeMapCopy > small,
+.lifeMapAge > small,
+.lifeMapDaeun > div:first-child > small {
+  font-size: var(--saju-life-label-size);
+}
+
+/* 대운 설명 */
+
+.lifeMapDaeun > div:nth-child(2) small,
+.lifeMapDaeun > p {
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+/* 하단 핵심 조언 */
+
+/* 모바일 글씨 */
+@media (max-width: 800px) {
+  .overview {
+    --saju-life-label-size: 14px;
+    --saju-life-tag-size: 13px;
+  }
+
+}
+
+/* v21: 중복 서비스 제목을 제거하고 회원 사주 정보를 왼쪽에 배치 */
+.profileHeader {
+  display: flex;
+  width: 100%;
+  max-width: 1640px;
+  margin: 0 auto;
+  padding: 32px 40px 24px;
+  color: #61708a;
+}
+
+.profileIdentity {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.profileIdentity strong {
+  flex: 0 0 auto;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: -0.035em;
+}
+
+.profileIdentity span {
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+.profileHeader small {
+  padding: 7px 13px;
+  border: 1px solid #d5e1f7;
+  border-radius: 999px;
+  background: #f7faff;
+  color: #2762bf;
+  font-size: 14px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+@media (max-width: 1100px) {
+  .profileHeader {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+}
+
+@media (max-width: 800px) {
+  .profileHeader {
+    padding: 24px 16px 16px;
+  }
+
+  .profileHeader small {
+    margin-top: 5px;
+  }
+}
+
+/* v12: 사주총평 아코디언 글씨 크기 통합 관리 */
+.overview {      /* 나의 본질, 균형과 관계 같은 대분류 */
+  --saju-group-description-size: 23px;   /* 타고난 나를 이해해요 같은 대분류 설명 */
+  --saju-item-number-size: 15px;    /* 01 · 나의 본질 같은 번호 */
+  --saju-item-title-size: 24px;     /* 타고난 성격과 기질 같은 항목 제목 */
+  --saju-item-description-size: 24px;     /* 항목 오른쪽에 나오는 간단한 설명 */
+}
+
+/* 나의 본질, 균형과 관계, 일·돈·사랑 */
+.accordionGroup > .groupTitle b {
+  font-size: var(--saju-group-title-size) !important;
+}
+
+/* 타고난 나를 이해해요 */
+.accordionGroup > .groupTitle small {
+  font-size: var(--saju-group-description-size) !important;
+}
+
+/* 01 · 나의 본질 */
+
+/* 한눈에 보는 나의 사주, 타고난 성격과 기질 */
+
+/* 각 메뉴 오른쪽의 간단한 설명 */
+
+/* 모바일 */
+@media (max-width: 800px) {
+
+}
+
+/* v13: 펼쳐진 사주풀이 본문 글씨 크기 */
+.overview {     /* 사주풀이 글씨 키우기 */
+  --saju-overview-body-line-height: 1.9;
+}
+
+/* 펼친 내용의 작은 분류 제목 */
+.accordionBody .eyebrow {
+  font-size: var(--saju-overview-eyebrow-size) !important;
+}
+
+/* 펼친 내용의 대표 제목 */
+.accordionBody .detailContent > h2 {
+  font-size: var(--saju-overview-headline-size) !important;
+  line-height: 1.5 !important;
+}
+
+/* 사주풀이의 소제목 */
+.accordionBody .detailSections h3,
+.accordionBody .lifeMapParagraphs h4 {
+  font-size: var(--saju-overview-section-title-size) !important;
+  line-height: 1.55 !important;
+}
+
+/* 실제 사주풀이 본문 */
+.accordionBody .detailSections p,
+.accordionBody .lifeMapParagraphs p {
+  font-size: var(--saju-overview-body-size) !important;
+  line-height: var(--saju-overview-body-line-height) !important;
+}
+
+/* 조언·핵심 안내 제목 */
+.accordionBody .tip b,
+.accordionBody .lifeMapInsight b {
+  font-size: var(--saju-overview-tip-title-size) !important;
+  line-height: 1.5 !important;
+}
+
+/* 조언·핵심 안내 본문 */
+.accordionBody .tip p,
+.accordionBody .lifeMapInsight p {
+  font-size: var(--saju-overview-tip-body-size) !important;
+  line-height: 1.9 !important;
+}
+
+/* 모바일 화면 */
+@media (max-width: 800px) {
+  .overview {
+    --saju-overview-eyebrow-size: 17px;
+    --saju-overview-body-line-height: 1.85;
+    --saju-overview-tip-title-size: 18px;
+  }
+}
+
+/* v14: 인생 지도 연령대 버튼 글씨 크기 */
+.overview { /* 10대, 20대, 30대 */
+  --saju-decade-range-size: 22px; /* 10~19세, 20~29세 */
+}
+
+/* 10대, 20대, 30대 등의 연령대 */
+
+/* 10~19세, 20~29세 등의 나이 범위 */
+
+/* 글씨가 커진 만큼 버튼 높이도 조금 확대 */
+
+/* '현재' 표시 글씨 */
+
+/* 모바일 화면 */
+@media (max-width: 800px) {
+
+  
+}
+
+/* v15: 현재 나이·현재 대운·다음 전환 글씨 확대 */
+.overview {
+  /* 현재 나이, 현재 대운, 다음 전환 */
+  --life-summary-label-size: 26px;
+
+  /* 48세, 46~55세 · 무오, 56세 */
+  --life-summary-value-size: 25px;
+}
+
+/* 현재 나이·현재 대운·다음 전환 */
+.lifeMap .lifeMapSummary small {
+  display: block;
+  font-size: var(--life-summary-label-size) !important;
+  font-weight: 700 !important;
+  line-height: 1.5 !important;
+}
+
+/* 48세·46~55세 · 무오·56세 */
+.lifeMap .lifeMapSummary b {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--life-summary-value-size) !important;
+  font-weight: 800 !important;
+  line-height: 1.5 !important;
+}
+
+/* 모바일 화면 */
+@media (max-width: 800px) {
+
+  .lifeMap .lifeMapSummary b {
+    margin-top: 0;
+  }
+}
+
+/* =========================================================
+   안정감 있는 통합 레이아웃
+   - 기능과 콘텐츠 구조는 유지
+   - 왼쪽 메뉴와 본문 연결
+   - 큰 외곽 박스 느낌 완화
+   - 색상·모서리·그림자·타이포그래피 통일
+   ========================================================= */
+
+.overview {
+  --blue: #3564c5;
+  --blue-dark: #173d82;
+  --blue50: #eef3ff;
+  --blue100: #e7efff;
+  --ink: #17233d;
+  --muted: #68758b;
+  --line: #dfe5ee;
+
+  --saju-group-title-size: 24px;
+  --saju-group-description-size: 15px;
+  --saju-item-number-size: 13px;
+  --saju-item-title-size: 20px;
+  --saju-item-description-size: 16px;
+
+  --saju-overview-eyebrow-size: 17px;
+  --saju-overview-headline-size: 31px;
+  --saju-overview-section-title-size: 26px;
+  --saju-overview-body-size: 25px;
+  --saju-overview-body-line-height: 1.85;
+  --saju-overview-tip-title-size: 22px;
+  --saju-overview-tip-body-size: 25px;
+
+  --saju-life-headline-size: 31px;
+  --saju-life-section-title-size: 21px;
+  --saju-life-body-size: 20px;
+  --saju-life-label-size: 14px;
+  --saju-life-tag-size: 13px;
+
+  --saju-decade-title-size: 18px;
+  --saju-decade-range-size: 14px;
+  --life-summary-label-size: 15px;
+  --life-summary-value-size: 20px;
+
+  width: 100%;
+  min-height: 100%;
+  background: #ffffff;
+}
+
+/*
+ * 공통 인트로는 FortunePageIntro 자체 스타일을 그대로 사용합니다.
+ * 아래 세 구역만 오늘의 운세 본문과 같은 폭과 가운데 정렬을 사용합니다.
+ */
+.summaryWrap,
+.lifeMap,
+.accordionExperience {
+  width: 100%;
+  max-width: 1640px;
+  margin-right: auto;
+  margin-left: auto;
+  padding-right: 40px;
+  padding-left: 40px;
+}
+
+/* 대표 문장: 강한 배너 대신 차분한 정보 카드 */
+
+.summaryWrap .summaryCard {
+  color: var(--ink);
+}
+
+.summaryCard::after {
+  display: none;
+}
+
+.summarySymbol {
+  border: 1px solid #d5e1fb;
+  border-radius: 16px;
+  background: #eef4ff;
+  color: var(--blue-dark);
+}
+
+.summarySymbol small,
+.summaryCopy > small,
+.progress span,
+.progress > small {
+  color: #738096;
+  opacity: 1;
+}
+
+.summaryCopy > strong {
+  color: var(--ink);
+  font-size: 22px;
+  line-height: 1.55;
+}
+
+.summaryCopy > div span {
+  border-color: #dce5f8;
+  background: #f1f5ff;
+  color: #4c64a2;
+}
+
+/* 인생 지도: 큰 박스가 아니라 페이지의 한 구역처럼 연결 */
+
+.lifeMapHeading h2 {
+  margin-top: 5px;
+}
+
+.lifeMapHeading p {
+  margin-top: 8px;
+}
+
+.lifeMapSummary > div {
+  border-color: #dde5f0;
+}
+
+.lifeMapStory {
+  border-color: #e4e8f1;
+}
+
+.lifeMapAge {
+  border-color: #dce5f4;
+}
+
+.lifeMapAge > span {
+  box-shadow: none;
+}
+
+.lifeMapParagraphs section {
+  border-bottom-color: #e8ecf2;
+}
+
+.lifeMapDaeun {
+  border-color: #dfe6ef;
+  border-radius: 16px;
+  background: #f7f9fc;
+}
+
+.lifeMapDaeun > div:nth-child(2) > span {
+  border: 1px solid #e2e7ee;
+  box-shadow: none;
+}
+
+.lifeMapInsight {
+  border-color: #dce5f3;
+  border-radius: 16px;
+  background: #f2f6fc;
+}
+
+/* 12가지 이야기: 별도 카드 묶음처럼 보이지 않도록 외곽 제거 */
+.accordionExperience {
+  padding-top: 20px;
+  padding-bottom: 52px;
+}
+
+.accordionHeading {
+  margin-bottom: 22px;
+  border-top: 1px solid #e1e6ee;
+}
+
+.accordionHeading b {
+  font-size: 25px;
+}
+
+.accordionGroup {
+  margin-top: 28px;
+}
+
+.accordionCard {
+  margin-bottom: 11px;
+  border-color: #dfe5ee;
+  border-radius: 16px;
+  box-shadow: none;
+}
+
+.accordionCard:hover {
+  border-color: #b9c7e6;
+  transform: none;
+}
+
+.accordionCardOpen {
+  border-color: #b4c4e8;
+  box-shadow: 0 8px 24px rgba(35, 47, 73, 0.05);
+}
+
+.accordionCardOpen .accordionToggle {
+  background: #f6f8fc;
+}
+
+.accordionBody .detailSections section {
+  border-bottom-color: #e7ebf1;
+}
+
+@media (max-width: 1100px) {
+  .summaryWrap,
+  .lifeMap,
+  .accordionExperience {
+    padding-right: 32px;
+    padding-left: 32px;
+  }
+
+  .lifeMapStory {
+    grid-template-columns: 180px 1fr;
+    gap: 28px;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 800px) {
+  .overview {
+    --saju-group-title-size: 22px;
+    --saju-group-description-size: 14px;
+    --saju-item-number-size: 12px;
+    --saju-item-title-size: 18px;
+    --saju-item-description-size: 15px;
+    --saju-overview-headline-size: 27px;
+    --saju-overview-section-title-size: 24px;
+    --saju-overview-body-size: 24px;
+    --saju-overview-tip-body-size: 18px;
+    --saju-life-headline-size: 28px;
+    --saju-life-section-title-size: 20px;
+    --saju-life-body-size: 18px;
+    --saju-decade-title-size: 18px;
+    --saju-decade-range-size: 13px;
+    --life-summary-label-size: 14px;
+    --life-summary-value-size: 19px;
+  }
+
+  .summaryWrap,
+  .lifeMap,
+  .accordionExperience {
+    padding-right: 16px;
+    padding-left: 16px;
+  }
+
+  
+
+  .lifeMapStory {
+    padding: 24px 18px 30px;
+    border-radius: 13px;
+  }
+
+  .accordionHeading {
+    height: auto;
+    padding-top: 28px;
+    padding-right: 0;
+    padding-left: 0;
+  }
+
+  .accordionHeading b {
+    font-size: 22px;
+  }
+
+  .accordionCard {
+    border-radius: 12px;
+  }
+}
+
+/* =========================================================
+   미니멀 인생 지도
+   - 흰 배경과 열린 편집형 레이아웃
+   - 분야 탭 + 연령 흐름선 + 연령 선택
+   - 기존 사주 내용과 DB 연결 구조는 유지
+   ========================================================= */
+
+.lifeMap {
+  margin: 0 auto 54px;
+}
+
+.lifeMapHeading {
+  border-top: 1px solid #e8edf4;
+}
+
+.lifeMapSummary small {
+  letter-spacing: 0;
+}
+
+.lifeMapStory {
+  border-top: 1px solid #e4e9f0;
+}
+
+.lifeMapParagraphs {
+  border-top-color: #e4e9f0;
+}
+
+.lifeMapParagraphs section {
+  padding-right: 0;
+  padding-left: 16px;
+}
+
+.lifeMapDaeun,
+.lifeMapInsight {
+  border-radius: 12px;
+  box-shadow: none;
+}
+
+@media (max-width: 800px) {
+
+  
+
+  
+
+  .lifeMapStory {
+    padding-top: 32px;
+  }
+
+  .lifeMapAge {
+    justify-content: flex-start;
+  }
+
+  .lifeMapDaeun > div:first-child {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+/* =========================================================
+   최종 시안 비율 보정
+   - 시안과 같은 순서: 제목 → 분야 탭 → 현재 정보 → 그래프
+   - 데스크톱 글자와 그래프 점을 확대
+   - 10대~100세+를 제목/나이 범위 두 줄로 고정
+   ========================================================= */
+
+.lifeMapHeading {
+  padding-top: 58px;
+  padding-bottom: 23px;
+}
+
+.lifeMapSummary {
+  padding-top: 29px;
+  padding-bottom: 34px;
+}
+
+.lifeMapSummary > div {
+  padding-right: 54px;
+}
+
+.lifeMapAge {
+  padding-left: 32px;
+  border-left-width: 6px;
+}
+
+@media (max-width: 800px) {
+
+  
+
+  
+
+  .lifeMapSummary {
+    padding-top: 25px;
+  }
+
+  
+
+  
+
+  
+
+  
+
+}
+
+/* =========================================================
+   선택 확정 시안 - 단순 연령 타임라인
+   ========================================================= */
+
+.lifeMap {
+  max-width: 1540px;
+  margin-bottom: 58px;
+  padding-right: clamp(30px, 4.2vw, 66px);
+  padding-left: clamp(30px, 4.2vw, 66px);
+  background: #fff;
+}
+
+.lifeMapHeading {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 58px 0 50px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.lifeMapHeading small {
+  display: block;
+  color: #1e5dbd;
+  font-size: 18px;
+  font-weight: 820;
+  letter-spacing: 0;
+}
+
+.lifeMapHeading h2 {
+  margin: 10px 0 0;
+  color: #102b5b;
+  font-size: clamp(44px, 3.6vw, 56px);
+  font-weight: 780;
+  line-height: 1.16;
+  letter-spacing: -0.055em;
+}
+
+.lifeMapHeading p {
+  margin: 14px 0 0;
+  color: #7182a0;
+  font-size: clamp(18px, 1.55vw, 23px);
+  line-height: 1.65;
+}
+
+.lifeMapToggle {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  flex: 0 0 auto;
+  place-items: center;
+  margin-top: 18px;
+  border: 0;
+  border-radius: 13px;
+  background: linear-gradient(145deg, #3972dc, #2359c2);
+  color: #fff !important;
+  font-size: 27px !important;
+  font-weight: 500 !important;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(38, 91, 194, 0.2);
+}
+
+.lifeMapToggle:hover {
+  background: #245bc5;
+}
+
+.lifeMapSummary {
+  display: flex;
+  gap: 0;
+  padding: 0 0 42px;
+  border: 0;
+  background: transparent;
+}
+
+.lifeMapSummary > div {
+  min-width: 235px;
+  max-width: 390px;
+  flex: 0 1 330px;
+  padding: 0 54px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.lifeMapSummary > div + div {
+  padding-left: 54px;
+  border-left: 1px solid #d9e2f0;
+}
+
+.lifeMapSummary small {
+  color: #72829c;
+  font-size: 17px;
+  font-weight: 550;
+}
+
+.lifeMapSummary b {
+  margin-top: 11px;
+  color: #0f438e;
+  font-size: clamp(24px, 1.9vw, 29px);
+  font-weight: 800;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.lifeMapTimelineScroll {
+  overflow-x: auto;
+  padding: 0 0 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #d3dbe8 transparent;
+}
+
+.lifeMapTimeline {
+  position: relative;
+  display: grid;
+  min-width: 1080px;
+  grid-template-columns: repeat(10, minmax(100px, 1fr));
+  padding: 0 0 20px;
+}
+
+.lifeMapTimelineLine {
+  position: absolute;
+  top: 38px;
+  right: 5%;
+  left: 5%;
+  height: 2px;
+  background: #b8cbe9;
+}
+
+.lifeMapTimelineItem {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  min-height: 153px;
+  flex-direction: column;
+  align-items: center;
+  padding: 72px 3px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.lifeMapTimelinePoint {
+  position: absolute;
+  z-index: 2;
+  top: 31px;
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #9eb9e6;
+  box-shadow: 0 0 0 1px #9eb9e6;
+  transform: translateX(-50%);
+  transition: width 0.18s, height 0.18s, top 0.18s, background 0.18s;
+}
+
+.lifeMapTimelineItem:hover .lifeMapTimelinePoint,
+.lifeMapTimelineItemActive .lifeMapTimelinePoint {
+  width: 21px;
+  height: 21px;
+  top: 28px;
+  background: #4c7cd1;
+  box-shadow: 0 0 0 4px rgba(76, 124, 209, 0.12);
+}
+
+.lifeMapTimelineItemCurrent .lifeMapTimelinePoint {
+  width: 29px;
+  height: 29px;
+  top: 24px;
+  border-width: 4px;
+  background: #2f67cc;
+  box-shadow: 0 0 0 10px rgba(47, 103, 204, 0.12);
+}
+
+.lifeMapTimelineItem em {
+  position: absolute;
+  z-index: 3;
+  top: -2px;
+  left: 50%;
+  padding: 5px 10px;
+  border-radius: 999px;
+  background: #ff825b;
+  color: #fff;
+  font-size: 12px;
+  font-style: normal;
+  font-weight: 800;
+  line-height: 1.2;
+  transform: translateX(-50%);
+}
+
+.lifeMapTimelineItem b {
+  color: #172c50;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.lifeMapTimelineItem small {
+  margin-top: 8px;
+  color: #8596b5;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.lifeMapTimelineItemActive b,
+.lifeMapTimelineItemCurrent b {
+  color: #1458bd;
+}
+
+.lifeMapStory {
+  grid-template-columns: 265px minmax(0, 1fr);
+  gap: 56px;
+  padding: 28px 0 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.lifeMapAge {
+  position: relative;
+  display: flex;
+  min-height: 166px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px 32px 12px 37px;
+  border: 0;
+  border-left: 6px solid #3977e7;
+  border-right: 1px solid #d9e1ed;
+  border-radius: 0;
+  background: transparent;
+  text-align: left;
+}
+
+.lifeMapAge > small {
+  color: #7687a3;
+  font-size: 19px;
+  font-weight: 520;
+}
+
+.lifeMapAge > strong {
+  display: block;
+  margin: 11px 0 0;
+  color: #123b7e;
+  font-size: clamp(66px, 6vw, 86px);
+  font-weight: 820;
+  line-height: 0.98;
+  letter-spacing: -0.075em;
+  white-space: nowrap;
+  word-break: keep-all;
+}
+
+.lifeMapCopy > small {
+  color: #1760c1;
+  font-weight: 820;
+}
+
+.lifeMapCopy > h3 {
+  margin: 15px 0 0;
+  color: #102b58;
+  font-weight: 620;
+  letter-spacing: -0.045em;
+}
+
+.lifeMapTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 11px;
+  margin-top: 20px;
+}
+
+.lifeMapTags span {
+  padding: 8px 17px;
+  border-radius: 999px;
+  background: #edf3ff;
+  color: #2860b7;
+  font-weight: 720;
+}
+
+@media (max-width: 800px) {
+  .lifeMap {
+    padding-right: 18px;
+    padding-left: 18px;
+  }
+
+  .lifeMapHeading {
+    padding-top: 38px;
+    padding-bottom: 34px;
+  }
+
+  .lifeMapHeading small {
+    font-size: 15px;
+  }
+
+  .lifeMapHeading h2 {
+    font-size: 36px;
+  }
+
+  .lifeMapHeading p {
+    max-width: calc(100% - 55px);
+    font-size: 16px;
+  }
+
+  .lifeMapToggle {
+    width: 45px;
+    height: 45px;
+    margin-top: 8px;
+  }
+
+  .lifeMapSummary {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    row-gap: 21px;
+    padding-bottom: 34px;
+  }
+
+  .lifeMapSummary > div,
+  .lifeMapSummary > div + div {
+    min-width: 0;
+    padding: 0 15px 0 0;
+    border: 0;
+  }
+
+  .lifeMapSummary > div:nth-child(2) {
+    padding-left: 16px;
+    border-left: 1px solid #d9e2f0;
+  }
+
+  .lifeMapSummary > div:last-child {
+    grid-column: 1 / -1;
+    padding-top: 18px;
+    border-top: 1px solid #e3e8f0;
+  }
+
+  .lifeMapSummary small {
+    font-size: 14px;
+  }
+
+  .lifeMapSummary b {
+    font-size: 20px;
+  }
+
+  .lifeMapTimelineScroll {
+    margin-right: -18px;
+    padding-right: 18px;
+  }
+
+  .lifeMapTimeline {
+    min-width: 980px;
+  }
+
+  .lifeMapTimelineItem b {
+    font-size: 18px;
+  }
+
+  .lifeMapTimelineItem small {
+    font-size: 14px;
+  }
+
+  .lifeMapStory {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    margin-top: 12px;
+  }
+
+  .lifeMapAge {
+    min-height: 0;
+    padding: 6px 0 6px 20px;
+    border-right: 0;
+  }
+
+  .lifeMapAge > small {
+    font-size: 16px;
+  }
+
+  .lifeMapAge > strong {
+    font-size: 56px;
+  }
+
+}
+
+/* =========================================================
+   시기별 상세 풀이 가독성 개선
+   - 제목은 선택 연령 오른쪽에 유지
+   - 본문은 선택 연령 아래부터 전체 폭 사용
+   - 장문 본문을 20px로 확대
+   ========================================================= */
+
+.lifeMapStory {
+  display: flow-root;
+  margin-top: 26px;
+  padding-top: 28px;
+}
+
+.lifeMapAge {
+  float: left;
+  width: 265px;
+  margin-right: 56px;
+  margin-bottom: 22px;
+}
+
+.lifeMapCopy {
+  display: block;
+  min-width: 0;
+  padding-top: 4px;
+}
+
+.lifeMapCopy > small {
+  font-size: 19px;
+}
+
+.lifeMapCopy > h3 {
+  max-width: none;
+  font-size: clamp(32px, 2.7vw, 42px);
+  line-height: 1.5;
+}
+
+.lifeMapTags span {
+  font-size: 16px;
+}
+
+.lifeMapParagraphs {
+  clear: both;
+  width: 100%;
+  margin-top: 0;
+  padding-top: 34px;
+  border-top: 1px solid #e4e9f0;
+}
+
+.lifeMapParagraphs section {
+  padding: 28px 0 31px 18px;
+}
+
+.lifeMapParagraphs section::before {
+  top: 34px;
+  width: 4px;
+  height: 23px;
+}
+
+.lifeMapParagraphs h4 {
+  margin-bottom: 14px;
+  color: #23344f;
+}
+
+.lifeMapDaeun,
+.lifeMapInsight {
+  clear: both;
+}
+
+/* 이 연령대와 연결되는 대운 */
+.lifeMapDaeun > div:first-child > b {
+  font-size: 22px;
+}
+
+/* DB 만세력 안내 및 작은 설명 */
+.lifeMapDaeun > div:first-child > small,
+.lifeMapDaeun > div:nth-child(2) small,
+.lifeMapDaeun > p {
+  font-size: 17px;
+  line-height: 1.6;
+}
+
+/* 36~45세 · 정사 / 46~55세 · 무오 */
+.lifeMapDaeun > div:nth-child(2) b {
+  font-size: 20px;
+}
+
+@media (max-width: 800px) {
+  .lifeMapStory {
+    display: block;
+  }
+
+  .lifeMapAge {
+    float: none;
+    width: auto;
+    margin-right: 0;
+    margin-bottom: 28px;
+  }
+
+  .lifeMapCopy > small {
+    font-size: 17px;
+  }
+
+  .lifeMapCopy > h3 {
+    font-size: 28px;
+  }
+
+  .lifeMapParagraphs {
+    padding-top: 25px;
+  }
+
+}
+
+/* =========================================================
+   확정 시안 - 간결한 프로필과 대표 문장 카드
+   ========================================================= */
+
+.profileHeader {
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+  padding-top: 38px;
+  padding-bottom: 28px;
+}
+
+.profileIdentity {
+  align-items: baseline;
+  flex-direction: row;
+  gap: 10px 18px;
+}
+
+.profileIdentity strong {
+  font-size: 34px;
+  color: #102f68;
+}
+
+.profileIdentity span {
+  font-size: 18px;
+  color: #66748b;
+}
+
+.profileHeader > small {
+  margin-left: auto;
+  padding: 8px 15px;
+  border-color: #bcd0f5;
+  background: #fff;
+  color: #2462c6;
+  font-size: 14px;
+}
+
+.summaryWrap {
+  padding-bottom: 38px;
+}
+
+.summaryWrap .summaryCard {
+  display: grid;
+  grid-template-columns: 142px minmax(0, 1fr);
+  align-items: center;
+  gap: 38px;
+  margin-top: 0;
+  padding: 34px 40px;
+  border: 1px solid #dfe5ee;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: none;
+}
+
+.summaryWrap .summarySymbol {
+  width: 132px;
+  height: 132px;
+  border: 1px solid #cbdaf3;
+  border-radius: 20px;
+  background: #f5f8ff;
+  color: #103c82;
+}
+
+.summaryWrap .summarySymbol span:not(.summaryLoadingSpinner) {
+  color: #103c82;
+  font-family: "Noto Serif KR", "Batang", serif;
+  font-size: 72px;
+  line-height: 1;
+  font-weight: 800;
+}
+
+.summaryWrap .summarySymbol small {
+  margin-top: 9px;
+  color: #66758d;
+  font-size: 15px;
+  font-weight: 650;
+}
+
+.summaryWrap .summaryCopy {
+  gap: 10px;
+  min-width: 0;
+}
+
+.summaryWrap .summaryCopy > small {
+  color: #6f7d93;
+  font-size: 17px;
+  font-weight: 650;
+}
+
+.summaryWrap .summaryCopy > strong {
+  max-width: 1300px;
+  color: #173568;
+  font-size: clamp(29px, 2.15vw, 37px);
+  line-height: 1.5;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  white-space: pre-line;
+}
+
+.summaryWrap .summaryCopy > div {
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.summaryWrap .summaryCopy > div span {
+  padding: 7px 15px;
+  border: 1px solid #d7e2f5;
+  border-radius: 999px;
+  background: #f5f8ff;
+  color: #2760bd;
+  font-size: 16px;
+  font-weight: 650;
+}
+
+@media (max-width: 800px) {
+  .profileHeader {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 9px;
+    padding-top: 26px;
+    padding-bottom: 20px;
+  }
+
+  .profileIdentity {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .profileIdentity strong {
+    font-size: 27px;
+  }
+
+  .profileIdentity span {
+    font-size: 15px;
+  }
+
+  .profileHeader > small {
+    margin-left: 0;
+  }
+
+  .summaryWrap .summaryCard {
+    grid-template-columns: 82px minmax(0, 1fr);
+    gap: 17px;
+    padding: 22px 18px;
+    border-radius: 13px;
+  }
+
+  .summaryWrap .summarySymbol {
+    width: 78px;
+    height: 92px;
+    border-radius: 14px;
+  }
+
+  .summaryWrap .summarySymbol span:not(.summaryLoadingSpinner) {
+    font-size: 44px;
+  }
+
+  .summaryWrap .summarySymbol small {
+    margin-top: 5px;
+    font-size: 11px;
+  }
+
+  .summaryWrap .summaryCopy > small {
+    font-size: 13px;
+  }
+
+  .summaryWrap .summaryCopy > strong {
+    font-size: 21px;
+    line-height: 1.55;
+    white-space: normal;
+  }
+
+  .summaryWrap .summaryCopy > div {
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .summaryWrap .summaryCopy > div span {
+    padding: 5px 9px;
+    font-size: 12px;
+  }
+}
+
+/* =========================================================
+   시기별 사주풀이 본문 가독성 확대
+   ========================================================= */
+
+.lifeMapParagraphs h4 {
+  font-size: 30px;
+  line-height: 1.55;
+}
+
+.lifeMapParagraphs p {
+  color: #43536d;
+  font-size: 25px;
+  line-height: 1.9;
+  letter-spacing: -0.012em;
+  word-break: keep-all;
+}
+
+.lifeMapInsight b {
+  font-size: 22px;
+}
+
+.lifeMapInsight p {
+  font-size: 25px;
+  line-height: 1.85;
+  word-break: keep-all;
+}
+
+@media (max-width: 800px) {
+  .lifeMapParagraphs h4 {
+    font-size: 20px;
+    line-height: 1.5;
+  }
+
+  .lifeMapParagraphs p {
+    font-size: 18px;
+    line-height: 1.85;
+  }
+
+  .lifeMapInsight b {
+    font-size: 18px;
+  }
+
+  .lifeMapInsight p {
+    font-size: 18px;
+    line-height: 1.8;
+  }
+}
+
+/* =========================================================
+   12가지 사주 인사이트 - 인생 지도형 에디토리얼 디자인
+   ========================================================= */
+
+.accordionExperience {
+  width: 100%;
+  max-width: 1540px;
+  margin: 0 auto;
+  padding: 72px clamp(30px, 4.2vw, 66px) 80px;
+  background: #fff;
+}
+
+.accordionHeading {
+  display: block;
+  height: auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0 38px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.accordionHeading > div {
+  display: block;
+}
+
+.accordionHeading > div > small {
+  display: block;
+  margin: 0 0 12px;
+  color: #2866ce;
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.accordionHeading > div > b {
+  display: block;
+  color: #102b59;
+  line-height: 1.2;
+  font-weight: 800;
+  letter-spacing: -0.045em;
+}
+
+.accordionHeading > div > p {
+  margin: 14px 0 0;
+  color: #64738b;
+  font-size: 20px;
+  line-height: 1.65;
+  word-break: keep-all;
+}
+
+.accordionGroup {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.accordionGroup > .groupTitle {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr);
+  align-items: center;
+  gap: 0;
+  margin: 0;
+  padding: 30px 0 26px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.accordionGroup > .groupTitle::after {
+  display: none;
+}
+
+.accordionGroup > .groupTitle > span {
+  display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #326bd2;
+  font-size: 32px;
+  line-height: 1;
+  font-weight: 800;
+  box-shadow: none;
+}
+
+.accordionGroup > .groupTitle > div {
+  display: flex;
+  align-items: baseline;
+  gap: 44px;
+  min-width: 0;
+  padding-left: 32px;
+  border-left: 1px solid #dce3ee;
+}
+
+.accordionGroup > .groupTitle b {
+  color: #142d59;
+  font-size: 26px;
+  line-height: 1.4;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+.accordionGroup > .groupTitle small {
+  color: #68768b;
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 500;
+}
+
+.accordionCard,
+.accordionCard:hover,
+.accordionCardOpen {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+
+.accordionCardOpen > .accordionToggle {
+  display: none;
+}
+
+.accordionToggle,
+.accordionCardOpen .accordionToggle {
+  min-height: 0;
+  padding: 20px 0;
+  border-top: 1px solid #edf0f5;
+  background: transparent;
+}
+
+.accordionBody {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.accordionBody .detailContent {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 28px 0 64px 76px;
+}
+
+.accordionBody .detailTopline {
+  display: none;
+}
+
+.accordionBody .eyebrow {
+  margin: 0 0 12px;
+  color: #2866ce;
+  font-size: 18px;
+  line-height: 1.5;
+  font-weight: 800;
+}
+
+.accordionBody .detailContent > h2 {
+  max-width: none;
+  margin: 0;
+  color: #102b59;
+  font-size: clamp(32px, 2.8vw, 43px);
+  line-height: 1.42;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+  word-break: keep-all;
+}
+
+.accordionBody .keyTags {
+  gap: 9px;
+  margin-top: 18px;
+}
+
+.accordionBody .keyTags span {
+  padding: 7px 14px;
+  border: 1px solid #dce6f7;
+  background: #f3f6fd;
+  color: #3564b6;
+  font-size: 14px;
+}
+
+.accordionBody .detailSections {
+  display: block;
+  margin-top: 30px;
+  padding: 0;
+  border-top: 1px solid #e4e9f1;
+}
+
+.accordionBody .detailSections section {
+  position: relative;
+  padding: 30px 0 32px 20px;
+  border: 0;
+  border-bottom: 1px solid #e8ecf2;
+}
+
+.accordionBody .detailSections section::before {
+  top: 37px;
+  left: 0;
+  width: 4px;
+  height: 22px;
+  border-radius: 999px;
+  background: #79a0f4;
+}
+
+.accordionBody .detailSections h3 {
+  margin: 0 0 13px;
+  color: #263a5b;
+  font-size: 26px;
+  line-height: 1.5;
+  font-weight: 700;
+}
+
+.accordionBody .detailSections p {
+  margin: 0;
+  color: #4e5e77;
+  letter-spacing: -0.012em;
+  word-break: keep-all;
+}
+
+.accordionBody .tip {
+  margin-top: 28px;
+  padding: 22px 24px;
+  border: 1px solid #dce5f3;
+  border-radius: 14px;
+  background: #f6f8fc;
+  box-shadow: none;
+}
+
+.accordionBody .tip b {
+  font-size: 18px;
+}
+
+.accordionBody .tip p {
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+@media (max-width: 800px) {
+  .accordionExperience {
+    padding: 48px 18px 60px;
+  }
+
+  .accordionHeading > div > small {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .accordionHeading > div > p {
+    margin-top: 10px;
+    font-size: 17px;
+  }
+
+  .accordionGroup > .groupTitle {
+    grid-template-columns: 48px minmax(0, 1fr);
+    padding: 23px 0 20px;
+  }
+
+  .accordionGroup > .groupTitle > span {
+    font-size: 22px;
+  }
+
+  .accordionGroup > .groupTitle > div {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: 18px;
+  }
+
+  .accordionGroup > .groupTitle b {
+    font-size: 21px;
+  }
+
+  .accordionGroup > .groupTitle small {
+    font-size: 15px;
+  }
+
+  .accordionBody .detailContent {
+    padding: 22px 0 48px;
+  }
+
+  .accordionBody .eyebrow {
+    font-size: 15px;
+  }
+
+  .accordionBody .detailContent > h2 {
+    font-size: 28px;
+    line-height: 1.48;
+  }
+
+  .accordionBody .keyTags span {
+    padding: 6px 10px;
+    font-size: 13px;
+  }
+
+  .accordionBody .detailSections {
+    margin-top: 25px;
+  }
+
+  .accordionBody .detailSections section {
+    padding: 24px 0 26px 16px;
+  }
+
+  .accordionBody .detailSections section::before {
+    top: 31px;
+    width: 3px;
+    height: 19px;
+  }
+
+  .accordionBody .detailSections h3 {
+    font-size: 20px;
+  }
+
+  .accordionBody .tip {
+    padding: 18px;
+  }
+
+  .accordionBody .tip b {
+    font-size: 16px;
+  }
+
+  .accordionBody .tip p {
+    font-size: 17px;
+  }
+}
+
+/* =========================================================
+   대분류 제목 + 3개 세부 이야기 탭
+   ========================================================= */
+
+.accordionExperience {
+  scroll-margin-top: 96px;
+}
+
+.accordionHeading {
+  padding-bottom: 24px;
+}
+
+.accordionHeading > div > b {
+  font-size: clamp(40px, 3.5vw, 54px);
+}
+
+.insightTabs {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  overflow-x: auto;
+  border-top: 1px solid #e4e9f1;
+  border-bottom: 1px solid #e4e9f1;
+  scrollbar-width: thin;
+}
+
+.insightTab {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 220px;
+  padding: 22px 24px;
+  border: 0;
+  background: transparent;
+  color: #68768d;
+  font-family: inherit;
+  font-size: 25px;
+  line-height: 1.45;
+  font-weight: 650;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.insightTab:hover {
+  background: #f8faff;
+  color: #245ebd;
+}
+
+.insightTab::after {
+  content: "";
+  position: absolute;
+  right: 24px;
+  bottom: -1px;
+  left: 24px;
+  height: 3px;
+  border-radius: 999px 999px 0 0;
+  background: transparent;
+}
+
+.insightTabActive {
+  color: #174fba;
+  font-weight: 800;
+}
+
+.insightTabActive::after {
+  background: #2f6edb;
+}
+
+.accordionGroup {
+  border-top: 0;
+}
+
+.accordionBody .detailContent {
+  padding-top: 42px;
+  padding-left: 0;
+}
+
+.accordionBody .detailSections {
+  max-width: none;
+}
+
+.accordionBody .detailSections p {
+  font-size: 25px;
+  line-height: 1.9;
+}
+
+.accordionBody .tip {
+  max-width: none;
+}
+
+@media (max-width: 800px) {
+  .accordionHeading {
+    padding-bottom: 18px;
+  }
+
+  .accordionHeading > div > b {
+    font-size: 34px;
+  }
+
+  .insightTabs {
+    margin-right: -18px;
+    width: calc(100% + 18px);
+  }
+
+  .insightTab {
+    flex: 0 0 auto;
+    min-width: auto;
+    padding: 17px 18px;
+    font-size: 16px;
+  }
+
+  .insightTab::after {
+    right: 18px;
+    left: 18px;
+  }
+
+  .accordionBody .detailContent {
+    padding-top: 30px;
+  }
+
+  .accordionBody .detailSections p {
+    font-size: 24px;
+    line-height: 1.85;
+  }
+}
+
+/* 공통 모바일 타이포그래피: 값은 app/styles/fortune-typography.css에서 관리합니다. */
+@media (max-width: 800px) {
+  .overview {
+    --saju-overview-section-title-size: var(--fortune-reading-mobile-subtitle, 18px);
+    --saju-overview-body-size: var(--fortune-reading-mobile-body, 17px);
+    --saju-overview-tip-title-size: var(--fortune-reading-mobile-subtitle, 18px);
+    --saju-overview-tip-body-size: var(--fortune-reading-mobile-body, 17px);
+    --saju-life-section-title-size: var(--fortune-reading-mobile-subtitle, 18px);
+    --saju-life-body-size: var(--fortune-reading-mobile-body, 17px);
+  }
+  .accordionBody .detailSections p,
+  .accordionBody .tip p,
+  .lifeMapParagraphs p,
+  .lifeMapInsight p {
+    font-size: var(--fortune-reading-mobile-body, 17px) !important;
+    line-height: 1.85;
+  }
+  .accordionBody .detailSections h3,
+  .accordionBody .tip b,
+  .lifeMapParagraphs h4,
+  .lifeMapInsight b {
+    font-size: var(--fortune-reading-mobile-subtitle, 18px) !important;
+    line-height: 1.6;
+  }
+}

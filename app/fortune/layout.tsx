@@ -1,5 +1,7 @@
 "use client";
 
+import "@/app/styles/fortune-typography.css";
+
 import type { ReactNode } from "react";
 import { useState } from "react";
 import { Menu } from "lucide-react";
@@ -40,7 +42,11 @@ export default function FortuneLayout({ children }: FortuneLayoutProps) {
         />
 
         {/* 오른쪽 독립 스크롤 컨텐츠 영역 */}
-        <main className="min-w-0 flex-1 overflow-y-auto" id="fortune-content">
+        <main
+          className="min-w-0 flex-1 overflow-y-auto"
+          id="fortune-content"
+          style={{ flex: "1 1 0%", width: 0, minWidth: 0, overflowX: "hidden" }}
+        >
           <FortuneAccessGate>{children}</FortuneAccessGate>
         </main>
       </div>

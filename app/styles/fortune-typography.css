@@ -1,0 +1,61 @@
+/* 운세 풀이 공통 설정. 모바일 글씨 크기는 아래 두 값만 바꾸면 됩니다.
+   적용 범위: 오늘의 나침반, 사주총평·인생 지도, 재물운, 자녀사주.
+   재물운 PC 본문·소제목과 글꼴도 여기에서 관리합니다.
+   재물운 가로 탭 메뉴 크기도 여기에서 관리합니다. */
+#fortune-content {
+  --fortune-reading-font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+  --fortune-reading-desktop-body: 25px;
+  --fortune-reading-desktop-subtitle: 26px;
+  --fortune-reading-mobile-body: 17px;
+  --fortune-reading-mobile-subtitle: 18px;
+  --fortune-wealth-tab-desktop: 25px;
+  --fortune-wealth-tab-mobile: 18px;
+}
+
+@media (max-width: 800px) {
+  #fortune-content .fortune-reading-body {
+    font-size: var(--fortune-reading-mobile-body) !important;
+    line-height: 1.85 !important;
+  }
+  #fortune-content .fortune-reading-subtitle {
+    font-size: var(--fortune-reading-mobile-subtitle) !important;
+    line-height: 1.6 !important;
+  }
+}
+
+/* 자녀사주·사주총평과 같은 글꼴 순서로 표시합니다. */
+#fortune-content #wealth-lifetime {
+  font-family: var(--fortune-reading-font-family);
+  letter-spacing: -.02em;
+}
+
+@media (min-width: 801px) {
+  #fortune-content #wealth-lifetime .fortune-reading-body {
+    font-size: var(--fortune-reading-desktop-body) !important;
+    line-height: 1.9 !important;
+  }
+  #fortune-content #wealth-lifetime .fortune-reading-subtitle {
+    font-size: var(--fortune-reading-desktop-subtitle) !important;
+    line-height: 1.6 !important;
+  }
+}
+
+/* 재물운 가로 탭 메뉴. 풀이 본문 크기에는 영향을 주지 않습니다. */
+#fortune-content #wealth-lifetime [role="tablist"] [role="tab"] {
+  font-family: inherit;
+  font-size: var(--fortune-wealth-tab-desktop) !important;
+  line-height: 1.5;
+  min-height: 64px;
+}
+
+@media (max-width: 800px) {
+  #fortune-content #wealth-lifetime [role="tablist"] {
+    min-width: max-content;
+  }
+  #fortune-content #wealth-lifetime [role="tablist"] [role="tab"] {
+    flex-shrink: 0;
+    min-width: 170px;
+    min-height: 56px;
+    font-size: var(--fortune-wealth-tab-mobile) !important;
+  }
+}

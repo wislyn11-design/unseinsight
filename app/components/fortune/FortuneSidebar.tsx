@@ -1,5 +1,7 @@
 "use client";
 
+import { isFortuneServiceVisible, isFortuneSectionVisible } from "@/app/lib/fortune/service-visibility";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -366,7 +368,7 @@ function SidebarBody({
       </div>
 
       <nav className="space-y-1.5" aria-label="운세 서비스 메뉴">
-        {MENUS.map((menu) => {
+        {MENUS.filter(menu => isFortuneServiceVisible(menu.href)).map((menu) => {
           const active = pathname === menu.href;
           const menuClassName = `flex h-[72px] w-full items-center rounded-[15px] font-semibold transition ${open ? "gap-4 px-5" : "justify-center px-0"} ${active ? "bg-[#eef3ff] text-[#1760ee]" : menu.comingSoon ? "cursor-not-allowed text-[#8d98aa]" : "text-[#263149] hover:bg-[#f7f9fc]"}`;
 
@@ -449,7 +451,7 @@ function SidebarBody({
 
                 {open && todayExpanded && (
                   <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
-                    {TODAY_SUBMENUS.map((item) => {
+                    {TODAY_SUBMENUS.filter(item => isFortuneSectionVisible(item.hash)).map((item) => {
                       if ("disabled" in item && item.disabled) {
                         return (
                           <button key={item.hash} type="button" disabled aria-disabled="true"
@@ -517,7 +519,7 @@ function SidebarBody({
                 </button>}
               </div>
               {open && wealthExpanded && <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
-                {WEALTH_SUBMENUS.map(item => "disabled" in item && item.disabled ? (
+                {WEALTH_SUBMENUS.filter(item => isFortuneSectionVisible(item.hash)).map(item => "disabled" in item && item.disabled ? (
                   <button key={item.hash} type="button" disabled aria-disabled="true"
                     className="block min-h-12 w-full cursor-not-allowed rounded-[10px] px-4 py-3 text-left font-semibold text-[#9ca8b9]"
                     style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}<span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[13px]">준비 중</span></button>
@@ -538,15 +540,15 @@ function SidebarBody({
           if (menu.href === "/fortune/children") {
             return <div key={menu.href}>
               <div className="relative">
-                <Link href="/fortune/children#children-list" onClick={(event) => {
+                <Link href="/fortune/children#children-saju" onClick={(event) => {
                   if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                   setChildrenExpanded(true);
                   if (childrenActive) {
                     event.preventDefault();
                     window.history.replaceState({ ...window.history.state,
-                      unseChildrenProfileId: "", unseChildrenPath: window.location.pathname },
-                      "", "/fortune/children#children-list");
-                    window.dispatchEvent(new Event("children:show-list"));
+                      unseChildrenPath: window.location.pathname },
+                      "", "/fortune/children#children-saju");
+                    window.dispatchEvent(new Event("children:show-overview"));
                     window.scrollTo({ top: 0, behavior: "smooth" });
                   }
                   onNavigate?.();
@@ -560,7 +562,7 @@ function SidebarBody({
                 </button>}
               </div>
               {open && childrenExpanded && <div className="mb-5 ml-6 mt-2 border-l border-[#d7e2f2] pb-2 pl-5">
-                {CHILDREN_SUBMENUS.map(item => "disabled" in item && item.disabled ? (
+                {CHILDREN_SUBMENUS.filter(item => isFortuneSectionVisible(item.hash)).map(item => "disabled" in item && item.disabled ? (
                   <button key={item.hash} type="button" disabled aria-disabled="true"
                     className="block min-h-12 w-full cursor-not-allowed rounded-[10px] px-4 py-3 text-left font-semibold text-[#9ca8b9]"
                     style={{ fontSize: "21px", lineHeight: 1.5 }}>{item.label}<span className="ml-2 inline-block rounded-full bg-[#f0f2f6] px-2 py-0.5 text-[13px]">준비 중</span></button>
@@ -569,8 +571,8 @@ function SidebarBody({
                     if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
                     if (childrenActive) { event.preventDefault();
                       window.history.replaceState({ ...window.history.state,
-                        unseChildrenProfileId: "", unseChildrenPath: window.location.pathname }, "", `/fortune/children#${item.hash}`);
-                      window.dispatchEvent(new Event("children:show-list"));
+                        unseChildrenPath: window.location.pathname }, "", `/fortune/children#${item.hash}`);
+                      window.dispatchEvent(new Event("children:show-overview"));
                       document.getElementById(item.hash)?.scrollIntoView({ behavior: "smooth", block: "start" }); }
                     onNavigate?.();
                   }} aria-current={childrenActive ? "location" : undefined}
@@ -729,7 +731,7 @@ function SidebarBody({
         })}
       </nav>
 
-      {open && (
+      {open && isFortuneServiceVisible("/fortune/consultation") && (
         <Link
           href="/fortune/consultation"
           onClick={onNavigate}

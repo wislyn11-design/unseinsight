@@ -1,5 +1,7 @@
 "use client";
 
+import { isFortuneSectionVisible } from "@/app/lib/fortune/service-visibility";
+
 import Link from "next/link";
 import { DAILY_PROMPT_VERSION } from "@/app/lib/fortune/daily-content-version";
 import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
@@ -154,7 +156,7 @@ const HELPFUL_OPTIONS = [
   ["actionable", "조언을 실천하기 좋아요"],
 ] as const;
 
-const TODAY_CONTENT_TABS: Array<{
+const ALL_TODAY_CONTENT_TABS: Array<{
   id: TodayContentView;
   label: string;
   disabled?: boolean;
@@ -164,6 +166,7 @@ const TODAY_CONTENT_TABS: Array<{
   { id: "today-review", label: "운세일기", disabled: true },
   { id: "today-report", label: "운세 리포트", disabled: true },
 ];
+const TODAY_CONTENT_TABS = ALL_TODAY_CONTENT_TABS.filter(item => isFortuneSectionVisible(item.id));
 
 function seoulToday() {
   const parts = new Intl.DateTimeFormat("en-CA", {
@@ -325,10 +328,10 @@ function FortuneAccordionRow({
         aria-expanded={open}
         className="grid w-full grid-cols-[118px_minmax(0,1fr)_28px] items-center gap-4 bg-white px-1 py-5 text-left sm:grid-cols-[180px_minmax(0,1fr)_32px] sm:gap-7 sm:py-6"
       >
-        <span className="text-[17px] font-black tracking-[-.025em] text-[#243754] sm:text-[25px]">
+        <span className="fortune-reading-subtitle text-[17px] font-black tracking-[-.025em] text-[#243754] sm:text-[25px]">
           {label}
         </span>
-        <span className="min-w-0 truncate text-[15px] font-semibold text-[#66758d] sm:text-[25px]">
+        <span className="fortune-reading-subtitle min-w-0 truncate text-[15px] font-semibold text-[#66758d] sm:text-[25px]">
           {section.title || label}
         </span>
         <span
@@ -341,14 +344,14 @@ function FortuneAccordionRow({
 
       {open && (
         <div className="pb-7 pl-1 pr-1 sm:pb-8 sm:pl-[208px] sm:pr-10">
-          <p className="break-keep text-[17px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+          <p className="fortune-reading-body break-keep text-[17px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
             {section.description ||
               section.advice ||
               "오늘의 흐름을 차분히 살펴보세요."}
           </p>
 
           {section.detail?.flow && (
-            <p className="mt-5 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
+            <p className="fortune-reading-body mt-5 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
               {section.detail.flow}
             </p>
           )}
@@ -356,20 +359,20 @@ function FortuneAccordionRow({
           {(goodActions.length > 0 || avoidActions.length > 0) && (
             <div className="mt-6 grid gap-5 sm:grid-cols-2 sm:gap-8">
               <div className="border-t-2 border-[#4d83e8] pt-4">
-                <strong className="block text-[16px] font-black text-[#1f5fc5] sm:text-[18px]">
+                <strong className="fortune-reading-subtitle block text-[16px] font-black text-[#1f5fc5] sm:text-[18px]">
                   하면 좋은 행동
                 </strong>
-                <p className="mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+                <p className="fortune-reading-body mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
                   {goodActions.length > 0
                     ? goodActions.join(" · ")
                     : "오늘 정한 일의 우선순위를 차분히 지켜보세요."}
                 </p>
               </div>
               <div className="border-t-2 border-[#d5a25b] pt-4">
-                <strong className="block text-[16px] font-black text-[#9a6015] sm:text-[18px]">
+                <strong className="fortune-reading-subtitle block text-[16px] font-black text-[#9a6015] sm:text-[18px]">
                   피하면 좋은 행동
                 </strong>
-                <p className="mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
+                <p className="fortune-reading-body mt-2 break-keep text-[16px] leading-8 text-[#53627a] sm:text-[25px] sm:leading-[1.75]">
                   {avoidActions.length > 0
                     ? avoidActions.join(" · ")
                     : "확인하지 않은 내용을 서둘러 결론 내리지 마세요."}
@@ -380,7 +383,7 @@ function FortuneAccordionRow({
 
           {section.advice && section.advice !== section.description && (
             <p
-              className="mt-6 break-keep border-t border-[#e4e9f1] pt-5 text-[16px] font-semibold leading-8 sm:text-[25px] sm:leading-[1.75]"
+              className="fortune-reading-body mt-6 break-keep border-t border-[#e4e9f1] pt-5 text-[16px] font-semibold leading-8 sm:text-[25px] sm:leading-[1.75]"
               style={{ color }}
             >
               {section.advice}
@@ -389,10 +392,10 @@ function FortuneAccordionRow({
 
           {section.detail?.reason && (
             <div className="mt-5 border-l-[3px] border-[#b7c9ee] pl-4">
-              <strong className="block text-[16px] font-black text-[#314663] sm:text-[18px]">
+              <strong className="fortune-reading-subtitle block text-[16px] font-black text-[#314663] sm:text-[18px]">
                 이렇게 풀이했어요
               </strong>
-              <p className="mt-2 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
+              <p className="fortune-reading-body mt-2 break-keep text-[16px] leading-8 text-[#66758d] sm:text-[25px] sm:leading-[1.75]">
                 {section.detail.reason}
               </p>
             </div>
@@ -426,10 +429,10 @@ function LoadingState({
               key={section.key}
               className="rounded-2xl border border-[#e3e8f0] bg-[#f8f9fc] px-6 py-5 text-left"
             >
-              <h2 className="today-loading-section-title font-extrabold text-[#1d2537]">
+              <h2 className="fortune-reading-subtitle today-loading-section-title font-extrabold text-[#1d2537]">
                 {section.title}
               </h2>
-              <p className="today-loading-section-body mt-3 whitespace-pre-wrap text-[#4f5b70]">
+              <p className="fortune-reading-body today-loading-section-body mt-3 whitespace-pre-wrap text-[#4f5b70]">
                 {section.description}
               </p>
             </article>
@@ -944,7 +947,7 @@ export default function TodayFortunePage() {
   };
 
   const moveToTodayView = (id: TodayContentView) => {
-    if (TODAY_CONTENT_TABS.find((item) => item.id === id)?.disabled) return;
+    if (!TODAY_CONTENT_TABS.some((item) => item.id === id && !item.disabled)) return;
     setActiveTodayView(id);
     window.history.replaceState(null, "", `/fortune/today#${id}`);
     window.dispatchEvent(new Event("hashchange"));
@@ -1256,7 +1259,7 @@ export default function TodayFortunePage() {
               </h2>
 
               <div className="mt-7 border-b border-[#dce3ee] pb-7">
-                <p className="border-l-[4px] border-[#3d7af0] pl-4 text-[18px] font-extrabold text-[#17345f] sm:text-[21px]">
+                <p className="fortune-reading-subtitle border-l-[4px] border-[#3d7af0] pl-4 text-[18px] font-extrabold text-[#17345f] sm:text-[21px]">
                   오늘의 핵심 흐름
                 </p>
                 <h3
@@ -1293,7 +1296,7 @@ export default function TodayFortunePage() {
               className="scroll-mt-24 mb-8 overflow-x-auto border-y border-[#dce3ee] bg-white"
               aria-label="오늘의 나침반 세부 메뉴"
             >
-              <div role="tablist" aria-label="오늘의 나침반" className="grid min-w-[760px] grid-cols-4">
+              <div role="tablist" aria-label="오늘의 나침반" className="grid w-full" style={{ gridTemplateColumns: `repeat(${TODAY_CONTENT_TABS.length}, minmax(0, 1fr))` }}>
                 {TODAY_CONTENT_TABS.map((item) => {
                   const active = activeTodayView === item.id;
                   return (
@@ -1360,7 +1363,7 @@ export default function TodayFortunePage() {
                   </div>
                 )}
                 {planAnalysis && !planChanged && (
-                  <p className="mt-6 border-y border-[#dce3ee] py-5 break-keep text-[18px] font-semibold leading-8 text-[#40536f] sm:text-[25px] sm:leading-[1.65]">
+                  <p className="fortune-reading-body mt-6 border-y border-[#dce3ee] py-5 break-keep text-[18px] font-semibold leading-8 text-[#40536f] sm:text-[25px] sm:leading-[1.65]">
                     {planAnalysis.summary}
                   </p>
                 )}
@@ -1415,7 +1418,7 @@ export default function TodayFortunePage() {
                               </>
                             ) : (
                               <>
-                                <p className="break-words text-[20px] font-extrabold leading-[1.55] tracking-[-.03em] text-[#17345f] sm:text-[25px]">{task}</p>
+                                <p className="fortune-reading-body break-words text-[20px] font-extrabold leading-[1.55] tracking-[-.03em] text-[#17345f] sm:text-[25px]">{task}</p>
                                 <div className="mt-4 flex flex-wrap gap-2">
                                   <button type="button" disabled={planLoading || editingTaskIndex !== null} onClick={() => beginTaskEdit(index)} className="min-h-10 rounded-lg border border-[#c6d7f2] bg-[#f4f8ff] px-4 py-2 text-[16px] font-bold text-[#245fc8] disabled:opacity-40" aria-label={`${task} 수정`}>수정</button>
                                   <button type="button" disabled={planLoading || editingTaskIndex !== null} onClick={() => deleteTask(index)} className="min-h-10 rounded-lg border border-[#e8d5d2] px-4 py-2 text-[16px] font-bold text-[#b15b50] disabled:opacity-40" aria-label={`${task} 삭제`}>삭제</button>
@@ -1440,7 +1443,7 @@ export default function TodayFortunePage() {
                                 {matched.label}
                               </span>
                               {editing && <p className="mt-3 text-[15px] font-semibold text-[#8b601e]">수정 중입니다. 아래 내용은 저장 전 일정의 분석입니다.</p>}
-                              <p className="mt-4 break-keep text-[20px] leading-[1.65] tracking-[-.025em] text-[#53627a] sm:text-[25px]">
+                              <p className="fortune-reading-body mt-4 break-keep text-[20px] leading-[1.65] tracking-[-.025em] text-[#53627a] sm:text-[25px]">
                                 {matched.item.reason}
                               </p>
                             </>
@@ -1637,7 +1640,7 @@ export default function TodayFortunePage() {
                   <strong className="today-tomorrow-title font-extrabold tracking-[-.025em] text-[#151f3b]">
                     내일의 운세는 자정부터 확인할 수 있어요
                   </strong>
-                  <p className="today-tomorrow-body mt-1 text-[#667085]">
+                  <p className="fortune-reading-body today-tomorrow-body mt-1 text-[#667085]">
                     한국 시간 기준으로 날짜가 바뀐 뒤 확인할 수 있습니다.
                   </p>
                 </div>

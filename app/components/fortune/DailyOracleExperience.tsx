@@ -8,7 +8,6 @@ import type { FormEvent } from "react";
 import { ORACLE_CARDS } from "@/app/lib/oracle/cards";
 import type { OracleCard } from "@/app/lib/oracle/cards";
 import { shuffledOracleIndexes } from "@/app/lib/oracle/shuffle";
-import FortunePageIntro from "@/app/components/fortune/page-intro/FortunePageIntro";
 
 type DrawKind = "current" | "future";
 type ReadingStatus = "idle" | "loading" | "retrying" | "success" | "error";
@@ -74,7 +73,7 @@ function parseTiming(value: unknown, sajuConnected: boolean): TimingResult | nul
 }
 
 function wait(milliseconds: number) {
-  return new Promise<void>((resolve) =>  setTimeout(() => resolve(), milliseconds));
+  return new Promise<void>((resolve) => window.setTimeout(() => resolve(), milliseconds));
 }
 
 async function requestOracleInterpretation(
@@ -201,7 +200,7 @@ function LargeCardArtwork({ card, kind }: { card: OracleCard; kind: DrawKind }) 
 
 function InterpretationBody({ state, onRetry }: { state: ReadingState; onRetry: () => void }) {
   if (state.status === "success") {
-    return <p className="mt-4 text-[15px] font-medium leading-8 text-[#4f5f79] sm:text-base">{state.reading}</p>;
+    return <p className="oracleReadingBody mt-4 text-[15px] font-medium leading-8 text-[#4f5f79] sm:text-base">{state.reading}</p>;
   }
 
   if (state.status === "error") {
@@ -237,11 +236,11 @@ export default function DailyOracleExperience() {
   const [sessionStatus, setSessionStatus] = useState<"idle" | "saving" | "error">("idle");
   const [sessionError, setSessionError] = useState("");
   const [pendingStart, setPendingStart] = useState<PendingOracleStart | null>(null);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<number | null>(null);
   const sessionRef = useRef(0);
 
   useEffect(() => () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) window.clearTimeout(timerRef.current);
   }, []);
 
   const currentCard = useMemo(
@@ -278,7 +277,7 @@ export default function DailyOracleExperience() {
 
       if (sessionRef.current === sessionId) {
         setCurrentReading({ status: "success", reading: result.reading, summary: "", timing: null });
-        setTimeout(() => document.getElementById("oracle-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        window.setTimeout(() => document.getElementById("oracle-current-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
       }
     } catch {
       if (sessionRef.current === sessionId) {
@@ -311,7 +310,7 @@ export default function DailyOracleExperience() {
 
       if (sessionRef.current === sessionId) {
         setFutureReading({ status: "success", reading: result.reading, summary: result.summary, timing: result.timing });
-        setTimeout(() => document.getElementById("oracle-future-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
+        window.setTimeout(() => document.getElementById("oracle-future-reading")?.scrollIntoView({ behavior: "smooth", block: "start" }), 100);
       }
     } catch {
       if (sessionRef.current === sessionId) {
@@ -333,7 +332,7 @@ export default function DailyOracleExperience() {
     setPendingStart(null);
     setSessionStatus("idle");
     setSessionError("");
-    setTimeout(() => document.getElementById("oracle-draw")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    window.setTimeout(() => document.getElementById("oracle-draw")?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
   };
 
   const submitQuestion = async (event: FormEvent<HTMLFormElement>) => {
@@ -398,7 +397,7 @@ export default function DailyOracleExperience() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ sessionId: abandonedSessionId, action: "abandon" }),
     });
-    setTimeout(() => document.getElementById("oracle-question")?.focus(), 50);
+    window.setTimeout(() => document.getElementById("oracle-question")?.focus(), 50);
   };
 
   const viewPreviousReading = () => {
@@ -417,7 +416,7 @@ export default function DailyOracleExperience() {
   const selectCurrent = (index: number) => {
     if (!question || drawing || currentCard || !ORACLE_CARDS[index]) return;
     setDrawing("current");
-    timerRef.current = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       setCurrentIndex(index);
       setDrawing(null);
       void generateCurrentReading(index);
@@ -427,7 +426,7 @@ export default function DailyOracleExperience() {
   const selectFuture = (index: number) => {
     if (currentIndex === null || index === currentIndex || drawing || futureCard || currentReading.status !== "success" || !ORACLE_CARDS[index]) return;
     setDrawing("future");
-    timerRef.current = setTimeout(() => {
+    timerRef.current = window.setTimeout(() => {
       setFutureIndex(index);
       setDrawing(null);
       void generateFutureReading(index);
@@ -435,7 +434,7 @@ export default function DailyOracleExperience() {
   };
 
   const resetOracle = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
+    if (timerRef.current) window.clearTimeout(timerRef.current);
     sessionRef.current += 1;
     setQuestionDraft("");
     setQuestion("");
@@ -452,22 +451,47 @@ export default function DailyOracleExperience() {
   };
 
   return (
-    <main className="min-h-[calc(100vh-74px)] bg-[radial-gradient(circle_at_50%_0%,#e8efff_0%,#f7f9ff_38%,#f5f7fc_100%)]">
-     <FortunePageIntro
-        serviceTitle="고민 점괘"
-        description="두 장의 카드와 나의 사주 흐름으로 고민을 차분히 살펴보세요."
-        showProfile={false}
-        sentence="" 
-      />
-
-      <div className="mx-auto w-full max-w-6xl px-5 pb-12 pt-3 sm:px-8 sm:pb-14">
+    <section className="oraclePage min-h-[calc(100vh-74px)] bg-white" style={{ width: "100%", minWidth: 0, margin: 0, padding: 0 }}>
+      <div className="oracleContent">
 
         {!question && (
-          <section className="relative mx-auto mt-10 max-w-3xl overflow-hidden rounded-[32px] border border-[#d8e3f6] bg-white px-5 py-8 shadow-[0_24px_70px_rgba(45,74,138,.12)] sm:px-10 sm:py-11">
-            <div className="pointer-events-none absolute -right-20 -top-24 h-64 w-64 rounded-full bg-[#e8ecff] blur-3xl" />
-            <div className="relative">
-              <h1 className="text-2xl font-black tracking-[-.04em] text-[#172a4b] sm:text-3xl">지금 가장 마음에 걸리는 고민은 무엇인가요?</h1>
-              <form onSubmit={submitQuestion} className="mt-6">
+          <section className="welcome" aria-labelledby="oracle-welcome-title">
+            <header className="welcomeHeader">
+              <p className="mobileEyebrow">心 · 마음을 정리하는 시간</p>
+              <p className="serviceLabel">고민 점괘</p>
+              <h1 id="oracle-welcome-title" className="welcomeTitle">
+                <span className="desktopTitle">지금, 어떤 고민이 있으신가요?</span>
+                <span className="mobileTitle">갈림길 앞의 마음에,<br />작은 실마리를 찾아보세요</span>
+              </h1>
+              <p className="welcomeDescription">두 장의 카드와 나의 사주 흐름으로 고민을 살펴보세요.</p>
+              <ol className="welcomeSteps" aria-label="고민 점괘 이용 순서">
+                <li aria-current="step"><span>01</span>고민 적기</li>
+                <li><span>02</span>카드 두 장</li>
+                <li><span>03</span>풀이 읽기</li>
+              </ol>
+              <div className="welcomeArt" aria-hidden="true">
+                <svg viewBox="38 0 230 180" fill="none" preserveAspectRatio="xMidYMid meet">
+                  <ellipse cx="151" cy="118" rx="126" ry="41" stroke="#dbb571" strokeWidth=".8" transform="rotate(-12 151 118)" />
+                  <g transform="translate(152 23) rotate(12 47 68)">
+                    <rect width="94" height="137" rx="9" fill="#fffaf0" stroke="#d8ac5d" />
+                    <rect x="6" y="6" width="82" height="125" rx="5" stroke="#d8ac5d" strokeWidth=".7" />
+                    <path d="M47 34 53 60 78 68 53 74 47 101 41 74 16 68 41 60Z" fill="#dab46c" />
+                    <circle cx="47" cy="68" r="29" stroke="#d8ac5d" strokeWidth=".8" />
+                  </g>
+                  <g transform="translate(58 14) rotate(-12 47 68)">
+                    <rect width="94" height="137" rx="9" fill="#17335d" stroke="#cba356" />
+                    <rect x="6" y="6" width="82" height="125" rx="5" stroke="#cba356" strokeWidth=".8" />
+                    <circle cx="47" cy="68" r="17" fill="#d9b468" />
+                    <circle cx="47" cy="68" r="23" stroke="#d9b468" strokeWidth=".8" />
+                    <path d="M47 28V40M47 96v12M7 68h12M75 68h12M19 40l9 9M66 87l9 9M19 96l9-9M66 49l9-9M32 31l5 12M57 94l5 12M10 53l12 5M72 78l12 5M10 83l12-5M72 58l12-5M32 105l5-12M57 43l5-12" stroke="#d9b468" strokeWidth="1.2" />
+                    <path d="m47 12 2 5 5 2-5 2-2 5-2-5-5-2 5-2Z" fill="#d9b468" />
+                  </g>
+                </svg>
+                <span className="artCaption">지금의 마음 · 나아갈 방향</span>
+              </div>
+            </header>
+            <div className="welcomeInput">
+              <form onSubmit={submitQuestion} className="welcomeForm">
                 <label htmlFor="oracle-question" className="sr-only">지금의 고민</label>
                 <textarea
                   id="oracle-question"
@@ -475,16 +499,18 @@ export default function DailyOracleExperience() {
                   onChange={(event) => setQuestionDraft(event.target.value.slice(0, 180))}
                   disabled={sessionStatus === "saving" || Boolean(pendingStart)}
                   rows={4}
-                  placeholder="예: 지금 준비하고 있는 일을 계속 추진해도 괜찮을까요?"
-                  className="w-full resize-none rounded-2xl border border-[#cfdaf0] bg-[#fbfcff] px-5 py-4 text-base font-semibold leading-7 text-[#263956] outline-none transition placeholder:text-[#a3adbd] focus:border-[#5d83df] focus:ring-4 focus:ring-[#dfe8fb]"
+                  placeholder="고민을 적어주세요"
+                  maxLength={180}
+                  aria-describedby="oracle-question-count oracle-record-note"
+                  className="questionInput"
                 />
-                <div className="mt-2 text-right text-xs font-bold text-[#8793a6]">{questionDraft.length}/180</div>
+                <div id="oracle-question-count" className="questionCount">{questionDraft.length} / 180</div>
                 <button
                   type="submit"
                   disabled={!canSubmit || Boolean(drawing) || sessionStatus === "saving" || Boolean(pendingStart)}
-                  className="mt-5 w-full rounded-2xl bg-[#315fd3] px-6 py-4 text-base font-black text-white shadow-[0_12px_28px_rgba(49,95,211,.25)] transition hover:bg-[#2855c3] disabled:cursor-not-allowed disabled:bg-[#aab8d6] sm:w-auto"
+                  className="startButton"
                 >
-                  {sessionStatus === "saving" ? "이전 점괘를 확인하고 있어요…" : "점괘 시작하기"}
+                  {sessionStatus === "saving" ? "이전 점괘를 확인하고 있어요…" : <>카드 두 장 뽑기 <span aria-hidden="true">→</span></>}
                 </button>
                 {sessionStatus === "error" && sessionError && (
                   <div className="mt-4 rounded-2xl bg-[#fff7e8] px-5 py-4 text-sm font-bold leading-6 text-[#735522]" role="alert">
@@ -524,13 +550,11 @@ export default function DailyOracleExperience() {
                     </div>
                   </div>
                 )}
-                <p className="mt-4 text-xs font-medium leading-5 text-[#8a95a8]">
-                  입력한 고민과 생성 결과는 가명처리 후 서비스 개선·통계 분석·AI 학습에 활용될 수 있습니다.
+                <p id="oracle-record-note" className="recordNote">
+                  입력한 고민과 풀이 기록은 나의 고민 목록에서 확인하고 언제든 직접 삭제할 수 있습니다.
                 </p>
-                <Link href="/fortune/oracle/history" className="mt-3 inline-flex text-sm font-extrabold text-[#315fca] transition hover:text-[#2855c3]">
-                  지난 고민 점괘 보기 →
-                </Link>
               </form>
+              <Link href="/fortune/oracle/history" className="historyLink">지난 고민 점괘 보기 <span aria-hidden="true">↗</span></Link>
             </div>
           </section>
         )}
@@ -633,7 +657,7 @@ export default function DailyOracleExperience() {
                         <h2 className="mt-2 text-xl font-black text-[#172a4b]">고민의 흐름을 살펴보면</h2>
                       </div>
                     </div>
-                    <p className="mt-5 text-[15px] font-medium leading-8 text-[#4f5f79] sm:text-base">{futureReading.summary}</p>
+                    <p className="oracleReadingBody mt-5 text-[15px] font-medium leading-8 text-[#4f5f79] sm:text-base">{futureReading.summary}</p>
                     {futureReading.timing && (
                       <div className="mt-5 rounded-2xl border border-[#d6e1f5] bg-white/85 px-5 py-4">
                         <p className="text-xs font-extrabold text-[#72809a]">
@@ -645,7 +669,7 @@ export default function DailyOracleExperience() {
                     )}
                     <div className="mt-6 flex flex-col gap-3 border-t border-[#dce5f4] pt-6 sm:flex-row sm:justify-end">
                       <button type="button" onClick={resetOracle} className="rounded-xl bg-[#315fd3] px-5 py-3 text-sm font-extrabold text-white transition hover:bg-[#2855c3]">다른 고민으로 점괘 보기</button>
-                      <Link href="/fortune/oracle/history" className="rounded-xl bg-white px-5 py-3 text-center text-sm font-extrabold text-[#315fca] ring-1 ring-[#cfdbf0] transition hover:bg-[#f4f7ff]">지난 점괘 보기</Link>
+                      <Link href="/fortune/oracle/history" className="rounded-xl bg-white px-5 py-3 text-center text-sm font-extrabold text-[#315fca] ring-1 ring-[#cfdbf0] transition hover:bg-[#f4f7ff]">나의 고민 목록</Link>
                       <Link href="/home" className="rounded-xl bg-white px-5 py-3 text-center text-sm font-extrabold text-[#315fca] ring-1 ring-[#cfdbf0] transition hover:bg-[#f4f7ff]">다른 운세 둘러보기</Link>
                     </div>
                   </section>
@@ -655,10 +679,95 @@ export default function DailyOracleExperience() {
           </section>
         )}
 
-        <p className="mx-auto mt-7 max-w-2xl text-center text-xs font-medium leading-5 text-[#929caf]">
-          고민 점괘는 마음과 가능성을 정리하기 위한 참고 콘텐츠입니다. 중요한 결정은 실제 상황과 충분한 정보를 함께 살펴보세요.
+        <p className="oracleDisclaimer">
+          고민 점괘는 마음과 가능성을 정리하기 위한 참고 콘텐츠입니다.<br />
+          중요한 결정은 실제 상황과 충분한 정보를 함께 살펴보세요.
         </p>
       </div>
-    </main>
+
+      <style jsx>{`
+        .oraclePage {
+          display: grid;
+          grid-template-columns: minmax(0, 1fr);
+          box-sizing: border-box;
+          width: 100%;
+          min-width: 0;
+          max-width: none;
+          margin: 0;
+          padding: 0;
+          color: #172b50;
+          font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", Arial, sans-serif;
+          letter-spacing: -.02em;
+        }
+        .oracleContent { box-sizing: border-box; width: 100%; min-width: 0; max-width: 1040px; justify-self: center; margin: 0 auto; padding: 30px 32px 40px; }
+        .welcome { box-sizing: border-box; width: 100%; max-width: 820px; margin: 0 auto; padding: 0; }
+        .oracleDisclaimer { max-width: 760px; margin: 28px auto 0; color: #62718a; text-align: center; font-size: 18px; line-height: 1.8; word-break: keep-all; }
+        .welcomeHeader { display: flex; flex-direction: column; align-items: center; width: 100%; min-width: 0; text-align: center; }
+        .mobileEyebrow, .mobileTitle { display: none; }
+        .serviceLabel { order: 1; margin: 12px 0 0; font-size: 26px; font-weight: 750; }
+        .welcomeTitle { order: 2; margin: 16px 0 0; font-size: clamp(30px, 2.6vw, 38px); line-height: 1.4; font-weight: 800; letter-spacing: -.045em; word-break: keep-all; }
+        .welcomeDescription { order: 3; margin: 14px 0 0; color: #62718d; font-size: 25px; line-height: 1.7; word-break: keep-all; }
+        .welcomeSteps { order: 4; display: flex; align-items: center; justify-content: center; gap: 24px; width: 100%; margin: 26px 0 0; padding: 0; list-style: none; }
+        .welcomeSteps li { display: flex; align-items: center; gap: 10px; color: #7b879c; font-size: 22px; font-weight: 650; white-space: nowrap; }
+        .welcomeSteps li + li::before { content: ""; width: 34px; height: 1px; background: #d3dbe8; margin-right: 10px; }
+        .welcomeSteps li span { display: grid; place-items: center; width: 34px; height: 34px; border: 1px solid #d3dbe8; border-radius: 50%; font-size: 18px; }
+        .welcomeSteps li[aria-current="step"] { color: #245ee8; }
+        .welcomeSteps li[aria-current="step"] span { border-color: #245ee8; background: #245ee8; color: white; }
+        .welcomeArt { order: 0; flex: none; width: 180px; height: 120px; margin: 0 auto; }
+        .welcomeArt svg { width: 100%; height: 100%; }
+        .artCaption { display: none; }
+        .welcomeInput { box-sizing: border-box; width: 100%; min-width: 0; max-width: 760px; margin: 30px auto 0; }
+        .welcomeForm { width: 100%; min-width: 0; margin: 0; }
+        .questionInput { display: block; box-sizing: border-box; width: 100%; height: 160px; min-height: 160px; resize: vertical; padding: 22px 24px; border: 1px solid #cfd8e9; border-radius: 14px; outline: none; background: #fff; color: #233b60; font: inherit; font-size: 25px; line-height: 1.85; transition: border-color .15s, box-shadow .15s; }
+        .questionInput::placeholder { color: #66758d; opacity: 1; }
+        .questionInput:focus-visible { border-color: #2862e3; box-shadow: 0 0 0 3px #e8efff; }
+        .questionInput:disabled { background: #fafbfe; }
+        .questionCount { margin-top: 8px; text-align: right; color: #7a879d; font-size: 18px; line-height: 1.6; }
+        .startButton { display: flex; align-items: center; justify-content: center; gap: 18px; width: min(100%, 440px); min-height: 56px; margin: 26px auto 0; padding: 14px 20px; border: 0; border-radius: 12px; background: #245ee8; color: white; font: inherit; font-size: 25px; line-height: 1.5; font-weight: 750; cursor: pointer; transition: background .15s; }
+        .startButton:hover:not(:disabled) { background: #194fd0; }
+        .startButton:disabled { background: #a8bfed; cursor: not-allowed; }
+        .startButton:focus-visible { outline: 3px solid #b4ccff; outline-offset: 4px; }
+        .recordNote { margin: 14px 0 0; text-align: center; font-size: 18px; line-height: 1.75; color: #62718a; }
+        .welcomeInput :global(.historyLink) { display: block; width: fit-content; margin: 18px auto 0; color: #245ee8; font-size: 22px; font-weight: 650; text-align: center; text-underline-offset: 4px; }
+        .welcomeInput :global(.historyLink:hover) { text-decoration: underline; }
+        .oraclePage :global(.oracleReadingBody) { font-size: 25px; line-height: 1.9; color: #405575; }
+        .oraclePage :global(#oracle-draw button), .oraclePage :global(#oracle-draw a) { font-size: 18px; line-height: 1.6; }
+        @media (max-width: 800px) {
+          .oracleContent { padding: 24px 20px 32px; }
+          .oraclePage :global(.oracleReadingBody) { font-size: 17px; line-height: 1.85; }
+          .oraclePage :global(#oracle-draw button), .oraclePage :global(#oracle-draw a) { font-size: 17px; }
+          .welcome { padding-top: 0; }
+          .welcomeHeader { align-items: stretch; text-align: left; }
+          .mobileEyebrow { order: 0; display: block; margin: 0 0 10px; color: #b27a27; font-size: 13px; font-weight: 650; }
+          .serviceLabel, .desktopTitle { display: none; }
+          .mobileTitle { display: inline; }
+          .welcomeTitle { order: 1; margin: 0; font-size: 28px; line-height: 1.35; }
+          .welcomeDescription { order: 2; margin-top: 14px; font-size: 17px; line-height: 1.75; }
+          .welcomeSteps { order: 3; gap: 8px; justify-content: space-between; margin-top: 24px; }
+          .welcomeSteps li { gap: 5px; font-size: 14px; }
+          .welcomeSteps li span { width: 26px; height: 26px; font-size: 13px; }
+          .welcomeSteps li + li::before { width: 12px; margin-right: 2px; }
+          .welcomeArt { order: 4; width: min(100%, 260px); height: auto; margin: 24px auto 0; text-align: center; }
+          .welcomeArt svg { height: 158px; }
+          .artCaption { display: inline-block; margin-top: -6px; border: 1px solid #dec28c; border-radius: 20px; padding: 4px 14px; color: #5e4c2e; font-size: 12px; font-weight: 600; }
+          .welcomeInput { margin-top: 28px; }
+          .questionInput { height: 144px; min-height: 144px; padding: 17px 18px; font-size: 17px; }
+          .questionCount { font-size: 15px; }
+          .startButton { width: 100%; min-height: 52px; margin-top: 28px; font-size: 18px; }
+          .recordNote { font-size: 15px; }
+          .oracleDisclaimer { font-size: 15px; margin-top: 24px; }
+          .welcomeInput :global(.historyLink) { margin-top: 20px; font-size: 15px; }
+        }
+        @media (max-width: 400px) {
+          .welcomeSteps { gap: 4px; }
+          .welcomeSteps li { gap: 4px; font-size: 13px; }
+          .welcomeSteps li span { width: 24px; height: 24px; }
+          .welcomeSteps li + li::before { width: 8px; margin-right: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .questionInput, .startButton { transition: none; }
+        }
+      `}</style>
+    </section>
   );
 }

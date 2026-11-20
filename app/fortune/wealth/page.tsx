@@ -125,23 +125,23 @@ export default function WealthPage() {
             </header>
 
             {activeStory.paragraphs.map((paragraph, i) => <section key={i} className="border-b border-[#edf1f7] py-6 sm:py-7">
-              <h3 className="relative pl-4 text-[20px] font-bold leading-8 tracking-[-.025em] before:absolute before:left-0 before:top-[7px] before:h-[18px] before:w-[3px] before:rounded-full before:bg-[#6191ff]">{paragraph.title}</h3>
-              <p className="mt-3 whitespace-pre-line break-words pl-4 text-[20px] leading-[1.9] text-[#526582]">{paragraph.body}</p>
+              <h3 className="fortune-reading-subtitle relative pl-4 text-[20px] font-bold leading-8 tracking-[-.025em] before:absolute before:left-0 before:top-[7px] before:h-[18px] before:w-[3px] before:rounded-full before:bg-[#6191ff]">{paragraph.title}</h3>
+              <p className="fortune-reading-body mt-3 whitespace-pre-line break-words pl-4 text-[20px] leading-[1.9] text-[#526582]">{paragraph.body}</p>
             </section>)}
 
-            <p className="mt-5 pl-4 text-[16px] leading-8 text-[#526582]"><span className="mr-2 font-semibold text-[#31578f]">기억할 한 가지</span>{activeStory.tip}</p>
+            <p className="fortune-reading-body mt-5 pl-4 text-[16px] leading-8 text-[#526582]"><span className="mr-2 font-semibold text-[#31578f]">기억할 한 가지</span>{activeStory.tip}</p>
 
             <details className="group mt-7 rounded-lg border border-[#dfe7f4]">
-              <summary className="flex min-h-14 cursor-pointer list-none flex-wrap items-center gap-x-5 gap-y-1 px-4 py-4 text-[18px] font-semibold [&::-webkit-details-marker]:hidden sm:px-5">
+              <summary className="fortune-reading-subtitle flex min-h-14 cursor-pointer list-none flex-wrap items-center gap-x-5 gap-y-1 px-4 py-4 text-[18px] font-semibold [&::-webkit-details-marker]:hidden sm:px-5">
                 <span>이렇게 풀이했어요</span>
                 <span className="text-[14px] font-normal text-[#7b88a0] sm:border-l sm:border-[#dfe7f4] sm:pl-5 sm:text-[16px]">수입·관리·주의점의 만세력 근거</span>
                 <svg aria-hidden="true" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" className="ml-auto h-5 w-5 shrink-0 text-[#637a9f] transition-transform group-open:rotate-180"><path d="m5 7.5 5 5 5-5" /></svg>
               </summary>
               <div className="border-t border-[#e8edf5] px-4 pb-1 sm:px-5">
                 {activeStory.evidenceReasons.map(reason => <section key={reason.key} className="py-5">
-                  <h3 className="text-[18px] font-semibold text-[#31578f]">{reason.title}</h3>
-                  <p className="mt-2 text-[18px] leading-8 text-[#435e86]">{reason.conclusion}</p>
-                  <p className="mt-2 whitespace-pre-line break-words text-[18px] leading-[1.9] text-[#526582]">{reason.body}</p>
+                  <h3 className="fortune-reading-subtitle text-[18px] font-semibold text-[#31578f]">{reason.title}</h3>
+                  <p className="fortune-reading-body mt-2 text-[18px] leading-8 text-[#435e86]">{reason.conclusion}</p>
+                  <p className="fortune-reading-body mt-2 whitespace-pre-line break-words text-[18px] leading-[1.9] text-[#526582]">{reason.body}</p>
                 </section>)}
               </div>
             </details>
