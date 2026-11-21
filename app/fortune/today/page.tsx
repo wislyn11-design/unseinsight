@@ -7,6 +7,27 @@ import { DAILY_PROMPT_VERSION } from "@/app/lib/fortune/daily-content-version";
 import { loadActiveSajuChart } from "@/app/lib/saju/chart-storage";
 import { useCallback, useEffect, useRef, useState } from "react";
 
+function luckyColorSwatch(color?: string): string {
+  const palette: Record<string, string> = {
+    남색: "#173568", 네이비: "#173568", 파랑: "#2862e3", 파란색: "#2862e3", 청색: "#2862e3",
+    빨강: "#d94a48", 빨간색: "#d94a48", 적색: "#d94a48", 주황: "#ee9257", 주황색: "#ee9257",
+    노랑: "#e9bf43", 노란색: "#e9bf43", 초록: "#57916d", 초록색: "#57916d", 녹색: "#57916d",
+    보라: "#8c73b7", 보라색: "#8c73b7", 분홍: "#e3a0b4", 분홍색: "#e3a0b4",
+    흰색: "#ffffff", 백색: "#ffffff", 검정: "#222b3b", 검정색: "#222b3b", 검은색: "#222b3b",
+    회색: "#929aa5", 갈색: "#967457", 베이지: "#d7c4a6", 금색: "#c5a256", 은색: "#bdc4ce",
+  };
+  return palette[(color || "").trim()] || "#cbd5e1";
+}
+
+function TodaySummaryIcon({ kind, className = "h-6 w-6" }: { kind: "focus" | "chat" | "balance" | "steps"; className?: string }) {
+  return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+    {kind === "focus" ? <><circle cx="12" cy="12" r="8" /><circle cx="12" cy="12" r="2" /><path d="M12 1v5m0 12v5M1 12h5m12 0h5" /></>
+      : kind === "chat" ? <><path d="M20 11a8 8 0 0 1-8 8H8l-5 3 1.5-6A8 8 0 1 1 20 11Z" /><path d="M8 10h.01M12 10h.01M16 10h.01" /></>
+      : kind === "balance" ? <><path d="M12 3v18m-5 0h10M3 6h18M6 6l-4 8h8L6 6Zm12 0-4 8h8l-4-8Z" /><path d="M2 14a4 4 0 0 0 8 0m4 0a4 4 0 0 0 8 0" /></>
+      : <><ellipse cx="8" cy="7" rx="3" ry="5" transform="rotate(-15 8 7)" /><ellipse cx="17" cy="14" rx="3" ry="5" transform="rotate(15 17 14)" /><path d="m5 15 4-1m6 9 4-1" /></>}
+  </svg>;
+}
+
 type FortuneSection = {
   score?: number;
   title?: string;
@@ -459,16 +480,9 @@ export default function TodayFortunePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [needsBirthProfile, setNeedsBirthProfile] = useState(false);
-  const [interpretationId, setInterpretationId] = useState("");
 
   const [, setIntroProfile] = useState<IntroProfile | null>(null);
 
-  const [feedbackStatus, setFeedbackStatus] = useState("");
-  const [feedbackChoice, setFeedbackChoice] = useState<boolean | null>(null);
-  const [helpfulTopics, setHelpfulTopics] = useState<string[]>([]);
-  const [issueTypes, setIssueTypes] = useState<string[]>([]);
-  const [feedbackLocked, setFeedbackLocked] = useState(false);
-  const [pointBalance, setPointBalance] = useState(0);
   const [streamStatus, setStreamStatus] = useState("");
   const [streamSections, setStreamSections] = useState<StreamedSection[]>([]);
   const [activeTodayView, setActiveTodayView] =
@@ -579,14 +593,14 @@ export default function TodayFortunePage() {
                 cached?.chartId === chartId && cached?.promptVersion === DAILY_PROMPT_VERSION) {
               showedCachedFortune = true;
               setFortune(cached.fortune as TodayFortune);
-              setInterpretationId(String(cached.interpretationId || ""));
+
               setStreamSections([]);
               setStreamStatus("");
-              setFeedbackStatus("");
-              setFeedbackChoice(null);
-              setHelpfulTopics([]);
-              setIssueTypes([]);
-              setFeedbackLocked(false);
+
+
+
+
+
               setLoading(false);
               return;
             } else {
@@ -705,16 +719,16 @@ export default function TodayFortunePage() {
         }
 
         setFortune(completedFortune);
-        setInterpretationId(nextInterpretationId);
+
         setLoading(false);
 
         setStreamSections([]);
         setStreamStatus("");
-        setFeedbackStatus("");
-        setFeedbackChoice(null);
-        setHelpfulTopics([]);
-        setIssueTypes([]);
-        setFeedbackLocked(false);
+
+
+
+
+
 
         try {
           sessionStorage.setItem(
@@ -732,19 +746,7 @@ export default function TodayFortunePage() {
           // 브라우저 저장에 실패해도 DB에서 받은 운세는 그대로 표시합니다.
         }
 
-        if (nextInterpretationId) {
-          const statusResponse = await fetch(
-            `/api/fortune/feedback?interpretationId=${encodeURIComponent(nextInterpretationId)}`,
-            { cache: "no-store", signal },
-          );
-          const statusData = await statusResponse.json().catch(() => null);
-          signal.throwIfAborted();
-          if (statusResponse.ok && statusData?.success) {
-            setFeedbackLocked(Boolean(statusData.evaluated));
-            setFeedbackChoice(statusData.evaluated ? statusData.helpful : null);
-            setPointBalance(Number(statusData.pointBalance || 0));
-          }
-        }
+
       } catch (reason) {
         if (signal.aborted || (reason instanceof Error && reason.name === "AbortError"))
           return;
@@ -1024,46 +1026,6 @@ export default function TodayFortunePage() {
     }
   };
 
-  const submitFeedback = async ({
-    choice = feedbackChoice,
-    nextHelpfulTopics = helpfulTopics,
-    nextIssueTypes = issueTypes,
-  }: {
-    choice?: boolean | null;
-    nextHelpfulTopics?: string[];
-    nextIssueTypes?: string[];
-  } = {}) => {
-    if (!interpretationId) return;
-    if (choice === null) return;
-    if (feedbackLocked || feedbackStatus === "saving") return;
-    setFeedbackStatus("saving");
-    try {
-      const response = await fetch("/api/fortune/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          interpretationId,
-          topic: "overall",
-          helpful: choice,
-          helpfulTopics: nextHelpfulTopics,
-          issueTypes: nextIssueTypes,
-        }),
-      });
-      const data = await response.json().catch(() => null);
-      if (!response.ok || !data?.success)
-        throw new Error(data?.error || "평가를 저장하지 못했습니다.");
-      setFeedbackLocked(true);
-      setPointBalance(Number(data.pointBalance || 0));
-      setFeedbackStatus(data.alreadyEvaluated ? "already" : "rewarded");
-    } catch (reason) {
-      setFeedbackStatus(
-        reason instanceof Error
-          ? reason.message
-          : "평가를 저장하지 못했습니다.",
-      );
-    }
-  };
-
   const selectedMonth = selectedDate ? monthParts(selectedDate) : null;
   const calendarDates = selectedDate
     ? Array.from({ length: daysInMonth(selectedDate) }, (_, index) =>
@@ -1126,7 +1088,6 @@ export default function TodayFortunePage() {
 
           <div className="mt-8 overflow-x-auto pb-2 [scrollbar-width:thin]">
             <div className="relative grid min-w-[1060px] grid-flow-col auto-cols-fr items-start px-1 pt-6">
-              <div className="pointer-events-none absolute left-4 right-4 top-[68px] h-px bg-[#b9cdf1]" />
               {calendarDates.map((dateValue) => {
                 const day = monthParts(dateValue).day;
                 const active = dateValue === selectedDate;
@@ -1144,7 +1105,7 @@ export default function TodayFortunePage() {
                     aria-current={active ? "date" : undefined}
                   >
                     <span
-                      className={`absolute -top-6 rounded-full px-2.5 py-1 text-[12px] font-extrabold text-white ${isRealToday ? "bg-[#ff914d]" : "invisible"}`}
+                      className={`absolute -top-6 px-2 py-1 text-[14px] font-semibold text-[#173568] ${isRealToday ? "" : "invisible"}`}
                     >
                       오늘
                     </span>
@@ -1153,69 +1114,12 @@ export default function TodayFortunePage() {
                     >
                       {day}
                     </span>
-                    <span
-                      className={`mt-2 h-2 w-2 rounded-full border-2 border-white ${active ? "bg-[#2f66df]" : "bg-[#b7c7df]"}`}
-                    />
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {!loading && fortune && (
-              <section className="mt-6 border-y border-[#dce3ee] py-5 sm:py-6">
-                <div className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-5">
-                  <h2 className="border-l-[4px] border-[#3978ed] pl-4 text-[21px] font-black tracking-[-.03em] text-[#17345f] sm:text-[25px]">
-                    오늘의 행운 포인트
-                  </h2>
-                  <p className="text-[13px] text-[#8794a8] sm:text-[25px]">
-                    오늘의 흐름을 돕는 가벼운 참고 정보입니다.
-                  </p>
-                </div>
-
-                <div className="mt-4">
-                  <div className="grid min-w-0 grid-cols-[36px_minmax(0,1fr)] items-center gap-x-3 gap-y-1 sm:grid-cols-[36px_auto_minmax(0,1fr)]">
-                    <span
-                      className="grid h-9 w-9 place-items-center rounded-[10px] bg-[#fff4ec] text-[17px] font-black text-[#ef8a4c]"
-                      aria-hidden="true"
-                    >
-                      ✦
-                    </span>
-                    <span className="whitespace-nowrap text-[14px] font-bold text-[#7f8ca0] sm:text-[25px]">
-                      오늘의 작은 제안
-                    </span>
-                    <strong className="col-start-2 break-keep text-[17px] leading-[1.5] tracking-[-.025em] text-[#17345f] sm:col-start-auto sm:text-[25px]">
-                      {fortune.recommendedActivity || "-"}
-                    </strong>
-                  </div>
-
-                  <div className="mt-2.5 flex flex-wrap items-center gap-y-2 border-t border-[#e1e7f0] pt-2.5 text-[#17345f] sm:ml-12">
-                    <div className="flex items-center gap-2 pr-5 sm:pr-7">
-                      <span className="text-[13px] font-semibold text-[#8794a8] sm:text-[25px]">
-                        행운의 색
-                      </span>
-                      <span
-                        className="h-4 w-4 rounded-full bg-[#d7bd91]"
-                        aria-hidden="true"
-                      />
-                      <strong className="text-[16px] sm:text-[25px]">
-                        {fortune.luckyColor || "-"}
-                      </strong>
-                    </div>
-
-                    <div className="flex items-center gap-2 border-l border-[#dce3ee] pl-5 sm:pl-7">
-                      <span className="text-[13px] font-semibold text-[#8794a8] sm:text-[25px]">
-                        행운의 숫자
-                      </span>
-                      <strong className="text-[19px] text-[#2f66df] sm:text-[25px]">
-                        {fortune.luckyNumbers?.[0] ?? "-"}
-                      </strong>
-                    </div>
-                  </div>
-                </div>
-              </section>
-
-          )}
         </section>
 
         {loading && (
@@ -1250,50 +1154,9 @@ export default function TodayFortunePage() {
 
         {!loading && fortune && (
           <>
-            <section
-              className="scroll-mt-24 py-8 sm:py-10"
-              aria-labelledby="today-flow-title"
-            >
-              <h2 className="text-[28px] font-black tracking-[-0.04em] text-[#102c5c] sm:text-[34px]">
-                {selectedDayTitle(selectedDate, today)}
-              </h2>
-
-              <div className="mt-7 border-b border-[#dce3ee] pb-7">
-                <p className="fortune-reading-subtitle border-l-[4px] border-[#3d7af0] pl-4 text-[18px] font-extrabold text-[#17345f] sm:text-[21px]">
-                  오늘의 핵심 흐름
-                </p>
-                <h3
-                  id="today-flow-title"
-                  className="mt-4 max-w-[1280px] break-keep text-[28px] font-black leading-[1.35] tracking-[-0.045em] text-[#0d2b5c] sm:text-[38px] lg:text-[46px]"
-                >
-                  {fortune.dailyInsight?.headline || fortune.overall?.title}
-                </h3>
-                <div className="mt-6 grid gap-4 text-[17px] font-semibold text-[#314663] sm:grid-cols-3 sm:text-[19px]">
-                  <p className="flex items-center gap-3">
-                    <span className="h-4 w-4 rounded-full bg-[#9ed9ff]" />
-                    {Number(fortune.workStudy?.score || 0) >= 70
-                      ? "집중력 높음"
-                      : "집중은 천천히"}
-                  </p>
-                  <p className="flex items-center gap-3">
-                    <span className="h-4 w-4 rounded-full bg-[#ffc777]" />
-                    {Number(fortune.love?.score || 0) >= 70
-                      ? "대화 흐름 좋음"
-                      : "대화는 천천히"}
-                  </p>
-                  <p className="flex items-center gap-3">
-                    <span className="h-4 w-4 rounded-full bg-[#aeb8ff]" />
-                    {Number(fortune.wealth?.score || 0) >= 70
-                      ? "결정에 힘이 실려요"
-                      : "결정은 신중하게"}
-                  </p>
-                </div>
-              </div>
-            </section>
-
             <nav
               id="today-content-tabs"
-              className="scroll-mt-24 mb-8 overflow-x-auto border-y border-[#dce3ee] bg-white"
+              className="scroll-mt-24 mb-8 overflow-x-auto border-b border-[#dce3ee] bg-white"
               aria-label="오늘의 나침반 세부 메뉴"
             >
               <div role="tablist" aria-label="오늘의 나침반" className="grid w-full" style={{ gridTemplateColumns: `repeat(${TODAY_CONTENT_TABS.length}, minmax(0, 1fr))` }}>
@@ -1308,7 +1171,7 @@ export default function TodayFortunePage() {
                       onClick={() => moveToTodayView(item.id)}
                       className={`relative min-h-[68px] px-5 py-4 text-center text-[17px] font-extrabold tracking-[-.025em] transition sm:text-[22px] ${
                         active
-                          ? "bg-[#edf3ff] text-[#163d7a] after:absolute after:inset-x-5 after:bottom-0 after:h-[3px] after:bg-[#3978ed]"
+                          ? "text-[#1760ee] after:absolute after:inset-x-0 after:bottom-0 after:h-[3px] after:bg-[#3978ed]"
                           : item.disabled ? "cursor-not-allowed text-[#9ca8b9]" : "text-[#60708a] hover:bg-[#f8faff] hover:text-[#245fc8]"
                       }`}
                       role="tab"
@@ -1499,6 +1362,40 @@ export default function TodayFortunePage() {
                 </p>
               </div>
 
+              <section className="mb-8 rounded-xl border border-[#dfd4c7] bg-[#fdfbf8] px-4 py-6 sm:px-7 sm:py-7" aria-labelledby="today-flow-title">
+                <p className="text-[18px] font-semibold text-[#173568] sm:text-[22px]">{selectedDayTitle(selectedDate, today)}</p>
+                <p className="mt-3 text-[18px] font-semibold text-[#ad521d] sm:text-[20px]">오늘의 핵심 흐름</p>
+                <h3 id="today-flow-title" className="mt-2 break-keep text-[26px] font-bold leading-[1.45] tracking-[-.035em] text-[#102c5c] sm:text-[34px]">
+                  “{(fortune.dailyInsight?.headline || fortune.overall?.title || "").replace(/^[\s“”"]+|[\s“”"]+$/g, "")}”
+                </h3>
+                {(fortune.dailyInsight?.scene || fortune.dailyInsight?.prescription || fortune.overall?.advice) && <div className="mt-4 space-y-1 break-keep text-[17px] font-medium leading-[1.8] text-[#ad521d] min-[801px]:text-[25px]">
+                  {fortune.dailyInsight?.scene && <p>{fortune.dailyInsight.scene}</p>}
+                  {(fortune.dailyInsight?.prescription || fortune.overall?.advice) && <p>{fortune.dailyInsight?.prescription || fortune.overall?.advice}</p>}
+                </div>}
+                <ul aria-label="오늘의 흐름 특징" className="mt-5 flex flex-wrap gap-2 sm:gap-3">
+                  <li className="flex items-center gap-2 rounded-lg bg-[#edf2f8] px-3 py-2 text-[17px] font-semibold text-[#173568] sm:text-[20px]"><TodaySummaryIcon kind="focus" />[{Number(fortune.workStudy?.score || 0) >= 70 ? "집중력 높음" : "집중은 천천히"}]</li>
+                  <li className="flex items-center gap-2 rounded-lg bg-[#edf2f8] px-3 py-2 text-[17px] font-semibold text-[#173568] sm:text-[20px]"><TodaySummaryIcon kind="chat" />[{Number(fortune.love?.score || 0) >= 70 ? "대화 흐름 좋음" : "대화는 천천히"}]</li>
+                  <li className="flex items-center gap-2 rounded-lg bg-[#edf2f8] px-3 py-2 text-[17px] font-semibold text-[#173568] sm:text-[20px]"><TodaySummaryIcon kind="balance" />[{Number(fortune.wealth?.score || 0) >= 70 ? "결정에 힘이 실려요" : "결정은 신중하게"}]</li>
+                </ul>
+                <div className="mt-5 flex items-start gap-3 rounded-lg border-l-[3px] border-[#ff825b] bg-[#fff3e8] px-4 py-4 sm:items-center sm:gap-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white text-[#173568] sm:h-12 sm:w-12"><TodaySummaryIcon kind="steps" className="h-7 w-7" /></span>
+                  <div className="min-w-0">
+                    <h4 className="text-[18px] font-semibold text-[#ad521d] sm:text-[20px]"><span aria-hidden="true">› </span>오늘의 작은 제안</h4>
+                    <p className="mt-1 break-keep text-[17px] font-semibold leading-[1.7] text-[#173568] min-[801px]:text-[25px]">{fortune.recommendedActivity || "-"}</p>
+                  </div>
+                </div>
+                <dl className="mt-5 flex flex-wrap items-center gap-x-7 gap-y-4 text-[#173568] sm:gap-x-10">
+                  <div className="flex items-center gap-3">
+                    <span aria-hidden="true" className="h-10 w-10 shrink-0 rounded-full border border-black/10 sm:h-12 sm:w-12" style={{ backgroundColor: luckyColorSwatch(fortune.luckyColor) }} />
+                    <div><dt className="text-[17px] font-medium text-[#526582] sm:text-[18px]">행운의 색</dt><dd className="text-[20px] font-semibold sm:text-[24px]">{fortune.luckyColor || "-"}</dd></div>
+                  </div>
+                  <div className="flex items-center gap-3 border-l border-[#dce1e8] pl-6 sm:pl-9">
+                    <dt className="order-2 text-[17px] font-medium text-[#526582] sm:text-[18px]">행운의 숫자</dt>
+                    <dd className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-2 border-[#173568] text-[24px] font-semibold leading-none sm:h-12 sm:w-12 sm:text-[28px]">{fortune.luckyNumbers?.[0] ?? "-"}</dd>
+                  </div>
+                </dl>
+              </section>
+
               <div>
                 {DETAIL_SECTIONS.map((item) => (
                   <FortuneAccordionRow
@@ -1518,117 +1415,7 @@ export default function TodayFortunePage() {
                 ))}
               </div>
 
-              {/* 피드백 영역 */}
-              <div
-                id="today-feedback"
-                className="scroll-mt-24 mt-8 border-t border-[#dde3ec] pt-8"
-              >
-                <p className="today-feedback-title font-extrabold tracking-[-.025em] text-[#172033]">
-                  오늘의 운세 해석이 도움이 되었나요?
-                </p>
-                {!feedbackLocked && (
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    <button
-                      type="button"
-                      disabled={feedbackStatus === "saving"}
-                      onClick={() => {
-                        setFeedbackChoice(true);
-                        setHelpfulTopics([]);
-                        setIssueTypes([]);
-                        setFeedbackStatus("");
-                      }}
-                      className={`today-feedback-button rounded-xl px-6 py-3.5 font-bold disabled:opacity-60 ${
-                        feedbackChoice === true
-                          ? "bg-[#2563eb] text-white"
-                          : "border border-[#d5dce7] bg-white text-[#354157]"
-                      }`}
-                    >
-                      도움됐어요
-                    </button>
-                    <button
-                      type="button"
-                      disabled={feedbackStatus === "saving"}
-                      onClick={() => {
-                        setFeedbackChoice(false);
-                        setHelpfulTopics([]);
-                        setIssueTypes([]);
-                        setFeedbackStatus("");
-                      }}
-                      className={`today-feedback-button rounded-xl px-6 py-3.5 font-bold disabled:opacity-60 ${
-                        feedbackChoice === false
-                          ? "bg-[#2563eb] text-white"
-                          : "border border-[#d5dce7] bg-white text-[#354157]"
-                      }`}
-                    >
-                      아쉬워요
-                    </button>
-                  </div>
-                )}
-                {!feedbackLocked && feedbackChoice === true && (
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {HELPFUL_OPTIONS.map(([value, label]) => (
-                      <label
-                        key={value}
-                        className="today-feedback-option cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 font-medium text-[#596579]"
-                      >
-                        <input
-                          type="checkbox"
-                          disabled={feedbackStatus === "saving"}
-                          className="mr-2"
-                          checked={helpfulTopics.includes(value)}
-                          onChange={() => {
-                            const next = [value];
-                            setHelpfulTopics(next);
-                            void submitFeedback({
-                              choice: true,
-                              nextHelpfulTopics: next,
-                              nextIssueTypes: [],
-                            });
-                          }}
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                )}
-                {!feedbackLocked && feedbackChoice === false && (
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {ISSUE_OPTIONS.map(([value, label]) => (
-                      <label
-                        key={value}
-                        className="today-feedback-option cursor-pointer rounded-full border border-[#d8e0eb] bg-white px-5 py-3 font-medium text-[#596579]"
-                      >
-                        <input
-                          type="checkbox"
-                          disabled={feedbackStatus === "saving"}
-                          className="mr-2"
-                          checked={issueTypes.includes(value)}
-                          onChange={() => {
-                            const next = [value];
-                            setIssueTypes(next);
-                            void submitFeedback({
-                              choice: false,
-                              nextHelpfulTopics: [],
-                              nextIssueTypes: next,
-                            });
-                          }}
-                        />
-                        {label}
-                      </label>
-                    ))}
-                  </div>
-                )}
-                {feedbackStatus === "rewarded" && (
-                  <p className="today-feedback-status mt-4 rounded-xl bg-[#effaf5] px-6 py-4 font-bold text-[#168456]">
-                    ✓ 소중한 평가 감사합니다. 1포인트 적립되었습니다.
-                  </p>
-                )}
-                {feedbackLocked && feedbackStatus !== "rewarded" && (
-                  <p className="today-feedback-status mt-4 rounded-xl bg-white px-6 py-4 font-bold text-[#596579]">
-                    ✓ 오늘의 운세 평가를 완료했습니다.
-                  </p>
-                )}
-              </div>
+
             </section>
 
             <section className="mt-5 flex flex-wrap items-center justify-between gap-4 rounded-[12px] border border-[#7ea1ff] bg-gradient-to-r from-[#f3f6ff] to-[#f6f5ff] px-8 py-5">
