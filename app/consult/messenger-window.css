@@ -1,0 +1,7 @@
+.vipFloat.adviserWindow{right:auto;bottom:auto;max-height:none;max-width:none;box-sizing:border-box;overflow:hidden;border-radius:14px}
+.windowGrip,.windowSizer{touch-action:none;user-select:none}
+.windowGrip{cursor:move}
+.adviserWindow .windowBody{flex:1;min-height:0;overflow:auto}
+.adviserWindow .windowBody .dosaScreen,.adviserWindow .windowBody .dosaRoom{height:100%;min-height:0}
+.adviserWindow .dosaThread{min-height:0}
+.adviserWindow .windowSizer{align-self:flex-end;width:32px;height:20px;line-height:20px;text-align:right;padding-right:4px;cursor:nwse-resize;color:#596d80}

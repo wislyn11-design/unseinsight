@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import StaffLinks from "@/app/consult/StaffLinks";
 import LoginButton from "@/app/components/common/LoginButton";
+import VipBrand from "@/app/consult/VipBrand";
 
 const navigation = [
   { label: "오늘의 운세", href: "/fortune/today" },
@@ -44,20 +46,7 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b border-[#dfe5f0] bg-white/95 shadow-[0_2px_10px_rgba(28,45,78,.04)] backdrop-blur">
       <div className="mx-auto flex h-[74px] max-w-[1540px] items-center justify-between px-5 sm:px-8 lg:px-10">
-        <Link
-          href="/home"
-          className="flex items-center gap-2.5"
-          aria-label="운세인사이트 홈"
-        >
-          <img
-            src="/unse-insight-logo.jpg"
-            alt=""
-            className="h-10 w-10 rounded-xl object-contain"
-          />
-          <span className="text-[23px] font-extrabold tracking-[-.055em] text-[#071536]">
-            운세인사이트
-          </span>
-        </Link>
+        <VipBrand />
 
         <nav className="hidden items-center gap-[62px] lg:flex" aria-label="주요 메뉴">
           {navigation.map((item) => (
@@ -72,7 +61,7 @@ export default function SiteHeader() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          <LoginButton />
+          <StaffLinks /><LoginButton />
           <Link
             href="/"
             className="flex h-11 items-center rounded-xl bg-[#2e63df] px-6 font-bold text-white shadow-[0_7px_16px_rgba(46,99,223,.24)] transition hover:bg-[#2458d0]"

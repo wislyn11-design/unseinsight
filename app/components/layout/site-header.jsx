@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useCallback, useRef, useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import MobileBottomNavigation from "./mobile-bottom-navigation"
+import VipBrand from "@/app/consult/VipBrand"
+import StaffLinks from "@/app/consult/StaffLinks";
 import LoginButton from "@/app/components/common/LoginButton"
 import { clearActiveSajuChart, clearPendingFortunePath } from "@/app/lib/saju/chart-storage"
 
@@ -51,17 +53,7 @@ export function SiteHeader({ onUserChange } = {}) {
     <>
     <header className="sticky top-0 z-40 border-b border-[#dfe5f0] bg-white/95 backdrop-blur-md">
       <div className="relative mx-auto flex h-[74px] max-w-[1540px] items-center justify-between gap-3 px-4 sm:px-8 lg:px-10">
-        <Link href="/home" className="flex shrink-0 items-center rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#2f62dc]" aria-label="운세인사이트 홈">
-          <img
-            src="/brand/unseinsight-starlight.png"
-            alt="운세인사이트"
-            width={2048}
-            height={682}
-            loading="eager"
-            decoding="async"
-            className="block h-auto w-[192px] max-w-[52vw] shrink-0 object-contain sm:w-[216px] lg:max-w-none"
-          />
-        </Link>
+        <VipBrand />
 
         <nav className="hidden items-center gap-9 xl:gap-[52px] lg:flex" aria-label="주요 서비스">
           {navigation.map((item) => {
@@ -84,7 +76,7 @@ export function SiteHeader({ onUserChange } = {}) {
         </nav>
 
         <div className="mobile-header-auth flex shrink-0 items-center gap-3">
-          <LoginButton onUserChange={handleUserChange} />
+          <StaffLinks /><LoginButton onUserChange={handleUserChange} />
           <Link href={primaryCtaHref} className="hidden h-11 items-center rounded-xl bg-[#2e63df] lg:flex px-6 font-bold text-white shadow-[0_7px_16px_rgba(46,99,223,.24)]">
             {currentUser ? "내 운세 보기" : "무료로 시작하기"}
           </Link>

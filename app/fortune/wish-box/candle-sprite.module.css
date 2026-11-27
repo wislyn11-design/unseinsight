@@ -1,0 +1,16 @@
+.sprite{position:relative;display:block;width:100%;aspect-ratio:1;pointer-events:none;line-height:0;isolation:isolate}
+.sprite .body{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;z-index:1}
+.sprite .flame{position:absolute;display:block;left:33.7%;top:7%;width:30%;height:30%;z-index:2;transform-origin:50% 88%;animation:flicker 2.4s ease-in-out infinite alternate}
+.sprite .flameImage{display:block;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 3px #ffd36c99)}
+.halo{position:absolute;left:27%;top:8%;width:44%;height:42%;border-radius:50%;background:radial-gradient(ellipse,#ffd35c70,transparent 70%);z-index:0;animation:breathe 3s ease-in-out infinite;transition:filter .4s}
+.celebrating .halo{filter:brightness(1.7);background:radial-gradient(ellipse,#ffe29ce0,transparent 70%)}
+.celebrating .flame{animation-duration:.8s;filter:brightness(1.12)}
+.spark{position:absolute;left:34%;top:22%;font-size:clamp(10px,1.6vw,20px);line-height:1;color:#ffc451;z-index:3;animation:rise 2s ease-out both}
+.second{left:63%;top:28%;animation-delay:.25s}
+@keyframes flicker{0%{transform:rotate(-4deg) scale(.97,1);opacity:.94}35%{transform:rotate(2deg) scale(1.03,.96);opacity:1}70%{transform:rotate(-1deg) scale(.98,1.04);opacity:.97}100%{transform:rotate(4deg) scale(1.02,1);opacity:1}}
+@keyframes breathe{0%,100%{opacity:.55;transform:scale(.96)}50%{opacity:.85;transform:scale(1.06)}}
+@keyframes rise{0%{opacity:0;transform:translateY(0) scale(.5)}20%{opacity:1}100%{opacity:0;transform:translateY(-35px) scale(1.1)}}
+@media(prefers-reduced-motion:reduce){.sprite *{animation:none!important}.spark{display:none}}
+
+.sparkGroup{position:absolute;inset:0;pointer-events:none;z-index:4}
+.third{left:48%;top:20%;animation-delay:.1s}
